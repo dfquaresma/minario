@@ -109,8 +109,6 @@ bool atualizaBotoes(){
 
 }
 
-
-
 int main(){
 	//Muda o jogo para porugues
 	setlocale(LC_ALL, "Portuguese");
