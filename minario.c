@@ -15,6 +15,12 @@
 #define ESC 27
 #define ENTER 13
 
+//Macros para tamanho do tabuleiro
+#define TABULEIRO_W 70
+#define TABULEIRO_H 30
+#define OFFSET_W 20
+#define OFFSET_H 0
+
 //Macros para reconhecer Estados do jogo
 #define ESTADO_IMPRIME_MENU 0
 #define ESTADO_MENU 1
@@ -30,6 +36,11 @@ void cursorSetPos(int x, int y){
 	COORD p = {x,y}; //Estrutura de coordenadas?
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),p);//muda a coordenada do cursor para a coordenada p
 }
+void cursorSetPosOffset(int x, int y){
+	COORD p = {x+OFFSET_W,y+OFFSET_H}; //Estrutura de coordenadas?
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),p);//muda a coordenada do cursor para a coordenada p
+}
+
 void imprimeIntroducao(){
 	limpaTela();
 	printf("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
@@ -60,11 +71,8 @@ bool pressCIM = false;
 bool pressBAI = false;
 bool pressESC = false;
 bool pressENTER = false;
+char tabuleiro[TABULEIRO_W][TABULEIRO_H];
 
-char pressingESQ = 0;
-char pressingDIR = 0;
-char pressingCIM = 0;
-char pressingBAI = 0;
 
 //Checagem de inputs
 bool atualizaBotoes(){
@@ -72,10 +80,8 @@ bool atualizaBotoes(){
 	pressDIR = false;
 	pressCIM = false;
 	pressBAI = false;
-	
 	pressESC = false;
 	pressENTER = false;
-	
 	int botao = 0;
 	if (kbhit() != 0){
 		botao = getch();
@@ -87,12 +93,10 @@ bool atualizaBotoes(){
 				case CIMA:		pressCIM = true;	break;
 				case BAIXO:		pressBAI = true;	break;
 			break;
-			
 			case 'a':	case 'A':	pressESQ = true;	break;
 			case 'w': 	case 'W':	pressCIM = true;	break;
 			case 's': 	case 'S':	pressBAI = true;	break;
 			case 'd':	case 'D':	pressDIR = true;	break;
-			
 			case ESC:	pressESC = true;	break;				
 			case ENTER:	pressENTER = true;	break;	
 			default:
@@ -101,7 +105,33 @@ bool atualizaBotoes(){
 		}
 		return true;
 	}	
+}
 
+void inicializaTabuleiro(){
+	limpaTela();
+	for (int i = 0; i < TABULEIRO_W; ++i){
+		for (int j = 0; i < TABULEIRO_H; ++i){
+			tabuleiro[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < TABULEIRO_W; ++i){
+		tabuleiro[i][0] = 1;
+		tabuleiro[i][TABULEIRO_H-1] = 1;
+		cursorSetPosOffset(i,0);
+			printf("#");
+		cursorSetPosOffset(i,TABULEIRO_H-1);
+			printf("#");
+		Sleep(10);
+	}
+	for (int i = 0; i < TABULEIRO_H; ++i){
+		tabuleiro[0][i] = 1;
+		tabuleiro[TABULEIRO_W-1][i] = 1;
+		cursorSetPosOffset(0,i);
+			printf("#");
+		cursorSetPosOffset(TABULEIRO_W-1,i);
+			printf("#");
+		Sleep(10);
+	}
 }
 
 int main(){
@@ -131,7 +161,11 @@ int main(){
 				if (pressENTER){limpaTela(); estado++;}
 			break;
 			case ESTADO_INICIA_JOGO:
+				inicializaTabuleiro();
 				Sleep(60);
+				estado++;
+			break;
+			case ESTADO_JOGO:
 				x+=vx;
 				y+=vy;
 				if (x < 0){x = 0;}
@@ -139,15 +173,13 @@ int main(){
 				if (x > 50){x = 50;}
 				if (y > 50){y = 50;}
 				if (x != xPrevious || y != yPrevious){
-					cursorSetPos(xPrevious,yPrevious);
+					cursorSetPosOffset(xPrevious,yPrevious);
 						printf("   ");
-					cursorSetPos(x,y);
+					cursorSetPosOffset(x,y);
 						printf("^.^");
 					xPrevious = x;
 					yPrevious = y;
 				}
-			break;
-			case ESTADO_JOGO:
 			break;
 		}	
 	}
