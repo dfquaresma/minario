@@ -87,8 +87,6 @@ int main(){
 	int userYVariation = 0;
 	int userXPosition = 4;
 	int userYPosition = 4;
-	int xPrevious = -1;
-	int yPrevious = -1;
 
 	while(1){
 		atualizaBotoes();
@@ -116,6 +114,7 @@ int main(){
 				estado++;
 			break;
 			case ESTADO_JOGO:
+				desenhaCharOffset(userXPosition, userYPosition, "   ");
 				userXPosition += userXVariation;
 				userYPosition += userYVariation;
 				if (userXPosition < 1) {
@@ -130,12 +129,7 @@ int main(){
 				if (userYPosition > TABULEIRO_H-2) {
 					userYPosition = TABULEIRO_H-2;
 				}
-				if (userXPosition != xPrevious || userYPosition != yPrevious){
-					desenhaCharOffset(xPrevious,yPrevious,"   ");
-					desenhaCharOffset(userXPosition,userYPosition,"^.^");
-					xPrevious = userXPosition;
-					yPrevious = userYPosition;
-				}
+				desenhaCharOffset(userXPosition, userYPosition, "^.^");
 			break;
 		}	
 		delay(1);
