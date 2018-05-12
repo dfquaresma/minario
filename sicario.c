@@ -1,5 +1,5 @@
 /*sudo apt-get install ncurses-dev*/
-/*gcc a.c -lncurses*/
+/*gcc <file-name>.c -lncurses -o <executable-name>*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -7,11 +7,6 @@
 #include <stdbool.h>
 
 //Macros para reconhecer inputs
-#define SETAS -32
-#define ESQUERDA 75
-#define DIREITA 77
-#define CIMA 72
-#define BAIXO 80
 #define ESC 27
 #define ENTER 10
 
@@ -51,7 +46,7 @@ void ensureUserPositionInLimits(int* xPosition, int* yPosition);
 
 int main() {
 	ncursesInit();//inicializa ncurses
-	int estado = ESTADO_IMPRIME_MENU;
+	int gameState = ESTADO_IMPRIME_MENU;
 
 	//atributos do jogador
 	int userXVariation = 0;
@@ -64,21 +59,21 @@ int main() {
 		
 		updateUserMoviment(&userXVariation, &userYVariation);
 
-		switch(estado){
+		switch(gameState){
 			case ESTADO_IMPRIME_MENU:
 				showGameIntroduction();
-				estado++;	
+				gameState++;	
 			break;
 			case ESTADO_MENU:
 				if (pressENTER) {
 					clear();
-					estado++;
+					gameState++;
 				}
 			break;
 			case ESTADO_INICIA_JOGO:
 				settingBoard();
 				delay(60);
-				estado++;
+				gameState++;
 			break;
 			case ESTADO_JOGO:
 				drawCharWithOffset(userXPosition, userYPosition, "   ");
