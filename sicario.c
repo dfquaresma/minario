@@ -6,17 +6,14 @@
 #include <curses.h>
 #include <stdbool.h>
 
-//Macros para reconhecer inputs
-#define ESC 27
-#define ENTER 10
+#define KEY_ESC 27
+#define L_KEY_ENTER 10
 
-//Macros para tamanho do tabuleiro
 #define TABULEIRO_W 70
 #define TABULEIRO_H 30
 #define OFFSET_W 20
 #define OFFSET_H 0
 
-//Macros para reconhecer Estados do jogo
 #define ESTADO_IMPRIME_MENU 0
 #define ESTADO_MENU 1
 #define ESTADO_INICIA_JOGO 2
@@ -29,8 +26,8 @@ bool pressCIM = false;
 bool pressBAI = false;
 bool pressESC = false;
 bool pressENTER = false;
-char tabuleiro[TABULEIRO_W][TABULEIRO_H];
 
+char gameBoard[TABULEIRO_W][TABULEIRO_H];
 
 void delay(int milliseconds);
 void ncursesInit();
@@ -45,10 +42,10 @@ void updateUserMoviment(int* xVariation, int* yVariation);
 void ensureUserPositionInLimits(int* xPosition, int* yPosition);
 
 int main() {
-	ncursesInit();//inicializa ncurses
+	ncursesInit();
 	int gameState = ESTADO_IMPRIME_MENU;
 
-	//atributos do jogador
+	//user attributes
 	int userXVariation = 0;
 	int userYVariation = 0;
 	int userXPosition = 4;
@@ -94,16 +91,16 @@ int main() {
 void updateNextUserAction() {
 	pressESQ = pressDIR = pressCIM = pressBAI = pressESC = pressENTER = false;
 
-	int botao = 0;
+	int key = 0;
 	if (keyboardHit() != 0) {
-		botao = getch();
-		switch(botao){
+		key = getch();
+		switch(key) {
 			case KEY_LEFT:	case 'a':	case 'A':	pressESQ = true;	break;
 			case KEY_UP:	case 'w': 	case 'W':	pressCIM = true;	break;
 			case KEY_DOWN:	case 's': 	case 'S':	pressBAI = true;	break;
 			case KEY_RIGHT:	case 'd':	case 'D':	pressDIR = true;	break;
-			case ESC:								pressESC = true;	break;				
-			case ENTER:								pressENTER = true;	break;
+			case KEY_ESC:							pressESC = true;	break;				
+			case L_KEY_ENTER:						pressENTER = true;	break;
 		}
 	}
 }
@@ -158,21 +155,19 @@ void settingBoard() {
 	clear();
 	for (int i = 0; i < TABULEIRO_W; ++i){
 		for (int j = 0; j < TABULEIRO_H; ++j){
-			tabuleiro[i][j] = 0;
+			gameBoard[i][j] = 0;
 		}
 	}
 	for (int i = 0; i < TABULEIRO_W; ++i){
-		tabuleiro[i][0] = '#';
-		tabuleiro[i][TABULEIRO_H-1] = '#';
-		drawCharWithOffset(i,0,"#");
-		drawCharWithOffset(i,TABULEIRO_H-1,"#");
+		gameBoard[i][0] = gameBoard[i][TABULEIRO_H - 1] = '#';
+		drawCharWithOffset(i, 0, "#");
+		drawCharWithOffset(i, TABULEIRO_H - 1, "#");
 		delay(10);
 	}
 	for (int i = 0; i < TABULEIRO_H; ++i){
-		tabuleiro[0][i] = '#';
-		tabuleiro[TABULEIRO_W-1][i] = '#';
-		drawCharWithOffset(0,i,"#");
-		drawCharWithOffset(TABULEIRO_W-1,i,"#");
+		gameBoard[0][i] = gameBoard[TABULEIRO_W - 1][i] = '#';
+		drawCharWithOffset(0, i, "#");
+		drawCharWithOffset(TABULEIRO_W - 1, i, "#");
 		delay(10);
 	}
 }
