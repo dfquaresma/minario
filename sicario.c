@@ -35,7 +35,7 @@ void ncursesEnd();
 
 void showGameIntroduction();
 void drawCharWithOffset(int x, int y, char *c);
-void settingBoard();
+void settingGameBoard();
 
 int keyboardHit();
 void updateNextUserAction();
@@ -69,7 +69,7 @@ int main() {
 			break;
 			
 			case START_GAME_STATE:
-				settingBoard();
+				settingGameBoard();
 				delay(60);
 				gameState = PLAY_GAME_STATE;
 			break;
@@ -156,7 +156,7 @@ void drawCharWithOffset(int x, int y, char *c) {
 	mvprintw(y + OFFSET_HEIGHT,x + OFFSET_WIDTH, c);
 }
 
-void settingBoard() {
+void settingGameBoard() {
 	clear();
 	for (int i = 0; i < BOARD_WIDTH; ++i){
 		for (int j = 0; j < BOARD_HEIGHT; ++j){
