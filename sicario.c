@@ -1,14 +1,10 @@
+/*sudo apt-get install ncurses-dev*/
+/*gcc a.c -lncurses*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <curses.h>
 #include <stdbool.h>
-
-
-/*sudo apt-get install ncurses-dev*/
-/*gcc a.c -lncurses*/
-
-
 
 //Macros para reconhecer inputs
 #define SETAS -32
@@ -41,46 +37,20 @@ bool pressENTER = false;
 char tabuleiro[TABULEIRO_W][TABULEIRO_H];
 
 
-void desenhaCharOffset(int x, int y,char *c){
-	mvprintw(y+OFFSET_H,x+OFFSET_W,c);
-}
+void delay(int milliseconds);
+void ncursesInit();
 
-void desenhaChar(int x, int y,char *c){
-	mvprintw(y,x,c);
-}
+void showGameIntroduction();
+void drawCharWithOffset(int x, int y, char *c);
+void settingBoard();
 
-void delay(int ms){
-	usleep(ms*1000);
-	refresh();
-}
-
-void init(){
-	initscr();//inicializa o ncurses
-	curs_set(0);//Não mostra o cursor;
-	cbreak();//le os caracteres
-	noecho();
-	keypad(stdscr,true);//lê setas também
-	timeout(10);
-}
-
-int keyboardHit(){
-    int ch = getch();
-    if (ch != ERR) {
-        ungetch(ch);
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-void imprimeIntroducao();
-void inicializaTabuleiro();
-void atualizaBotoes();
+int keyboardHit();
+void updateNextUserAction();
 void updateUserMoviment(int* xVariation, int* yVariation);
 void ensureUserPositionInLimits(int* xPosition, int* yPosition);
 
-int main(){
-	init();//inicializa ncurses
+int main() {
+	ncursesInit();//inicializa ncurses
 	int estado = ESTADO_IMPRIME_MENU;
 
 	//atributos do jogador
@@ -90,13 +60,13 @@ int main(){
 	int userYPosition = 4;
 
 	while(!pressESC){
-		atualizaBotoes();
+		updateNextUserAction();
 		
 		updateUserMoviment(&userXVariation, &userYVariation);
 
 		switch(estado){
 			case ESTADO_IMPRIME_MENU:
-				imprimeIntroducao();
+				showGameIntroduction();
 				estado++;	
 			break;
 			case ESTADO_MENU:
@@ -106,16 +76,16 @@ int main(){
 				}
 			break;
 			case ESTADO_INICIA_JOGO:
-				inicializaTabuleiro();
+				settingBoard();
 				delay(60);
 				estado++;
 			break;
 			case ESTADO_JOGO:
-				desenhaCharOffset(userXPosition, userYPosition, "   ");
+				drawCharWithOffset(userXPosition, userYPosition, "   ");
 				userXPosition += userXVariation;
 				userYPosition += userYVariation;
 				ensureUserPositionInLimits(&userXPosition, &userYPosition);
-				desenhaCharOffset(userXPosition, userYPosition, "^.^");
+				drawCharWithOffset(userXPosition, userYPosition, "^.^");
 			break;
 		}	
 		delay(1);
@@ -126,30 +96,7 @@ int main(){
 	return 0;
 }
 
-void inicializaTabuleiro(){
-	clear();
-	for (int i = 0; i < TABULEIRO_W; ++i){
-		for (int j = 0; j < TABULEIRO_H; ++j){
-			tabuleiro[i][j] = 0;
-		}
-	}
-	for (int i = 0; i < TABULEIRO_W; ++i){
-		tabuleiro[i][0] = '#';
-		tabuleiro[i][TABULEIRO_H-1] = '#';
-		desenhaCharOffset(i,0,"#");
-		desenhaCharOffset(i,TABULEIRO_H-1,"#");
-		delay(10);
-	}
-	for (int i = 0; i < TABULEIRO_H; ++i){
-		tabuleiro[0][i] = '#';
-		tabuleiro[TABULEIRO_W-1][i] = '#';
-		desenhaCharOffset(0,i,"#");
-		desenhaCharOffset(TABULEIRO_W-1,i,"#");
-		delay(10);
-	}
-}
-
-void atualizaBotoes() {
+void updateNextUserAction() {
 	pressESQ = pressDIR = pressCIM = pressBAI = pressESC = pressENTER = false;
 
 	int botao = 0;
@@ -198,10 +145,47 @@ void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
 		*userYPosition = yUpperBound;
 }
 
-void imprimeIntroducao() {
+int keyboardHit() {
+    int ch = getch();
+    if (ch != ERR) {
+        ungetch(ch);
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+void drawCharWithOffset(int x, int y, char *c) {
+	mvprintw(y + OFFSET_H,x + OFFSET_W, c);
+}
+
+void settingBoard() {
+	clear();
+	for (int i = 0; i < TABULEIRO_W; ++i){
+		for (int j = 0; j < TABULEIRO_H; ++j){
+			tabuleiro[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < TABULEIRO_W; ++i){
+		tabuleiro[i][0] = '#';
+		tabuleiro[i][TABULEIRO_H-1] = '#';
+		drawCharWithOffset(i,0,"#");
+		drawCharWithOffset(i,TABULEIRO_H-1,"#");
+		delay(10);
+	}
+	for (int i = 0; i < TABULEIRO_H; ++i){
+		tabuleiro[0][i] = '#';
+		tabuleiro[TABULEIRO_W-1][i] = '#';
+		drawCharWithOffset(0,i,"#");
+		drawCharWithOffset(TABULEIRO_W-1,i,"#");
+		delay(10);
+	}
+}
+
+void showGameIntroduction() {
 	clear();
 	printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
-	printw("\n\t\t\tAmanda Luna, David, Paulo Feitosa, Renato Henrique, Thomaz Diniz");
+	printw("\n\t\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henrique, Thomaz Diniz");
 	printw("\n\n");
 	delay(60);
 	printw("\n\n\n");
@@ -216,4 +200,18 @@ void imprimeIntroducao() {
 	delay(70);
 	printw("\n\n\n\n\n\tObjetivo: Sobreviva o máximo de tempo sem bater nos limites do tabuleiro ou em outros jogadores.");
 	delay(100);
+}
+
+void delay(int milliseconds) {
+	usleep(milliseconds*1000);
+	refresh();
+}
+
+void ncursesInit() {
+	initscr();
+	curs_set(0);
+	cbreak();
+	noecho();
+	keypad(stdscr,true);
+	timeout(10);
 }
