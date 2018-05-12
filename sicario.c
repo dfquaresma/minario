@@ -9,17 +9,16 @@
 #define KEY_ESC 27
 #define L_KEY_ENTER 10
 
-#define TABULEIRO_W 70
-#define TABULEIRO_H 30
-#define OFFSET_W 20
-#define OFFSET_H 0
+#define BOARD_WIDTH 70
+#define BOARD_HEIGHT 30
+#define OFFSET_WIDTH 20
+#define OFFSET_HEIGHT 0
 
-#define ESTADO_IMPRIME_MENU 0
-#define ESTADO_MENU 1
-#define ESTADO_INICIA_JOGO 2
-#define ESTADO_JOGO 3
+#define GAME_INTRODUCTION_STATE 0
+#define MENU_STATE 1
+#define START_GAME_STATE 2
+#define PLAY_GAME_STATE 3
 
-//Variáveis globais
 bool pressESQ = false;
 bool pressDIR = false;
 bool pressCIM = false;
@@ -27,10 +26,11 @@ bool pressBAI = false;
 bool pressESC = false;
 bool pressENTER = false;
 
-char gameBoard[TABULEIRO_W][TABULEIRO_H];
+char gameBoard[BOARD_WIDTH][BOARD_HEIGHT];
 
 void delay(int milliseconds);
 void ncursesInit();
+void ncursesEnd();
 
 void showGameIntroduction();
 void drawCharWithOffset(int x, int y, char *c);
@@ -43,7 +43,7 @@ void ensureUserPositionInLimits(int* xPosition, int* yPosition);
 
 int main() {
 	ncursesInit();
-	int gameState = ESTADO_IMPRIME_MENU;
+	int gameState = GAME_INTRODUCTION_STATE;
 
 	//user attributes
 	int userXVariation = 0;
@@ -56,23 +56,26 @@ int main() {
 		
 		updateUserMoviment(&userXVariation, &userYVariation);
 
-		switch(gameState){
-			case ESTADO_IMPRIME_MENU:
+		switch(gameState) {
+			case GAME_INTRODUCTION_STATE:
 				showGameIntroduction();
-				gameState++;	
+				gameState = MENU_STATE;
 			break;
-			case ESTADO_MENU:
+
+			case MENU_STATE:
 				if (pressENTER) {
 					clear();
-					gameState++;
+					gameState = START_GAME_STATE;
 				}
 			break;
-			case ESTADO_INICIA_JOGO:
+			
+			case START_GAME_STATE:
 				settingBoard();
 				delay(60);
-				gameState++;
+				gameState = PLAY_GAME_STATE;
 			break;
-			case ESTADO_JOGO:
+			
+			case PLAY_GAME_STATE:
 				drawCharWithOffset(userXPosition, userYPosition, "   ");
 				userXPosition += userXVariation;
 				userYPosition += userYVariation;
@@ -83,7 +86,8 @@ int main() {
 		delay(1);
 	}
 
-	endwin();//finaliza ncurses
+	ncursesEnd();
+
 	printf("fim de jogo\n");
 	return 0;
 }
@@ -125,7 +129,7 @@ void updateUserMoviment(int* xVariation, int* yVariation) {
 }
 
 void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
-	int lowerBound = 1, xUpperBound = TABULEIRO_W - 4, yUpperBound = TABULEIRO_H - 2;
+	int lowerBound = 1, xUpperBound = BOARD_WIDTH - 4, yUpperBound = BOARD_HEIGHT - 2;
 	if (*userXPosition < lowerBound) 
 		*userXPosition = lowerBound;
 	if (*userXPosition > xUpperBound) 
@@ -148,26 +152,26 @@ int keyboardHit() {
 }
 
 void drawCharWithOffset(int x, int y, char *c) {
-	mvprintw(y + OFFSET_H,x + OFFSET_W, c);
+	mvprintw(y + OFFSET_HEIGHT,x + OFFSET_WIDTH, c);
 }
 
 void settingBoard() {
 	clear();
-	for (int i = 0; i < TABULEIRO_W; ++i){
-		for (int j = 0; j < TABULEIRO_H; ++j){
+	for (int i = 0; i < BOARD_WIDTH; ++i){
+		for (int j = 0; j < BOARD_HEIGHT; ++j){
 			gameBoard[i][j] = 0;
 		}
 	}
-	for (int i = 0; i < TABULEIRO_W; ++i){
-		gameBoard[i][0] = gameBoard[i][TABULEIRO_H - 1] = '#';
+	for (int i = 0; i < BOARD_WIDTH; ++i){
+		gameBoard[i][0] = gameBoard[i][BOARD_HEIGHT - 1] = '#';
 		drawCharWithOffset(i, 0, "#");
-		drawCharWithOffset(i, TABULEIRO_H - 1, "#");
+		drawCharWithOffset(i, BOARD_HEIGHT - 1, "#");
 		delay(10);
 	}
-	for (int i = 0; i < TABULEIRO_H; ++i){
-		gameBoard[0][i] = gameBoard[TABULEIRO_W - 1][i] = '#';
+	for (int i = 0; i < BOARD_HEIGHT; ++i){
+		gameBoard[0][i] = gameBoard[BOARD_WIDTH - 1][i] = '#';
 		drawCharWithOffset(0, i, "#");
-		drawCharWithOffset(TABULEIRO_W - 1, i, "#");
+		drawCharWithOffset(BOARD_WIDTH - 1, i, "#");
 		delay(10);
 	}
 }
@@ -204,4 +208,8 @@ void ncursesInit() {
 	noecho();
 	keypad(stdscr,true);
 	timeout(10);
+}
+
+void ncursesEnd() {
+	endwin();
 }
