@@ -54,8 +54,6 @@ int main() {
 
 	while(!userEscAction){
 		updateNextUserAction();
-		
-		updateUserMovement(&userXVariation, &userYVariation);
 
 		switch(gameState) {
 			case GAME_INTRODUCTION_STATE:
@@ -77,6 +75,7 @@ int main() {
 			break;
 			
 			case PLAY_GAME_STATE:
+				updateUserMovement(&userXVariation, &userYVariation);
 				drawCharWithOffset(userXPosition, userYPosition, "   ");
 				userXPosition += userXVariation;
 				userYPosition += userYVariation;
@@ -102,7 +101,7 @@ void updateNextUserAction() {
 		key = getch();
 		switch(key) {
 			case KEY_LEFT:	case 'a':	case 'A':	leftMovement = true;	break;
-			case KEY_UP:	case 'w': 	case 'W':	upMovement = true;	break;
+			case KEY_UP:	case 'w': 	case 'W':	upMovement = true;		break;
 			case KEY_DOWN:	case 's': 	case 'S':	downMovement = true;	break;
 			case KEY_RIGHT:	case 'd':	case 'D':	rightMovement = true;	break;
 			case KEY_ESC:							userEscAction = true;	break;				
