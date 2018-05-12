@@ -77,6 +77,7 @@ void imprimeIntroducao();
 void inicializaTabuleiro();
 void atualizaBotoes();
 void updateUserMoviment(int* xVariation, int* yVariation);
+void ensureUserPositionInLimits(int* xPosition, int* yPosition);
 
 int main(){
 	init();//inicializa ncurses
@@ -88,12 +89,8 @@ int main(){
 	int userXPosition = 4;
 	int userYPosition = 4;
 
-	while(1){
+	while(!pressESC){
 		atualizaBotoes();
-		
-		if(pressESC) {
-			break;
-		}
 		
 		updateUserMoviment(&userXVariation, &userYVariation);
 
@@ -117,18 +114,7 @@ int main(){
 				desenhaCharOffset(userXPosition, userYPosition, "   ");
 				userXPosition += userXVariation;
 				userYPosition += userYVariation;
-				if (userXPosition < 1) {
-					userXPosition = 1;
-				}
-				if (userYPosition < 1) {
-					userYPosition = 1;
-				}
-				if (userXPosition > TABULEIRO_W-4) {
-					userXPosition = TABULEIRO_W-4;
-				}
-				if (userYPosition > TABULEIRO_H-2) {
-					userYPosition = TABULEIRO_H-2;
-				}
+				ensureUserPositionInLimits(&userXPosition, &userYPosition);
 				desenhaCharOffset(userXPosition, userYPosition, "^.^");
 			break;
 		}	
@@ -197,6 +183,19 @@ void updateUserMoviment(int* xVariation, int* yVariation) {
 		*xVariation = 0;
 		*yVariation = 0;
 	}
+}
+
+void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
+	int lowerBound = 1, xUpperBound = TABULEIRO_W - 4, yUpperBound = TABULEIRO_H - 2;
+	if (*userXPosition < lowerBound) 
+		*userXPosition = lowerBound;
+	if (*userXPosition > xUpperBound) 
+		*userXPosition = xUpperBound;
+	
+	if (*userYPosition < lowerBound)
+		*userYPosition = lowerBound;
+	if (*userYPosition > yUpperBound)
+		*userYPosition = yUpperBound;
 }
 
 void imprimeIntroducao() {
