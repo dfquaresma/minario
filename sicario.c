@@ -49,7 +49,7 @@ void desenhaChar(int x, int y,char *c){
 	mvprintw(y,x,c);
 }
 
-void espera(int ms){
+void delay(int ms){
 	usleep(ms*1000);
 	refresh();
 }
@@ -63,7 +63,7 @@ void init(){
 	timeout(10);
 }
 
-int kbhit(){
+int keyboardHit(){
     int ch = getch();
     if (ch != ERR) {
         ungetch(ch);
@@ -72,33 +72,10 @@ int kbhit(){
         return 0;
     }
 }
-void inicializaTabuleiro(){
-	clear();
-	for (int i = 0; i < TABULEIRO_W; ++i){
-		for (int j = 0; i < TABULEIRO_H; ++i){
-			tabuleiro[i][j] = 0;
-		}
-	}
-	for (int i = 0; i < TABULEIRO_W; ++i){
-		tabuleiro[i][0] = '#';
-		tabuleiro[i][TABULEIRO_H-1] = '#';
-		desenhaCharOffset(i,0,"#");
-		desenhaCharOffset(i,TABULEIRO_H-1,"#");
-		espera(10);
-	}
-	for (int i = 0; i < TABULEIRO_H; ++i){
-		tabuleiro[0][i] = '#';
-		tabuleiro[TABULEIRO_W-1][i] = '#';
-		desenhaCharOffset(0,i,"#");
-		desenhaCharOffset(TABULEIRO_W-1,i,"#");
-		espera(10);
-	}
-}
 
 void imprimeIntroducao();
-
+void inicializaTabuleiro();
 void atualizaBotoes();
-
 void updateUserMoviment(int* xVariation, int* yVariation);
 
 int main(){
@@ -135,7 +112,7 @@ int main(){
 			break;
 			case ESTADO_INICIA_JOGO:
 				inicializaTabuleiro();
-				espera(60);
+				delay(60);
 				estado++;
 			break;
 			case ESTADO_JOGO:
@@ -161,7 +138,7 @@ int main(){
 				}
 			break;
 		}	
-		espera(1);
+		delay(1);
 	}
 
 	endwin();//finaliza ncurses
@@ -169,11 +146,34 @@ int main(){
 	return 0;
 }
 
+void inicializaTabuleiro(){
+	clear();
+	for (int i = 0; i < TABULEIRO_W; ++i){
+		for (int j = 0; i < TABULEIRO_H; ++i){
+			tabuleiro[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < TABULEIRO_W; ++i){
+		tabuleiro[i][0] = '#';
+		tabuleiro[i][TABULEIRO_H-1] = '#';
+		desenhaCharOffset(i,0,"#");
+		desenhaCharOffset(i,TABULEIRO_H-1,"#");
+		delay(10);
+	}
+	for (int i = 0; i < TABULEIRO_H; ++i){
+		tabuleiro[0][i] = '#';
+		tabuleiro[TABULEIRO_W-1][i] = '#';
+		desenhaCharOffset(0,i,"#");
+		desenhaCharOffset(TABULEIRO_W-1,i,"#");
+		delay(10);
+	}
+}
+
 void atualizaBotoes() {
 	pressESQ = pressDIR = pressCIM = pressBAI = pressESC = pressENTER = false;
 
 	int botao = 0;
-	if (kbhit() != 0) {
+	if (keyboardHit() != 0) {
 		botao = getch();
 		switch(botao){
 			case KEY_LEFT:	case 'a':	case 'A':	pressESQ = true;	break;
@@ -210,17 +210,17 @@ void imprimeIntroducao() {
 	printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
 	printw("\n\t\t\tAmanda Luna, David, Paulo Feitosa, Renato Henrique, Thomaz Diniz");
 	printw("\n\n");
-	espera(60);
+	delay(60);
 	printw("\n\n\n");
-	espera(100);
+	delay(100);
 	printw("\t\t\t\tPressione [Enter] para começar o jogo");
-	espera(60);
+	delay(60);
 	printw("\n\n\n\n\t\tControles:");
-	espera(100);
+	delay(100);
 	printw("\tUtilize as [Setas] do teclado para se movimentar");
-	espera(10);
+	delay(10);
 	printw("\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
-	espera(70);
+	delay(70);
 	printw("\n\n\n\n\n\tObjetivo: Sobreviva o máximo de tempo sem bater nos limites do tabuleiro ou em outros jogadores.");
-	espera(100);
+	delay(100);
 }
