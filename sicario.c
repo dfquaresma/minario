@@ -19,12 +19,13 @@
 #define START_GAME_STATE 2
 #define PLAY_GAME_STATE 3
 
-bool pressESQ = false;
-bool pressDIR = false;
-bool pressCIM = false;
-bool pressBAI = false;
-bool pressESC = false;
-bool pressENTER = false;
+bool leftMovement = false;
+bool rightMovement = false;
+bool upMovement = false;
+bool downMovement = false;
+
+bool userEscAction = false;
+bool userEnterAction = false;
 
 char gameBoard[BOARD_WIDTH][BOARD_HEIGHT];
 
@@ -38,7 +39,7 @@ void settingBoard();
 
 int keyboardHit();
 void updateNextUserAction();
-void updateUserMoviment(int* xVariation, int* yVariation);
+void updateUserMovement(int* xVariation, int* yVariation);
 void ensureUserPositionInLimits(int* xPosition, int* yPosition);
 
 int main() {
@@ -51,10 +52,10 @@ int main() {
 	int userXPosition = 4;
 	int userYPosition = 4;
 
-	while(!pressESC){
+	while(!userEscAction){
 		updateNextUserAction();
 		
-		updateUserMoviment(&userXVariation, &userYVariation);
+		updateUserMovement(&userXVariation, &userYVariation);
 
 		switch(gameState) {
 			case GAME_INTRODUCTION_STATE:
@@ -63,7 +64,7 @@ int main() {
 			break;
 
 			case MENU_STATE:
-				if (pressENTER) {
+				if (userEnterAction) {
 					clear();
 					gameState = START_GAME_STATE;
 				}
@@ -93,33 +94,34 @@ int main() {
 }
 
 void updateNextUserAction() {
-	pressESQ = pressDIR = pressCIM = pressBAI = pressESC = pressENTER = false;
+	leftMovement = rightMovement = upMovement = downMovement = false;
+	userEscAction = userEnterAction = false;
 
 	int key = 0;
 	if (keyboardHit() != 0) {
 		key = getch();
 		switch(key) {
-			case KEY_LEFT:	case 'a':	case 'A':	pressESQ = true;	break;
-			case KEY_UP:	case 'w': 	case 'W':	pressCIM = true;	break;
-			case KEY_DOWN:	case 's': 	case 'S':	pressBAI = true;	break;
-			case KEY_RIGHT:	case 'd':	case 'D':	pressDIR = true;	break;
-			case KEY_ESC:							pressESC = true;	break;				
-			case L_KEY_ENTER:						pressENTER = true;	break;
+			case KEY_LEFT:	case 'a':	case 'A':	leftMovement = true;	break;
+			case KEY_UP:	case 'w': 	case 'W':	upMovement = true;	break;
+			case KEY_DOWN:	case 's': 	case 'S':	downMovement = true;	break;
+			case KEY_RIGHT:	case 'd':	case 'D':	rightMovement = true;	break;
+			case KEY_ESC:							userEscAction = true;	break;				
+			case L_KEY_ENTER:						userEnterAction = true;	break;
 		}
 	}
 }
 
-void updateUserMoviment(int* xVariation, int* yVariation) {
-	if (pressESQ) {
+void updateUserMovement(int* xVariation, int* yVariation) {
+	if (leftMovement) {
 		*xVariation = -1;
 		*yVariation = 0;
-	} else if (pressDIR) {	
+	} else if (rightMovement) {	
 		*xVariation = 1;
 		*yVariation = 0;
-	} else if (pressCIM) {
+	} else if (upMovement) {
 		*xVariation = 0;
 		*yVariation = -1;
-	} else if (pressBAI) {
+	} else if (downMovement) {
 		*xVariation = 0;
 		*yVariation = 1;
 	} else {
