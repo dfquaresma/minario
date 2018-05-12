@@ -85,8 +85,8 @@ int main(){
 	//atributos do jogador
 	int userXVariation = 0;
 	int userYVariation = 0;
-	int x = 4;
-	int y = 4;
+	int userXPosition = 4;
+	int userYPosition = 4;
 	int xPrevious = -1;
 	int yPrevious = -1;
 
@@ -116,25 +116,25 @@ int main(){
 				estado++;
 			break;
 			case ESTADO_JOGO:
-				x += userXVariation;
-				y += userYVariation;
-				if (x < 1) {
-					x = 1;
+				userXPosition += userXVariation;
+				userYPosition += userYVariation;
+				if (userXPosition < 1) {
+					userXPosition = 1;
 				}
-				if (y < 1) {
-					y = 1;
+				if (userYPosition < 1) {
+					userYPosition = 1;
 				}
-				if (x > TABULEIRO_W-4) {
-					x = TABULEIRO_W-4;
+				if (userXPosition > TABULEIRO_W-4) {
+					userXPosition = TABULEIRO_W-4;
 				}
-				if (y > TABULEIRO_H-2) {
-					y = TABULEIRO_H-2;
+				if (userYPosition > TABULEIRO_H-2) {
+					userYPosition = TABULEIRO_H-2;
 				}
-				if (x != xPrevious || y != yPrevious){
+				if (userXPosition != xPrevious || userYPosition != yPrevious){
 					desenhaCharOffset(xPrevious,yPrevious,"   ");
-					desenhaCharOffset(x,y,"^.^");
-					xPrevious = x;
-					yPrevious = y;
+					desenhaCharOffset(userXPosition,userYPosition,"^.^");
+					xPrevious = userXPosition;
+					yPrevious = userYPosition;
 				}
 			break;
 		}	
