@@ -149,7 +149,7 @@ int main(){
 void inicializaTabuleiro(){
 	clear();
 	for (int i = 0; i < TABULEIRO_W; ++i){
-		for (int j = 0; i < TABULEIRO_H; ++i){
+		for (int j = 0; j < TABULEIRO_H; ++j){
 			tabuleiro[i][j] = 0;
 		}
 	}
