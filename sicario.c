@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <curses.h>
 #include <stdbool.h>
+#include <time.h>
+#include "Player.h"
 
 #define KEY_ESC 27
 #define L_KEY_ENTER 10
@@ -13,11 +15,16 @@
 #define BOARD_HEIGHT 30
 #define OFFSET_WIDTH 20
 #define OFFSET_HEIGHT 0
+#define TIME_TO_DECREASE_GAME_BOARD 5
+#define PLAYER_AMOUNT 10
 
 #define GAME_INTRODUCTION_STATE 0
 #define MENU_STATE 1
 #define START_GAME_STATE 2
 #define PLAY_GAME_STATE 3
+#define WIN_STATE 4
+#define LOSE_STATE 5
+
 
 bool leftMovement = false;
 bool rightMovement = false;
@@ -28,6 +35,10 @@ bool userEscAction = false;
 bool userEnterAction = false;
 
 char gameBoard[BOARD_WIDTH][BOARD_HEIGHT];
+Player players[PLAYER_AMOUNT];
+int playerCount = PLAYER_AMOUNT;
+int decreaseGameBoardCount = 0;
+clock_t before;
 
 void delay(int milliseconds);
 void ncursesInit();
@@ -36,21 +47,40 @@ void ncursesEnd();
 void showGameIntroduction();
 void drawCharWithOffset(int x, int y, char *c);
 void settingGameBoard();
+void decreaseGameBoardSize();
+void decreaseGameBoardSizeAfterSomeTime();
+
+
 
 int keyboardHit();
 void updateNextUserAction();
 void updateUserMovement(int* xVariation, int* yVariation);
+void updateBotMovement(int x, int y,int* xVariation, int* yVariation);
 void ensureUserPositionInLimits(int* xPosition, int* yPosition);
+
+int irandom(int i);
+int irandom_range(int min,int max);
+bool chance(int i);
+
+void createPlayers();
+void updatePlayers();
+void playersCollisionWithBoard();
+void playersCollisionWithOtherPlayers();
+void playersCollision();
+void playersDie(Player player);
+void updatePlayers();
+void drawPlayers();
+void drawTimerUntillNextGameBoardSizeDecrease(int time);
+
+bool checkLoseCondition();
+bool checkWinCondition();
+void drawNumberOfPLayersAlive();
+void printVictoryScreen();
+void printFailureScreen();
 
 int main() {
 	ncursesInit();
 	int gameState = GAME_INTRODUCTION_STATE;
-
-	//user attributes
-	int userXVariation = 0;
-	int userYVariation = 0;
-	int userXPosition = 4;
-	int userYPosition = 4;
 
 	while(!userEscAction){
 		updateNextUserAction();
@@ -69,26 +99,45 @@ int main() {
 			break;
 			
 			case START_GAME_STATE:
+				createPlayers();
 				settingGameBoard();
 				delay(60);
 				gameState = PLAY_GAME_STATE;
 			break;
 			
 			case PLAY_GAME_STATE:
-				updateUserMovement(&userXVariation, &userYVariation);
-				drawCharWithOffset(userXPosition, userYPosition, "   ");
-				userXPosition += userXVariation;
-				userYPosition += userYVariation;
-				ensureUserPositionInLimits(&userXPosition, &userYPosition);
-				drawCharWithOffset(userXPosition, userYPosition, "^.^");
+				updatePlayers();
+				playersCollision();
+				drawNumberOfPLayersAlive();
+				drawPlayers();
+				decreaseGameBoardSizeAfterSomeTime();
+				if (checkWinCondition())
+					gameState = WIN_STATE;
+				if (checkLoseCondition())
+					gameState = LOSE_STATE;
+
+			break;
+			
+			case WIN_STATE:
+				printVictoryScreen();
+				if (userEnterAction) {
+					clear();
+					gameState = GAME_INTRODUCTION_STATE;
+				}
+			break;
+			
+			case LOSE_STATE:
+				printFailureScreen();
+				if (userEnterAction) {
+					clear();
+					gameState = GAME_INTRODUCTION_STATE;
+				}
 			break;
 		}	
 		delay(1);
 	}
 
 	ncursesEnd();
-
-	printf("fim de jogo\n");
 	return 0;
 }
 
@@ -129,6 +178,33 @@ void updateUserMovement(int* xVariation, int* yVariation) {
 	}
 }
 
+bool isColidingWithBoard(int x, int y){
+	return gameBoard[x][y]=='#';
+}
+
+void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//MELHORAR A IA AQUI
+	if (!chance(100)) {
+		*xVariation = 0;
+		*yVariation = 0;
+	} else if (chance(5)){
+		*xVariation = -1;
+		*yVariation = 0;
+	} else if (chance(5)) {
+		*xVariation = 1;
+		*yVariation = 0;
+	} else if (chance(5)){
+		*xVariation = 0;
+		*yVariation = 1;
+	} else {
+		*xVariation = 0;
+		*yVariation = -1;
+	} 
+	if (isColidingWithBoard(x+*xVariation,y+*yVariation)){
+		*xVariation=0;
+		*yVariation=0;
+	}
+}
+
 void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
 	int lowerBound = 1, xUpperBound = BOARD_WIDTH - 4, yUpperBound = BOARD_HEIGHT - 2;
 	if (*userXPosition < lowerBound) 
@@ -155,27 +231,50 @@ int keyboardHit() {
 void drawCharWithOffset(int x, int y, char *c) {
 	mvprintw(y + OFFSET_HEIGHT,x + OFFSET_WIDTH, c);
 }
+void settingGameBoard() {	
 
-void settingGameBoard() {
 	clear();
+	decreaseGameBoardCount = 0;
 	for (int i = 0; i < BOARD_WIDTH; ++i){
 		for (int j = 0; j < BOARD_HEIGHT; ++j){
 			gameBoard[i][j] = 0;
 		}
 	}
-	for (int i = 0; i < BOARD_WIDTH; ++i){
-		gameBoard[i][0] = gameBoard[i][BOARD_HEIGHT - 1] = '#';
-		drawCharWithOffset(i, 0, "#");
-		drawCharWithOffset(i, BOARD_HEIGHT - 1, "#");
-		delay(10);
-	}
-	for (int i = 0; i < BOARD_HEIGHT; ++i){
-		gameBoard[0][i] = gameBoard[BOARD_WIDTH - 1][i] = '#';
-		drawCharWithOffset(0, i, "#");
-		drawCharWithOffset(BOARD_WIDTH - 1, i, "#");
-		delay(10);
-	}
+	decreaseGameBoardSize();
 }
+
+void decreaseGameBoardSize(){
+	for (int i = 0; i < BOARD_WIDTH; i++){
+		gameBoard[i][decreaseGameBoardCount] = gameBoard[i][BOARD_HEIGHT - 1 - decreaseGameBoardCount] = '#';
+		drawCharWithOffset(i, decreaseGameBoardCount, "#");
+		drawCharWithOffset(i, BOARD_HEIGHT - decreaseGameBoardCount - 1, "#");
+		if (decreaseGameBoardCount==0)
+			delay(10);
+	}
+	for (int i = 0; i < BOARD_HEIGHT; i++){
+		gameBoard[decreaseGameBoardCount][i] = gameBoard[BOARD_WIDTH - 1 - decreaseGameBoardCount][i] = '#';
+		drawCharWithOffset(decreaseGameBoardCount, i, "#");
+		drawCharWithOffset(BOARD_WIDTH - decreaseGameBoardCount - 1, i, "#");
+		if (decreaseGameBoardCount==0)
+			delay(10);
+	}
+	decreaseGameBoardCount++;
+}
+
+void decreaseGameBoardSizeAfterSomeTime(){
+	clock_t difference = (clock() - before)*10/CLOCKS_PER_SEC;
+	if (difference > TIME_TO_DECREASE_GAME_BOARD){
+		decreaseGameBoardSize();
+		before = clock();
+	}
+	drawTimerUntillNextGameBoardSizeDecrease(TIME_TO_DECREASE_GAME_BOARD-difference);
+}
+
+void drawTimerUntillNextGameBoardSizeDecrease(int time){
+	mvprintw(1,0,"Tempo:       ");
+	mvprintw(1,0,"Tempo: %d", time);
+}
+
 
 void showGameIntroduction() {
 	clear();
@@ -197,6 +296,16 @@ void showGameIntroduction() {
 	delay(100);
 }
 
+
+void printVictoryScreen(){
+	clear();
+	mvprintw(OFFSET_HEIGHT+BOARD_HEIGHT/2,OFFSET_WIDTH,"Parabéns, você venceu! :D");
+}
+void printFailureScreen(){
+	clear();
+	mvprintw(OFFSET_HEIGHT+BOARD_HEIGHT/2,OFFSET_WIDTH,"Você perdeu :(");
+}
+
 void delay(int milliseconds) {
 	usleep(milliseconds*1000);
 	refresh();
@@ -214,3 +323,101 @@ void ncursesInit() {
 void ncursesEnd() {
 	endwin();
 }
+
+void createPlayers() {
+	playerCount = PLAYER_AMOUNT;
+	for (int i = 0; i < PLAYER_AMOUNT; i++){
+		initPlayer(player);
+		players[i] = player;
+		players[i].x = 1+irandom(BOARD_WIDTH-3);
+		players[i].y = 1+irandom(BOARD_HEIGHT-3);
+		players[i].xPrevious = players[i].x;
+		players[i].yPrevious = players[i].y;
+	}
+}
+
+void updatePlayers(){
+	for (int i = 0; i < PLAYER_AMOUNT; i++){
+		if (players[i].isAlive){
+			if (i==0)
+				updateUserMovement(&players[i].horizontalSpeed, &players[i].verticalSpeed);	
+			else
+				updateBotMovement(players[i].x,players[i].y,&players[i].horizontalSpeed, &players[i].verticalSpeed);	
+				
+			players[i].x += players[i].horizontalSpeed;
+			players[i].y += players[i].verticalSpeed;
+		}
+	}
+}
+
+void playersCollision(){
+	playersCollisionWithBoard();
+	playersCollisionWithOtherPlayers();
+}
+void playerDie(Player *player){
+	if (player->isAlive){
+		playerCount--;
+		player->isAlive = false;
+	}
+}
+
+void playersCollisionWithBoard(){
+	for (int i = 0; i < PLAYER_AMOUNT; i++){
+		if (players[i].isAlive){
+			if (isColidingWithBoard(players[i].x,players[i].y)){
+				playerDie(&players[i]);
+			}
+		}
+	}
+}
+
+void playersCollisionWithOtherPlayers(){
+	for (int i = 0; i < PLAYER_AMOUNT; i++){
+		if (players[i].isAlive){
+			for (int j = 0; j < PLAYER_AMOUNT; j++){
+				if (i != j){
+					if (players[i].x == players[j].x && players[i].y == players[j].y){
+						playerDie(&players[i]);
+					}
+				}
+			}
+		}
+	}
+}
+
+void drawPlayers(){
+	for (int i = 0; i < PLAYER_AMOUNT; i++){
+			drawCharWithOffset(players[i].xPrevious, players[i].yPrevious, " ");
+
+			players[i].xPrevious = players[i].x;
+			players[i].yPrevious = players[i].y;
+
+		if (players[i].isAlive)
+			if (i == 0)
+				drawCharWithOffset(players[i].x, players[i].y, "O");
+			else
+				drawCharWithOffset(players[i].x, players[i].y, "X");	
+		else 
+			drawCharWithOffset(players[i].x, players[i].y, "=");	
+	}
+}
+
+bool checkLoseCondition(){
+	return !players[0].isAlive;
+}
+bool checkWinCondition(){
+	for (int i = 1; i < PLAYER_AMOUNT; i++){
+		if (players[i].isAlive)
+			return false; 
+	}
+	return !checkLoseCondition();
+}
+
+void drawNumberOfPLayersAlive(){
+	mvprintw(0,0,"Alive:       ");
+	mvprintw(0,0,"Alive: %d", playerCount);
+}
+int irandom(int i){return rand() % i+1;}
+int irandom_range(int min,int max){return  min + irandom(max-min);}
+//Retorna um booleano para se a chance acontecer. Quanto maior o número, menor a chance. Imagine como um dado de n lados sendo lançado e você tem a chance de uma das faces cair a que você quer
+bool chance(int i){return irandom(i) == i;}
