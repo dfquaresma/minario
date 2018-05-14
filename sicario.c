@@ -15,8 +15,8 @@
 #define BOARD_HEIGHT 30
 #define OFFSET_WIDTH 20
 #define OFFSET_HEIGHT 0
-#define TIME_TO_DECREASE_GAME_BOARD 5
-#define PLAYER_AMOUNT 10
+#define GAME_BOARD_DECREASE_TIME 5
+#define PLAYERS_NUMBER 10
 
 #define GAME_INTRODUCTION_STATE 0
 #define MENU_STATE 1
@@ -35,10 +35,10 @@ bool userEscAction = false;
 bool userEnterAction = false;
 
 char gameBoard[BOARD_WIDTH][BOARD_HEIGHT];
-Player players[PLAYER_AMOUNT];
-int playerCount = PLAYER_AMOUNT;
+Player players[PLAYERS_NUMBER];
+int playerCount = PLAYERS_NUMBER;
 int decreaseGameBoardCount = 0;
-clock_t before;
+clock_t timeSinceLastGameBoardDecrease;
 
 void delay(int milliseconds);
 void ncursesInit();
@@ -48,7 +48,7 @@ void showGameIntroduction();
 void drawCharWithOffset(int x, int y, char *c);
 void settingGameBoard();
 void decreaseGameBoardSize();
-void decreaseGameBoardSizeAfterSomeTime();
+void decreaseGameBoardByInterval();
 
 
 
@@ -58,8 +58,8 @@ void updateUserMovement(int* xVariation, int* yVariation);
 void updateBotMovement(int x, int y,int* xVariation, int* yVariation);
 void ensureUserPositionInLimits(int* xPosition, int* yPosition);
 
-int irandom(int i);
-int irandom_range(int min,int max);
+int getRandomInteger(int i);
+int getRandomIntegerInRange(int min,int max);
 bool chance(int i);
 
 void createPlayers();
@@ -70,13 +70,13 @@ void playersCollision();
 void playersDie(Player player);
 void updatePlayers();
 void drawPlayers();
-void drawTimerUntillNextGameBoardSizeDecrease(int time);
+void drawTimer(int time);
 
 bool checkLoseCondition();
 bool checkWinCondition();
-void drawNumberOfPLayersAlive();
-void printVictoryScreen();
-void printFailureScreen();
+void drawAlivePlayersNumber();
+void showVictoryScreen();
+void showFailureScreen();
 
 int main() {
 	ncursesInit();
@@ -108,9 +108,9 @@ int main() {
 			case PLAY_GAME_STATE:
 				updatePlayers();
 				playersCollision();
-				drawNumberOfPLayersAlive();
+				drawAlivePlayersNumber();
 				drawPlayers();
-				decreaseGameBoardSizeAfterSomeTime();
+				decreaseGameBoardByInterval();
 				if (checkWinCondition())
 					gameState = WIN_STATE;
 				if (checkLoseCondition())
@@ -119,7 +119,7 @@ int main() {
 			break;
 			
 			case WIN_STATE:
-				printVictoryScreen();
+				showVictoryScreen();
 				if (userEnterAction) {
 					clear();
 					gameState = GAME_INTRODUCTION_STATE;
@@ -127,7 +127,7 @@ int main() {
 			break;
 			
 			case LOSE_STATE:
-				printFailureScreen();
+				showFailureScreen();
 				if (userEnterAction) {
 					clear();
 					gameState = GAME_INTRODUCTION_STATE;
@@ -182,7 +182,7 @@ bool isColidingWithBoard(int x, int y){
 	return gameBoard[x][y]=='#';
 }
 
-void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//MELHORAR A IA AQUI
+void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's where I would put the AI logic
 	if (!chance(100)) {
 		*xVariation = 0;
 		*yVariation = 0;
@@ -231,8 +231,23 @@ int keyboardHit() {
 void drawCharWithOffset(int x, int y, char *c) {
 	mvprintw(y + OFFSET_HEIGHT,x + OFFSET_WIDTH, c);
 }
-void settingGameBoard() {	
 
+void drawGameBoardBorder(){
+	for (int i = 0; i < BOARD_WIDTH; i++){
+		drawCharWithOffset(i, decreaseGameBoardCount, "#");
+		drawCharWithOffset(i, BOARD_HEIGHT - decreaseGameBoardCount - 1, "#");
+		if (decreaseGameBoardCount==0)
+			delay(10);
+	}
+	for (int i = 0; i < BOARD_HEIGHT; i++){
+		drawCharWithOffset(decreaseGameBoardCount, i, "#");
+		drawCharWithOffset(BOARD_WIDTH - decreaseGameBoardCount - 1, i, "#");
+		if (decreaseGameBoardCount==0)
+			delay(10);
+	}
+}
+
+void settingGameBoard() {	
 	clear();
 	decreaseGameBoardCount = 0;
 	for (int i = 0; i < BOARD_WIDTH; ++i){
@@ -240,37 +255,31 @@ void settingGameBoard() {
 			gameBoard[i][j] = 0;
 		}
 	}
+	drawGameBoardBorder();
 	decreaseGameBoardSize();
 }
 
 void decreaseGameBoardSize(){
 	for (int i = 0; i < BOARD_WIDTH; i++){
 		gameBoard[i][decreaseGameBoardCount] = gameBoard[i][BOARD_HEIGHT - 1 - decreaseGameBoardCount] = '#';
-		drawCharWithOffset(i, decreaseGameBoardCount, "#");
-		drawCharWithOffset(i, BOARD_HEIGHT - decreaseGameBoardCount - 1, "#");
-		if (decreaseGameBoardCount==0)
-			delay(10);
 	}
 	for (int i = 0; i < BOARD_HEIGHT; i++){
 		gameBoard[decreaseGameBoardCount][i] = gameBoard[BOARD_WIDTH - 1 - decreaseGameBoardCount][i] = '#';
-		drawCharWithOffset(decreaseGameBoardCount, i, "#");
-		drawCharWithOffset(BOARD_WIDTH - decreaseGameBoardCount - 1, i, "#");
-		if (decreaseGameBoardCount==0)
-			delay(10);
 	}
 	decreaseGameBoardCount++;
 }
 
-void decreaseGameBoardSizeAfterSomeTime(){
-	clock_t difference = (clock() - before)*10/CLOCKS_PER_SEC;
-	if (difference > TIME_TO_DECREASE_GAME_BOARD){
+void decreaseGameBoardByInterval(){
+	clock_t difference = (clock() - timeSinceLastGameBoardDecrease)*10/CLOCKS_PER_SEC;
+	if (difference > GAME_BOARD_DECREASE_TIME){
+		drawGameBoardBorder();
 		decreaseGameBoardSize();
-		before = clock();
+		timeSinceLastGameBoardDecrease = clock();
 	}
-	drawTimerUntillNextGameBoardSizeDecrease(TIME_TO_DECREASE_GAME_BOARD-difference);
+	drawTimer(GAME_BOARD_DECREASE_TIME-difference);
 }
 
-void drawTimerUntillNextGameBoardSizeDecrease(int time){
+void drawTimer(int time){
 	mvprintw(1,0,"Tempo:       ");
 	mvprintw(1,0,"Tempo: %d", time);
 }
@@ -297,11 +306,11 @@ void showGameIntroduction() {
 }
 
 
-void printVictoryScreen(){
+void showVictoryScreen(){
 	clear();
 	mvprintw(OFFSET_HEIGHT+BOARD_HEIGHT/2,OFFSET_WIDTH,"Parabéns, você venceu! :D");
 }
-void printFailureScreen(){
+void showFailureScreen(){
 	clear();
 	mvprintw(OFFSET_HEIGHT+BOARD_HEIGHT/2,OFFSET_WIDTH,"Você perdeu :(");
 }
@@ -325,19 +334,19 @@ void ncursesEnd() {
 }
 
 void createPlayers() {
-	playerCount = PLAYER_AMOUNT;
-	for (int i = 0; i < PLAYER_AMOUNT; i++){
+	playerCount = PLAYERS_NUMBER;
+	for (int i = 0; i < PLAYERS_NUMBER; i++){
 		initPlayer(player);
 		players[i] = player;
-		players[i].x = 1+irandom(BOARD_WIDTH-3);
-		players[i].y = 1+irandom(BOARD_HEIGHT-3);
+		players[i].x = 1+getRandomInteger(BOARD_WIDTH-3);
+		players[i].y = 1+getRandomInteger(BOARD_HEIGHT-3);
 		players[i].xPrevious = players[i].x;
 		players[i].yPrevious = players[i].y;
 	}
 }
 
 void updatePlayers(){
-	for (int i = 0; i < PLAYER_AMOUNT; i++){
+	for (int i = 0; i < PLAYERS_NUMBER; i++){
 		if (players[i].isAlive){
 			if (i==0)
 				updateUserMovement(&players[i].horizontalSpeed, &players[i].verticalSpeed);	
@@ -362,7 +371,7 @@ void playerDie(Player *player){
 }
 
 void playersCollisionWithBoard(){
-	for (int i = 0; i < PLAYER_AMOUNT; i++){
+	for (int i = 0; i < PLAYERS_NUMBER; i++){
 		if (players[i].isAlive){
 			if (isColidingWithBoard(players[i].x,players[i].y)){
 				playerDie(&players[i]);
@@ -372,9 +381,9 @@ void playersCollisionWithBoard(){
 }
 
 void playersCollisionWithOtherPlayers(){
-	for (int i = 0; i < PLAYER_AMOUNT; i++){
+	for (int i = 0; i < PLAYERS_NUMBER; i++){
 		if (players[i].isAlive){
-			for (int j = 0; j < PLAYER_AMOUNT; j++){
+			for (int j = 0; j < PLAYERS_NUMBER; j++){
 				if (i != j){
 					if (players[i].x == players[j].x && players[i].y == players[j].y){
 						playerDie(&players[i]);
@@ -386,7 +395,7 @@ void playersCollisionWithOtherPlayers(){
 }
 
 void drawPlayers(){
-	for (int i = 0; i < PLAYER_AMOUNT; i++){
+	for (int i = 0; i < PLAYERS_NUMBER; i++){
 			drawCharWithOffset(players[i].xPrevious, players[i].yPrevious, " ");
 
 			players[i].xPrevious = players[i].x;
@@ -406,18 +415,26 @@ bool checkLoseCondition(){
 	return !players[0].isAlive;
 }
 bool checkWinCondition(){
-	for (int i = 1; i < PLAYER_AMOUNT; i++){
+	for (int i = 1; i < PLAYERS_NUMBER; i++){
 		if (players[i].isAlive)
 			return false; 
 	}
 	return !checkLoseCondition();
 }
 
-void drawNumberOfPLayersAlive(){
+void drawAlivePlayersNumber(){
 	mvprintw(0,0,"Alive:       ");
 	mvprintw(0,0,"Alive: %d", playerCount);
 }
-int irandom(int i){return rand() % i+1;}
-int irandom_range(int min,int max){return  min + irandom(max-min);}
-//Retorna um booleano para se a chance acontecer. Quanto maior o número, menor a chance. Imagine como um dado de n lados sendo lançado e você tem a chance de uma das faces cair a que você quer
-bool chance(int i){return irandom(i) == i;}
+int getRandomInteger(int i){
+	return rand() % i+1;
+}
+int getRandomIntegerInRange(int min,int max){
+	return  min + getRandomInteger(max-min);
+}
+bool chance(int i){
+	//Returns true if a given chance has happened. 
+	//A chance is determined by the first parameter, so for exemple chance(2) has a 50% of returning true
+	//chance(3) has a 33.3% of returning true and so on.
+	return getRandomInteger(i) == i;
+}
