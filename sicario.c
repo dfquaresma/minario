@@ -107,7 +107,7 @@ int main() {
 				playersCollision();
 				drawAlivePlayersNumber();
 				drawPlayers();
-				decreaseGameBoardByInterval(timeSinceLastGameBoardDecrease);
+				decreaseGameBoardByInterval(&timeSinceLastGameBoardDecrease);
 				if (checkWinCondition())
 					gameState = WIN_STATE;
 				if (checkLoseCondition())
