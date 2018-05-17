@@ -6,7 +6,7 @@
 #include <curses.h>
 #include <stdbool.h>
 #include <time.h>
-#include "Player.h"
+#include "player.h"
 
 #define KEY_ESC 27
 #define L_KEY_ENTER 10
