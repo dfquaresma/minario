@@ -25,7 +25,6 @@
 #define WIN_STATE 4
 #define LOSE_STATE 5
 
-
 bool leftMovement = false;
 bool rightMovement = false;
 bool upMovement = false;
