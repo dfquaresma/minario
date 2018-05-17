@@ -204,15 +204,18 @@ void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's
 
 void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
 	int lowerBound = 1, xUpperBound = BOARD_WIDTH - 4, yUpperBound = BOARD_HEIGHT - 2;
-	if (*userXPosition < lowerBound)
+	if (*userXPosition < lowerBound) {
 		*userXPosition = lowerBound;
-	if (*userXPosition > xUpperBound)
+	}
+	if (*userXPosition > xUpperBound) {
 		*userXPosition = xUpperBound;
-
-	if (*userYPosition < lowerBound)
+	}
+	if (*userYPosition < lowerBound) {
 		*userYPosition = lowerBound;
-	if (*userYPosition > yUpperBound)
+	}
+	if (*userYPosition > yUpperBound) {
 		*userYPosition = yUpperBound;
+	}
 }
 
 int keyboardHit() {
@@ -233,14 +236,16 @@ void drawGameBoardBorder(){
 	for (int i = 0; i < BOARD_WIDTH; i++){
 		drawCharWithOffset(i, decreaseGameBoardCount, "#");
 		drawCharWithOffset(i, BOARD_HEIGHT - decreaseGameBoardCount - 1, "#");
-		if (decreaseGameBoardCount==0)
+		if (decreaseGameBoardCount==0) {
 			delay(10);
+		}
 	}
 	for (int i = 0; i < BOARD_HEIGHT; i++){
 		drawCharWithOffset(decreaseGameBoardCount, i, "#");
 		drawCharWithOffset(BOARD_WIDTH - decreaseGameBoardCount - 1, i, "#");
-		if (decreaseGameBoardCount==0)
+		if (decreaseGameBoardCount==0) {
 			delay(10);
+		}
 	}
 }
 
@@ -343,10 +348,12 @@ void createPlayers() {
 void updatePlayers(){
 	for (int i = 0; i < PLAYERS_NUMBER; i++){
 		if (players[i].isAlive){
-			if (i==0)
+			if (i==0) {
 				updateUserMovement(&players[i].horizontalSpeed, &players[i].verticalSpeed);
-			else
+			}
+			else {
 				updateBotMovement(players[i].x,players[i].y,&players[i].horizontalSpeed, &players[i].verticalSpeed);
+			}
 
 			players[i].x += players[i].horizontalSpeed;
 			players[i].y += players[i].verticalSpeed;
@@ -396,13 +403,17 @@ void drawPlayers(){
 			players[i].xPrevious = players[i].x;
 			players[i].yPrevious = players[i].y;
 
-		if (players[i].isAlive)
-			if (i == 0)
+		if (players[i].isAlive) {
+			if (i == 0) {
 				drawCharWithOffset(players[i].x, players[i].y, "O");
-			else
+			}
+			else {
 				drawCharWithOffset(players[i].x, players[i].y, "X");
-		else
+			}
+		}
+		else {
 			drawCharWithOffset(players[i].x, players[i].y, "=");
+		}
 	}
 }
 
@@ -411,8 +422,9 @@ bool checkLoseCondition(){
 }
 bool checkWinCondition(){
 	for (int i = 1; i < PLAYERS_NUMBER; i++){
-		if (players[i].isAlive)
+		if (players[i].isAlive) {
 			return false;
+		}
 	}
 	return !checkLoseCondition();
 }
