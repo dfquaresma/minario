@@ -37,7 +37,6 @@ char gameBoard[BOARD_WIDTH][BOARD_HEIGHT];
 Player players[PLAYERS_NUMBER];
 int playerCount = PLAYERS_NUMBER;
 int decreaseGameBoardCount = 0;
-clock_t timeSinceLastGameBoardDecrease;
 
 void delay(int milliseconds);
 void ncursesInit();
@@ -47,7 +46,7 @@ void showGameIntroduction();
 void drawCharWithOffset(int x, int y, char *c);
 void settingGameBoard();
 void decreaseGameBoardSize();
-void decreaseGameBoardByInterval();
+void decreaseGameBoardByInterval(clock_t timeSinceLastGameBoardDecrease);
 
 int keyboardHit();
 void updateNextUserAction();
@@ -77,6 +76,7 @@ void showFailureScreen();
 
 int main() {
 	ncursesInit();
+	clock_t timeSinceLastGameBoardDecrease;
 	int gameState = GAME_INTRODUCTION_STATE;
 
 	while(!userEscAction){
@@ -107,7 +107,7 @@ int main() {
 				playersCollision();
 				drawAlivePlayersNumber();
 				drawPlayers();
-				decreaseGameBoardByInterval();
+				decreaseGameBoardByInterval(timeSinceLastGameBoardDecrease);
 				if (checkWinCondition())
 					gameState = WIN_STATE;
 				if (checkLoseCondition())
@@ -271,7 +271,7 @@ void decreaseGameBoardSize(){
 	decreaseGameBoardCount++;
 }
 
-void decreaseGameBoardByInterval(){
+void decreaseGameBoardByInterval(clock_t timeSinceLastGameBoardDecrease){
 	clock_t difference = (clock() - timeSinceLastGameBoardDecrease)*10/CLOCKS_PER_SEC;
 	if (difference > GAME_BOARD_DECREASE_TIME){
 		drawGameBoardBorder();
