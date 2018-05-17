@@ -50,8 +50,6 @@ void settingGameBoard();
 void decreaseGameBoardSize();
 void decreaseGameBoardByInterval();
 
-
-
 int keyboardHit();
 void updateNextUserAction();
 void updateUserMovement(int* xVariation, int* yVariation);
@@ -97,14 +95,14 @@ int main() {
 					gameState = START_GAME_STATE;
 				}
 			break;
-			
+
 			case START_GAME_STATE:
 				createPlayers();
 				settingGameBoard();
 				delay(60);
 				gameState = PLAY_GAME_STATE;
 			break;
-			
+
 			case PLAY_GAME_STATE:
 				updatePlayers();
 				playersCollision();
@@ -117,7 +115,7 @@ int main() {
 					gameState = LOSE_STATE;
 
 			break;
-			
+
 			case WIN_STATE:
 				showVictoryScreen();
 				if (userEnterAction) {
@@ -125,7 +123,7 @@ int main() {
 					gameState = GAME_INTRODUCTION_STATE;
 				}
 			break;
-			
+
 			case LOSE_STATE:
 				showFailureScreen();
 				if (userEnterAction) {
@@ -133,7 +131,7 @@ int main() {
 					gameState = GAME_INTRODUCTION_STATE;
 				}
 			break;
-		}	
+		}
 		delay(1);
 	}
 
@@ -153,7 +151,7 @@ void updateNextUserAction() {
 			case KEY_UP:	case 'w': 	case 'W':	upMovement = true;		break;
 			case KEY_DOWN:	case 's': 	case 'S':	downMovement = true;	break;
 			case KEY_RIGHT:	case 'd':	case 'D':	rightMovement = true;	break;
-			case KEY_ESC:							userEscAction = true;	break;				
+			case KEY_ESC:							userEscAction = true;	break;
 			case L_KEY_ENTER:						userEnterAction = true;	break;
 		}
 	}
@@ -163,7 +161,7 @@ void updateUserMovement(int* xVariation, int* yVariation) {
 	if (leftMovement) {
 		*xVariation = -1;
 		*yVariation = 0;
-	} else if (rightMovement) {	
+	} else if (rightMovement) {
 		*xVariation = 1;
 		*yVariation = 0;
 	} else if (upMovement) {
@@ -198,7 +196,7 @@ void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's
 	} else {
 		*xVariation = 0;
 		*yVariation = -1;
-	} 
+	}
 	if (isColidingWithBoard(x+*xVariation,y+*yVariation)){
 		*xVariation=0;
 		*yVariation=0;
@@ -207,11 +205,11 @@ void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's
 
 void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
 	int lowerBound = 1, xUpperBound = BOARD_WIDTH - 4, yUpperBound = BOARD_HEIGHT - 2;
-	if (*userXPosition < lowerBound) 
+	if (*userXPosition < lowerBound)
 		*userXPosition = lowerBound;
-	if (*userXPosition > xUpperBound) 
+	if (*userXPosition > xUpperBound)
 		*userXPosition = xUpperBound;
-	
+
 	if (*userYPosition < lowerBound)
 		*userYPosition = lowerBound;
 	if (*userYPosition > yUpperBound)
@@ -247,7 +245,7 @@ void drawGameBoardBorder(){
 	}
 }
 
-void settingGameBoard() {	
+void settingGameBoard() {
 	clear();
 	decreaseGameBoardCount = 0;
 	for (int i = 0; i < BOARD_WIDTH; ++i){
@@ -284,7 +282,6 @@ void drawTimer(int time){
 	mvprintw(1,0,"Tempo: %d", time);
 }
 
-
 void showGameIntroduction() {
 	clear();
 	printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
@@ -304,7 +301,6 @@ void showGameIntroduction() {
 	printw("\n\n\n\n\n\tObjetivo: Sobreviva o máximo de tempo sem bater nos limites do tabuleiro ou em outros jogadores.");
 	delay(100);
 }
-
 
 void showVictoryScreen(){
 	clear();
@@ -349,10 +345,10 @@ void updatePlayers(){
 	for (int i = 0; i < PLAYERS_NUMBER; i++){
 		if (players[i].isAlive){
 			if (i==0)
-				updateUserMovement(&players[i].horizontalSpeed, &players[i].verticalSpeed);	
+				updateUserMovement(&players[i].horizontalSpeed, &players[i].verticalSpeed);
 			else
-				updateBotMovement(players[i].x,players[i].y,&players[i].horizontalSpeed, &players[i].verticalSpeed);	
-				
+				updateBotMovement(players[i].x,players[i].y,&players[i].horizontalSpeed, &players[i].verticalSpeed);
+
 			players[i].x += players[i].horizontalSpeed;
 			players[i].y += players[i].verticalSpeed;
 		}
@@ -405,9 +401,9 @@ void drawPlayers(){
 			if (i == 0)
 				drawCharWithOffset(players[i].x, players[i].y, "O");
 			else
-				drawCharWithOffset(players[i].x, players[i].y, "X");	
-		else 
-			drawCharWithOffset(players[i].x, players[i].y, "=");	
+				drawCharWithOffset(players[i].x, players[i].y, "X");
+		else
+			drawCharWithOffset(players[i].x, players[i].y, "=");
 	}
 }
 
@@ -417,7 +413,7 @@ bool checkLoseCondition(){
 bool checkWinCondition(){
 	for (int i = 1; i < PLAYERS_NUMBER; i++){
 		if (players[i].isAlive)
-			return false; 
+			return false;
 	}
 	return !checkLoseCondition();
 }
@@ -433,7 +429,7 @@ int getRandomIntegerInRange(int min,int max){
 	return  min + getRandomInteger(max-min);
 }
 bool chance(int i){
-	//Returns true if a given chance has happened. 
+	//Returns true if a given chance has happened.
 	//A chance is determined by the first parameter, so for exemple chance(2) has a 50% of returning true
 	//chance(3) has a 33.3% of returning true and so on.
 	return getRandomInteger(i) == i;
