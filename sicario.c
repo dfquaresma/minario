@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <curses.h>
 #include <stdbool.h>
+#include <time.h>
+#include "player.h"
 
 #define KEY_ESC 27
 #define L_KEY_ENTER 10
@@ -13,11 +15,15 @@
 #define BOARD_HEIGHT 30
 #define OFFSET_WIDTH 20
 #define OFFSET_HEIGHT 0
+#define GAME_BOARD_DECREASE_TIME 5
+#define PLAYERS_NUMBER 10
 
 #define GAME_INTRODUCTION_STATE 0
 #define MENU_STATE 1
 #define START_GAME_STATE 2
 #define PLAY_GAME_STATE 3
+#define WIN_STATE 4
+#define LOSE_STATE 5
 
 bool leftMovement = false;
 bool rightMovement = false;
@@ -28,6 +34,9 @@ bool userEscAction = false;
 bool userEnterAction = false;
 
 char gameBoard[BOARD_WIDTH][BOARD_HEIGHT];
+Player players[PLAYERS_NUMBER];
+int playerCount = PLAYERS_NUMBER;
+int decreaseGameBoardCount = 0;
 
 void delay(int milliseconds);
 void ncursesInit();
@@ -36,21 +45,39 @@ void ncursesEnd();
 void showGameIntroduction();
 void drawCharWithOffset(int x, int y, char *c);
 void settingGameBoard();
+void decreaseGameBoardSize();
+void decreaseGameBoardByInterval(clock_t timeSinceLastGameBoardDecrease);
 
 int keyboardHit();
 void updateNextUserAction();
 void updateUserMovement(int* xVariation, int* yVariation);
+void updateBotMovement(int x, int y,int* xVariation, int* yVariation);
 void ensureUserPositionInLimits(int* xPosition, int* yPosition);
+
+int getRandomInteger(int i);
+int getRandomIntegerInRange(int min,int max);
+bool chance(int i);
+
+void createPlayers();
+void updatePlayers();
+void playersCollisionWithBoard();
+void playersCollisionWithOtherPlayers();
+void playersCollision();
+void playersDie(Player player);
+void updatePlayers();
+void drawPlayers();
+void drawTimer(int time);
+
+bool checkLoseCondition();
+bool checkWinCondition();
+void drawAlivePlayersNumber();
+void showVictoryScreen();
+void showFailureScreen();
 
 int main() {
 	ncursesInit();
+	clock_t timeSinceLastGameBoardDecrease;
 	int gameState = GAME_INTRODUCTION_STATE;
-
-	//user attributes
-	int userXVariation = 0;
-	int userYVariation = 0;
-	int userXPosition = 4;
-	int userYPosition = 4;
 
 	while(!userEscAction){
 		updateNextUserAction();
@@ -67,28 +94,47 @@ int main() {
 					gameState = START_GAME_STATE;
 				}
 			break;
-			
+
 			case START_GAME_STATE:
+				createPlayers();
 				settingGameBoard();
 				delay(60);
 				gameState = PLAY_GAME_STATE;
 			break;
-			
+
 			case PLAY_GAME_STATE:
-				updateUserMovement(&userXVariation, &userYVariation);
-				drawCharWithOffset(userXPosition, userYPosition, "   ");
-				userXPosition += userXVariation;
-				userYPosition += userYVariation;
-				ensureUserPositionInLimits(&userXPosition, &userYPosition);
-				drawCharWithOffset(userXPosition, userYPosition, "^.^");
+				updatePlayers();
+				playersCollision();
+				drawAlivePlayersNumber();
+				drawPlayers();
+				decreaseGameBoardByInterval(&timeSinceLastGameBoardDecrease);
+				if (checkWinCondition())
+					gameState = WIN_STATE;
+				if (checkLoseCondition())
+					gameState = LOSE_STATE;
+
 			break;
-		}	
+
+			case WIN_STATE:
+				showVictoryScreen();
+				if (userEnterAction) {
+					clear();
+					gameState = GAME_INTRODUCTION_STATE;
+				}
+			break;
+
+			case LOSE_STATE:
+				showFailureScreen();
+				if (userEnterAction) {
+					clear();
+					gameState = GAME_INTRODUCTION_STATE;
+				}
+			break;
+		}
 		delay(1);
 	}
 
 	ncursesEnd();
-
-	printf("fim de jogo\n");
 	return 0;
 }
 
@@ -104,7 +150,7 @@ void updateNextUserAction() {
 			case KEY_UP:	case 'w': 	case 'W':	upMovement = true;		break;
 			case KEY_DOWN:	case 's': 	case 'S':	downMovement = true;	break;
 			case KEY_RIGHT:	case 'd':	case 'D':	rightMovement = true;	break;
-			case KEY_ESC:							userEscAction = true;	break;				
+			case KEY_ESC:							userEscAction = true;	break;
 			case L_KEY_ENTER:						userEnterAction = true;	break;
 		}
 	}
@@ -114,7 +160,7 @@ void updateUserMovement(int* xVariation, int* yVariation) {
 	if (leftMovement) {
 		*xVariation = -1;
 		*yVariation = 0;
-	} else if (rightMovement) {	
+	} else if (rightMovement) {
 		*xVariation = 1;
 		*yVariation = 0;
 	} else if (upMovement) {
@@ -129,17 +175,47 @@ void updateUserMovement(int* xVariation, int* yVariation) {
 	}
 }
 
+bool isColidingWithBoard(int x, int y){
+	return gameBoard[x][y]=='#';
+}
+
+void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's where I would put the AI logic
+	if (!chance(100)) {
+		*xVariation = 0;
+		*yVariation = 0;
+	} else if (chance(5)){
+		*xVariation = -1;
+		*yVariation = 0;
+	} else if (chance(5)) {
+		*xVariation = 1;
+		*yVariation = 0;
+	} else if (chance(5)){
+		*xVariation = 0;
+		*yVariation = 1;
+	} else {
+		*xVariation = 0;
+		*yVariation = -1;
+	}
+	if (isColidingWithBoard(x+*xVariation,y+*yVariation)){
+		*xVariation=0;
+		*yVariation=0;
+	}
+}
+
 void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
 	int lowerBound = 1, xUpperBound = BOARD_WIDTH - 4, yUpperBound = BOARD_HEIGHT - 2;
-	if (*userXPosition < lowerBound) 
+	if (*userXPosition < lowerBound) {
 		*userXPosition = lowerBound;
-	if (*userXPosition > xUpperBound) 
+	}
+	if (*userXPosition > xUpperBound) {
 		*userXPosition = xUpperBound;
-	
-	if (*userYPosition < lowerBound)
+	}
+	if (*userYPosition < lowerBound) {
 		*userYPosition = lowerBound;
-	if (*userYPosition > yUpperBound)
+	}
+	if (*userYPosition > yUpperBound) {
 		*userYPosition = yUpperBound;
+	}
 }
 
 int keyboardHit() {
@@ -156,25 +232,58 @@ void drawCharWithOffset(int x, int y, char *c) {
 	mvprintw(y + OFFSET_HEIGHT,x + OFFSET_WIDTH, c);
 }
 
+void drawGameBoardBorder(){
+	for (int i = 0; i < BOARD_WIDTH; i++){
+		drawCharWithOffset(i, decreaseGameBoardCount, "#");
+		drawCharWithOffset(i, BOARD_HEIGHT - decreaseGameBoardCount - 1, "#");
+		if (decreaseGameBoardCount==0) {
+			delay(10);
+		}
+	}
+	for (int i = 0; i < BOARD_HEIGHT; i++){
+		drawCharWithOffset(decreaseGameBoardCount, i, "#");
+		drawCharWithOffset(BOARD_WIDTH - decreaseGameBoardCount - 1, i, "#");
+		if (decreaseGameBoardCount==0) {
+			delay(10);
+		}
+	}
+}
+
 void settingGameBoard() {
 	clear();
+	decreaseGameBoardCount = 0;
 	for (int i = 0; i < BOARD_WIDTH; ++i){
 		for (int j = 0; j < BOARD_HEIGHT; ++j){
 			gameBoard[i][j] = 0;
 		}
 	}
-	for (int i = 0; i < BOARD_WIDTH; ++i){
-		gameBoard[i][0] = gameBoard[i][BOARD_HEIGHT - 1] = '#';
-		drawCharWithOffset(i, 0, "#");
-		drawCharWithOffset(i, BOARD_HEIGHT - 1, "#");
-		delay(10);
+	drawGameBoardBorder();
+	decreaseGameBoardSize();
+}
+
+void decreaseGameBoardSize(){
+	for (int i = 0; i < BOARD_WIDTH; i++){
+		gameBoard[i][decreaseGameBoardCount] = gameBoard[i][BOARD_HEIGHT - 1 - decreaseGameBoardCount] = '#';
 	}
-	for (int i = 0; i < BOARD_HEIGHT; ++i){
-		gameBoard[0][i] = gameBoard[BOARD_WIDTH - 1][i] = '#';
-		drawCharWithOffset(0, i, "#");
-		drawCharWithOffset(BOARD_WIDTH - 1, i, "#");
-		delay(10);
+	for (int i = 0; i < BOARD_HEIGHT; i++){
+		gameBoard[decreaseGameBoardCount][i] = gameBoard[BOARD_WIDTH - 1 - decreaseGameBoardCount][i] = '#';
 	}
+	decreaseGameBoardCount++;
+}
+
+void decreaseGameBoardByInterval(clock_t timeSinceLastGameBoardDecrease){
+	clock_t difference = (clock() - timeSinceLastGameBoardDecrease)*10/CLOCKS_PER_SEC;
+	if (difference > GAME_BOARD_DECREASE_TIME){
+		drawGameBoardBorder();
+		decreaseGameBoardSize();
+		timeSinceLastGameBoardDecrease = clock();
+	}
+	drawTimer(GAME_BOARD_DECREASE_TIME-difference);
+}
+
+void drawTimer(int time){
+	mvprintw(1,0,"Tempo:       ");
+	mvprintw(1,0,"Tempo: %d", time);
 }
 
 void showGameIntroduction() {
@@ -197,6 +306,15 @@ void showGameIntroduction() {
 	delay(100);
 }
 
+void showVictoryScreen(){
+	clear();
+	mvprintw(OFFSET_HEIGHT+BOARD_HEIGHT/2,OFFSET_WIDTH,"Parabéns, você venceu! :D");
+}
+void showFailureScreen(){
+	clear();
+	mvprintw(OFFSET_HEIGHT+BOARD_HEIGHT/2,OFFSET_WIDTH,"Você perdeu :(");
+}
+
 void delay(int milliseconds) {
 	usleep(milliseconds*1000);
 	refresh();
@@ -213,4 +331,117 @@ void ncursesInit() {
 
 void ncursesEnd() {
 	endwin();
+}
+
+void createPlayers() {
+	playerCount = PLAYERS_NUMBER;
+	for (int i = 0; i < PLAYERS_NUMBER; i++){
+		initPlayer(player);
+		players[i] = player;
+		players[i].x = 1+getRandomInteger(BOARD_WIDTH-3);
+		players[i].y = 1+getRandomInteger(BOARD_HEIGHT-3);
+		players[i].xPrevious = players[i].x;
+		players[i].yPrevious = players[i].y;
+	}
+}
+
+void updatePlayers(){
+	for (int i = 0; i < PLAYERS_NUMBER; i++){
+		if (players[i].isAlive){
+			if (i==0) {
+				updateUserMovement(&players[i].horizontalSpeed, &players[i].verticalSpeed);
+			}
+			else {
+				updateBotMovement(players[i].x,players[i].y,&players[i].horizontalSpeed, &players[i].verticalSpeed);
+			}
+
+			players[i].x += players[i].horizontalSpeed;
+			players[i].y += players[i].verticalSpeed;
+		}
+	}
+}
+
+void playersCollision(){
+	playersCollisionWithBoard();
+	playersCollisionWithOtherPlayers();
+}
+void playerDie(Player *player){
+	if (player->isAlive){
+		playerCount--;
+		player->isAlive = false;
+	}
+}
+
+void playersCollisionWithBoard(){
+	for (int i = 0; i < PLAYERS_NUMBER; i++){
+		if (players[i].isAlive){
+			if (isColidingWithBoard(players[i].x,players[i].y)){
+				playerDie(&players[i]);
+			}
+		}
+	}
+}
+
+void playersCollisionWithOtherPlayers(){
+	for (int i = 0; i < PLAYERS_NUMBER; i++){
+		if (players[i].isAlive){
+			for (int j = 0; j < PLAYERS_NUMBER; j++){
+				if (i != j){
+					if (players[i].x == players[j].x && players[i].y == players[j].y){
+						playerDie(&players[i]);
+					}
+				}
+			}
+		}
+	}
+}
+
+void drawPlayers(){
+	for (int i = 0; i < PLAYERS_NUMBER; i++){
+			drawCharWithOffset(players[i].xPrevious, players[i].yPrevious, " ");
+
+			players[i].xPrevious = players[i].x;
+			players[i].yPrevious = players[i].y;
+
+		if (players[i].isAlive) {
+			if (i == 0) {
+				drawCharWithOffset(players[i].x, players[i].y, "O");
+			}
+			else {
+				drawCharWithOffset(players[i].x, players[i].y, "X");
+			}
+		}
+		else {
+			drawCharWithOffset(players[i].x, players[i].y, "=");
+		}
+	}
+}
+
+bool checkLoseCondition(){
+	return !players[0].isAlive;
+}
+bool checkWinCondition(){
+	for (int i = 1; i < PLAYERS_NUMBER; i++){
+		if (players[i].isAlive) {
+			return false;
+		}
+	}
+	return !checkLoseCondition();
+}
+
+void drawAlivePlayersNumber(){
+	mvprintw(0,0,"Alive:       ");
+	mvprintw(0,0,"Alive: %d", playerCount);
+}
+int getRandomInteger(int i){
+	return rand() % i+1;
+}
+int getRandomIntegerInRange(int min,int max){
+	return  min + getRandomInteger(max-min);
+}
+bool chance(int i){
+	//Returns true if a given chance has happened.
+	//A chance is determined by the first parameter, so for exemple chance(2) has a 50% of returning true
+	//chance(3) has a 33.3% of returning true and so on.
+	return getRandomInteger(i) == i;
 }
