@@ -155,30 +155,6 @@ void ncursesEnd() {
 	endwin();
 }
 
-void showGameIntroduction() {
-	clear();
-	printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
-	printw("\n\t\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henrique, Thomaz Diniz");
-	printw("\n\n");
-	delay(60);
-	printw("\n\n\n");
-	delay(100);
-	printw("\t\t\t\tPressione [Enter] para começar o jogo");
-	delay(60);
-	printw("\n\n\n\n\t\tControles:");
-	delay(100);
-	printw("\tUtilize as [Setas] do teclado para se movimentar");
-	delay(10);
-	printw("\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
-	delay(70);
-	printw("\n\n\n\n\n\tObjetivo: Sobreviva o máximo de tempo sem bater nos limites do tabuleiro ou em outros jogadores.");
-	delay(100);
-}
-
-void drawCharWithOffset(int x, int y, char *c) {
-	mvprintw(y + OFFSET_HEIGHT,x + OFFSET_WIDTH, c);
-}
-
 void settingGameBoard() {
 	clear();
 	decreaseGameBoardCount = 0;
@@ -376,32 +352,6 @@ void playerDie(Player *player){
 	}
 }
 
-void drawPlayers(){
-	for (int i = 0; i < PLAYERS_NUMBER; i++){
-			drawCharWithOffset(players[i].xPrevious, players[i].yPrevious, " ");
-
-			players[i].xPrevious = players[i].x;
-			players[i].yPrevious = players[i].y;
-
-		if (players[i].isAlive) {
-			if (i == 0) {
-				drawCharWithOffset(players[i].x, players[i].y, "O");
-			}
-			else {
-				drawCharWithOffset(players[i].x, players[i].y, "X");
-			}
-		}
-		else {
-			drawCharWithOffset(players[i].x, players[i].y, "=");
-		}
-	}
-}
-
-void drawTimer(int time){
-	mvprintw(1,0,"Tempo:       ");
-	mvprintw(1,0,"Tempo: %d", time);
-}
-
 bool checkLoseCondition(){
 	return !players[0].isAlive;
 }
@@ -415,38 +365,6 @@ bool checkWinCondition(){
 	return !checkLoseCondition();
 }
 
-void drawAlivePlayersNumber(){
-	mvprintw(0,0,"Alive:       ");
-	mvprintw(0,0,"Alive: %d", playerCount);
-}
-
-void showVictoryScreen(){
-	clear();
-	mvprintw(OFFSET_HEIGHT+BOARD_HEIGHT/2,OFFSET_WIDTH,"Parabéns, você venceu! :D");
-}
-
-void showFailureScreen(){
-	clear();
-	mvprintw(OFFSET_HEIGHT+BOARD_HEIGHT/2,OFFSET_WIDTH,"Você perdeu :(");
-}
-
 bool isColidingWithBoard(int x, int y){
 	return gameBoard[x][y]=='#';
-}
-
-void drawGameBoardBorder(){
-	for (int i = 0; i < BOARD_WIDTH; i++){
-		drawCharWithOffset(i, decreaseGameBoardCount, "#");
-		drawCharWithOffset(i, BOARD_HEIGHT - decreaseGameBoardCount - 1, "#");
-		if (decreaseGameBoardCount==0) {
-			delay(10);
-		}
-	}
-	for (int i = 0; i < BOARD_HEIGHT; i++){
-		drawCharWithOffset(decreaseGameBoardCount, i, "#");
-		drawCharWithOffset(BOARD_WIDTH - decreaseGameBoardCount - 1, i, "#");
-		if (decreaseGameBoardCount==0) {
-			delay(10);
-		}
-	}
 }
