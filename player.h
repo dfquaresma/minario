@@ -30,21 +30,21 @@ Player players[PLAYERS_NUMBER];
 
 void drawPlayers(){
 	for (int i = 0; i < PLAYERS_NUMBER; i++){
-			drawCharWithOffset(players[i].xPrevious, players[i].yPrevious, " ");
+			drawCharWithOffset(players[i].xPrevious, players[i].yPrevious, " ", OFFSET_HEIGHT, OFFSET_WIDTH);
 
 			players[i].xPrevious = players[i].x;
 			players[i].yPrevious = players[i].y;
 
 		if (players[i].isAlive) {
 			if (i == 0) {
-				drawCharWithOffset(players[i].x, players[i].y, "O");
+				drawCharWithOffset(players[i].x, players[i].y, "O", OFFSET_HEIGHT, OFFSET_WIDTH);
 			}
 			else {
-				drawCharWithOffset(players[i].x, players[i].y, "X");
+				drawCharWithOffset(players[i].x, players[i].y, "X", OFFSET_HEIGHT, OFFSET_WIDTH);
 			}
 		}
 		else {
-			drawCharWithOffset(players[i].x, players[i].y, "=");
+			drawCharWithOffset(players[i].x, players[i].y, "=", OFFSET_HEIGHT, OFFSET_WIDTH);
 		}
 	}
 }
@@ -114,8 +114,8 @@ void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's
 	}
 }
 
-void ensureUserPositionInLimits(int* userXPosition, int* userYPosition, int board_width, int board_height) {
-	int lowerBound = 1, xUpperBound = board_width - 4, yUpperBound = board_height - 2;
+void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
+	int lowerBound = 1, xUpperBound = BOARD_WIDTH - 4, yUpperBound = BOARD_HEIGHT - 2;
 	if (*userXPosition < lowerBound) {
 		*userXPosition = lowerBound;
 	}
@@ -130,13 +130,13 @@ void ensureUserPositionInLimits(int* userXPosition, int* userYPosition, int boar
 	}
 }
 
-void createPlayers(int board_width, int board_height) {
+void createPlayers() {
 	playerCount = PLAYERS_NUMBER;
 	for (int i = 0; i < PLAYERS_NUMBER; i++){
 		initPlayer(player);
 		players[i] = player;
-		players[i].x = 1+getRandomInteger(board_width-3);
-		players[i].y = 1+getRandomInteger(board_height-3);
+		players[i].x = 1+getRandomInteger(BOARD_WIDTH-3);
+		players[i].y = 1+getRandomInteger(BOARD_HEIGHT-3);
 		players[i].xPrevious = players[i].x;
 		players[i].yPrevious = players[i].y;
 	}
@@ -155,6 +155,13 @@ void updatePlayers(){
 			players[i].x += players[i].horizontalSpeed;
 			players[i].y += players[i].verticalSpeed;
 		}
+	}
+}
+
+void playerDie(Player *player){
+	if (player->isAlive){
+		playerCount--;
+		player->isAlive = false;
 	}
 }
 
@@ -185,11 +192,4 @@ void playersCollisionWithOtherPlayers(){
 void playersCollision(){
 	playersCollisionWithBoard();
 	playersCollisionWithOtherPlayers();
-}
-
-void playerDie(Player *player){
-	if (player->isAlive){
-		playerCount--;
-		player->isAlive = false;
-	}
 }

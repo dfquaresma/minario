@@ -1,9 +1,6 @@
 /*sudo apt-get install ncurses-dev*/
 /*gcc <file-name>.c -lncurses -o <executable-name>*/
-#include "util.h"
-#include "display.h"
-#include "board.h"
-#include "player.h"
+#include "player.h" // Also includes display, board and util recursively.
 
 #define GAME_INTRODUCTION_STATE 0
 #define MENU_STATE 1
@@ -60,7 +57,7 @@ int main() {
 			break;
 
 			case WIN_STATE:
-				showVictoryScreen();
+				showVictoryScreen(OFFSET_HEIGHT, BOARD_HEIGHT, OFFSET_WIDTH);
 				if (userEnterAction) {
 					clear();
 					gameState = GAME_INTRODUCTION_STATE;
@@ -68,7 +65,7 @@ int main() {
 			break;
 
 			case LOSE_STATE:
-				showFailureScreen();
+				showFailureScreen(OFFSET_HEIGHT, BOARD_HEIGHT, OFFSET_WIDTH);
 				if (userEnterAction) {
 					clear();
 					gameState = GAME_INTRODUCTION_STATE;

@@ -16,15 +16,15 @@ bool isColidingWithBoard(int x, int y){
 
 void drawGameBoardBorder(){
 	for (int i = 0; i < BOARD_WIDTH; i++){
-		drawCharWithOffset(i, decreaseGameBoardCount, "#");
-		drawCharWithOffset(i, BOARD_HEIGHT - decreaseGameBoardCount - 1, "#");
+		drawCharWithOffset(i, decreaseGameBoardCount, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
+		drawCharWithOffset(i, BOARD_HEIGHT - decreaseGameBoardCount - 1, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
 		if (decreaseGameBoardCount==0) {
 			delay(10);
 		}
 	}
 	for (int i = 0; i < BOARD_HEIGHT; i++){
-		drawCharWithOffset(decreaseGameBoardCount, i, "#");
-		drawCharWithOffset(BOARD_WIDTH - decreaseGameBoardCount - 1, i, "#");
+		drawCharWithOffset(decreaseGameBoardCount, i, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
+		drawCharWithOffset(BOARD_WIDTH - decreaseGameBoardCount - 1, i, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
 		if (decreaseGameBoardCount==0) {
 			delay(10);
 		}
@@ -54,11 +54,11 @@ void settingGameBoard() {
 }
 
 void decreaseGameBoardByInterval(clock_t *timeSinceLastGameBoardDecrease){
-	clock_t difference = (clock() - timeSinceLastGameBoardDecrease)*10/CLOCKS_PER_SEC;
+	clock_t difference = (clock() - *timeSinceLastGameBoardDecrease)*10/CLOCKS_PER_SEC;
 	if (difference > GAME_BOARD_DECREASE_TIME){
 		drawGameBoardBorder();
 		decreaseGameBoardSize();
-		timeSinceLastGameBoardDecrease = clock();
+		*timeSinceLastGameBoardDecrease = clock();
 	}
 	drawTimer(GAME_BOARD_DECREASE_TIME-difference);
 }
