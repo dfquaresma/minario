@@ -1,22 +1,9 @@
 /*sudo apt-get install ncurses-dev*/
 /*gcc <file-name>.c -lncurses -o <executable-name>*/
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <curses.h>
-#include <stdbool.h>
-#include <time.h>
+#include "util.h"
+#include "display.h"
+#include "board.h"
 #include "player.h"
-
-#define KEY_ESC 27
-#define L_KEY_ENTER 10
-
-#define BOARD_WIDTH 70
-#define BOARD_HEIGHT 30
-#define OFFSET_WIDTH 20
-#define OFFSET_HEIGHT 0
-#define GAME_BOARD_DECREASE_TIME 5
-#define PLAYERS_NUMBER 10
 
 #define GAME_INTRODUCTION_STATE 0
 #define MENU_STATE 1
@@ -25,25 +12,9 @@
 #define WIN_STATE 4
 #define LOSE_STATE 5
 
-bool leftMovement = false;
-bool rightMovement = false;
-bool upMovement = false;
-bool downMovement = false;
-
-bool userEscAction = false;
-bool userEnterAction = false;
-
-char gameBoard[BOARD_WIDTH][BOARD_HEIGHT];
-int decreaseGameBoardCount = 0;
-
-void delay(int milliseconds);
 void ncursesInit();
 void ncursesEnd();
-
-int keyboardHit();
-int getRandomInteger(int i);
 int getRandomIntegerInRange(int min,int max);
-bool chance(int i);
 bool checkLoseCondition();
 bool checkWinCondition();
 
@@ -111,11 +82,6 @@ int main() {
 	return 0;
 }
 
-void delay(int milliseconds) {
-	usleep(milliseconds*1000);
-	refresh();
-}
-
 void ncursesInit() {
 	initscr();
 	curs_set(0);
@@ -129,39 +95,8 @@ void ncursesEnd() {
 	endwin();
 }
 
-void decreaseGameBoardByInterval(clock_t timeSinceLastGameBoardDecrease){
-	clock_t difference = (clock() - timeSinceLastGameBoardDecrease)*10/CLOCKS_PER_SEC;
-	if (difference > GAME_BOARD_DECREASE_TIME){
-		drawGameBoardBorder();
-		decreaseGameBoardSize();
-		timeSinceLastGameBoardDecrease = clock();
-	}
-	drawTimer(GAME_BOARD_DECREASE_TIME-difference);
-}
-
-int keyboardHit() {
-    int ch = getch();
-    if (ch != ERR) {
-        ungetch(ch);
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-int getRandomInteger(int i){
-	return rand() % i+1;
-}
-
 int getRandomIntegerInRange(int min,int max){
 	return  min + getRandomInteger(max-min);
-}
-
-bool chance(int i){
-	//Returns true if a given chance has happened.
-	//A chance is determined by the first parameter, so for exemple chance(2) has a 50% of returning true
-	//chance(3) has a 33.3% of returning true and so on.
-	return getRandomInteger(i) == i;
 }
 
 bool checkLoseCondition(){
@@ -175,8 +110,4 @@ bool checkWinCondition(){
 		}
 	}
 	return !checkLoseCondition();
-}
-
-bool isColidingWithBoard(int x, int y){
-	return gameBoard[x][y]=='#';
 }
