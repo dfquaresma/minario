@@ -49,6 +49,11 @@ void drawPlayers(){
 	}
 }
 
+void drawAlivePlayersNumber(){
+	mvprintw(0,0,"Alive:       ");
+	mvprintw(0,0,"Alive: %d", playerCount);
+}
+
 void updateNextUserAction() {
 	leftMovement = rightMovement = upMovement = downMovement = false;
 	userEscAction = userEnterAction = false;

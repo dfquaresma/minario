@@ -40,36 +40,12 @@ void delay(int milliseconds);
 void ncursesInit();
 void ncursesEnd();
 
-void showGameIntroduction();
-void drawCharWithOffset(int x, int y, char *c);
-void settingGameBoard();
-void decreaseGameBoardSize();
-void decreaseGameBoardByInterval(clock_t timeSinceLastGameBoardDecrease);
-
 int keyboardHit();
-void updateNextUserAction();
-void updateUserMovement(int* xVariation, int* yVariation);
-void updateBotMovement(int x, int y,int* xVariation, int* yVariation);
-void ensureUserPositionInLimits(int* xPosition, int* yPosition);
-
 int getRandomInteger(int i);
 int getRandomIntegerInRange(int min,int max);
 bool chance(int i);
-
-void createPlayers();
-void updatePlayers();
-void playersCollisionWithBoard();
-void playersCollisionWithOtherPlayers();
-void playersCollision();
-void playersDie(Player player);
-void drawPlayers();
-void drawTimer(int time);
-
 bool checkLoseCondition();
 bool checkWinCondition();
-void drawAlivePlayersNumber();
-void showVictoryScreen();
-void showFailureScreen();
 
 int main() {
 	ncursesInit();
@@ -151,28 +127,6 @@ void ncursesInit() {
 
 void ncursesEnd() {
 	endwin();
-}
-
-void settingGameBoard() {
-	clear();
-	decreaseGameBoardCount = 0;
-	for (int i = 0; i < BOARD_WIDTH; ++i){
-		for (int j = 0; j < BOARD_HEIGHT; ++j){
-			gameBoard[i][j] = 0;
-		}
-	}
-	drawGameBoardBorder();
-	decreaseGameBoardSize();
-}
-
-void decreaseGameBoardSize(){
-	for (int i = 0; i < BOARD_WIDTH; i++){
-		gameBoard[i][decreaseGameBoardCount] = gameBoard[i][BOARD_HEIGHT - 1 - decreaseGameBoardCount] = '#';
-	}
-	for (int i = 0; i < BOARD_HEIGHT; i++){
-		gameBoard[decreaseGameBoardCount][i] = gameBoard[BOARD_WIDTH - 1 - decreaseGameBoardCount][i] = '#';
-	}
-	decreaseGameBoardCount++;
 }
 
 void decreaseGameBoardByInterval(clock_t timeSinceLastGameBoardDecrease){

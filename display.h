@@ -5,11 +5,6 @@ void drawTimer(int time){
 	mvprintw(1,0,"Tempo: %d", time);
 }
 
-void drawAlivePlayersNumber(int playerCount){
-	mvprintw(0,0,"Alive:       ");
-	mvprintw(0,0,"Alive: %d", playerCount);
-}
-
 void showVictoryScreen(int offset_height, int board_height, int offset_width){
 	clear();
 	mvprintw(offset_height + board_height / 2, offset_width, "Parabéns, você venceu! :D");
