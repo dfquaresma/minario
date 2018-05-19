@@ -138,6 +138,90 @@ int main() {
 	return 0;
 }
 
+void delay(int milliseconds) {
+	usleep(milliseconds*1000);
+	refresh();
+}
+
+void ncursesInit() {
+	initscr();
+	curs_set(0);
+	cbreak();
+	noecho();
+	keypad(stdscr,true);
+	timeout(10);
+}
+
+void ncursesEnd() {
+	endwin();
+}
+
+void showGameIntroduction() {
+	clear();
+	printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
+	printw("\n\t\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henrique, Thomaz Diniz");
+	printw("\n\n");
+	delay(60);
+	printw("\n\n\n");
+	delay(100);
+	printw("\t\t\t\tPressione [Enter] para começar o jogo");
+	delay(60);
+	printw("\n\n\n\n\t\tControles:");
+	delay(100);
+	printw("\tUtilize as [Setas] do teclado para se movimentar");
+	delay(10);
+	printw("\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
+	delay(70);
+	printw("\n\n\n\n\n\tObjetivo: Sobreviva o máximo de tempo sem bater nos limites do tabuleiro ou em outros jogadores.");
+	delay(100);
+}
+
+void drawCharWithOffset(int x, int y, char *c) {
+	mvprintw(y + OFFSET_HEIGHT,x + OFFSET_WIDTH, c);
+}
+
+void settingGameBoard() {
+	clear();
+	decreaseGameBoardCount = 0;
+	for (int i = 0; i < BOARD_WIDTH; ++i){
+		for (int j = 0; j < BOARD_HEIGHT; ++j){
+			gameBoard[i][j] = 0;
+		}
+	}
+	drawGameBoardBorder();
+	decreaseGameBoardSize();
+}
+
+void decreaseGameBoardSize(){
+	for (int i = 0; i < BOARD_WIDTH; i++){
+		gameBoard[i][decreaseGameBoardCount] = gameBoard[i][BOARD_HEIGHT - 1 - decreaseGameBoardCount] = '#';
+	}
+	for (int i = 0; i < BOARD_HEIGHT; i++){
+		gameBoard[decreaseGameBoardCount][i] = gameBoard[BOARD_WIDTH - 1 - decreaseGameBoardCount][i] = '#';
+	}
+	decreaseGameBoardCount++;
+}
+
+void decreaseGameBoardByInterval(clock_t timeSinceLastGameBoardDecrease){
+	clock_t difference = (clock() - timeSinceLastGameBoardDecrease)*10/CLOCKS_PER_SEC;
+	if (difference > GAME_BOARD_DECREASE_TIME){
+		drawGameBoardBorder();
+		decreaseGameBoardSize();
+		timeSinceLastGameBoardDecrease = clock();
+	}
+	drawTimer(GAME_BOARD_DECREASE_TIME-difference);
+}
+
+int keyboardHit() {
+    int ch = getch();
+    if (ch != ERR) {
+        ungetch(ch);
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 void updateNextUserAction() {
 	leftMovement = rightMovement = upMovement = downMovement = false;
 	userEscAction = userEnterAction = false;
@@ -173,10 +257,6 @@ void updateUserMovement(int* xVariation, int* yVariation) {
 		*xVariation = 0;
 		*yVariation = 0;
 	}
-}
-
-bool isColidingWithBoard(int x, int y){
-	return gameBoard[x][y]=='#';
 }
 
 void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's where I would put the AI logic
@@ -218,120 +298,19 @@ void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
 	}
 }
 
-int keyboardHit() {
-    int ch = getch();
-    if (ch != ERR) {
-        ungetch(ch);
-        return 1;
-    } else {
-        return 0;
-    }
+int getRandomInteger(int i){
+	return rand() % i+1;
 }
 
-void drawCharWithOffset(int x, int y, char *c) {
-	mvprintw(y + OFFSET_HEIGHT,x + OFFSET_WIDTH, c);
+int getRandomIntegerInRange(int min,int max){
+	return  min + getRandomInteger(max-min);
 }
 
-void drawGameBoardBorder(){
-	for (int i = 0; i < BOARD_WIDTH; i++){
-		drawCharWithOffset(i, decreaseGameBoardCount, "#");
-		drawCharWithOffset(i, BOARD_HEIGHT - decreaseGameBoardCount - 1, "#");
-		if (decreaseGameBoardCount==0) {
-			delay(10);
-		}
-	}
-	for (int i = 0; i < BOARD_HEIGHT; i++){
-		drawCharWithOffset(decreaseGameBoardCount, i, "#");
-		drawCharWithOffset(BOARD_WIDTH - decreaseGameBoardCount - 1, i, "#");
-		if (decreaseGameBoardCount==0) {
-			delay(10);
-		}
-	}
-}
-
-void settingGameBoard() {
-	clear();
-	decreaseGameBoardCount = 0;
-	for (int i = 0; i < BOARD_WIDTH; ++i){
-		for (int j = 0; j < BOARD_HEIGHT; ++j){
-			gameBoard[i][j] = 0;
-		}
-	}
-	drawGameBoardBorder();
-	decreaseGameBoardSize();
-}
-
-void decreaseGameBoardSize(){
-	for (int i = 0; i < BOARD_WIDTH; i++){
-		gameBoard[i][decreaseGameBoardCount] = gameBoard[i][BOARD_HEIGHT - 1 - decreaseGameBoardCount] = '#';
-	}
-	for (int i = 0; i < BOARD_HEIGHT; i++){
-		gameBoard[decreaseGameBoardCount][i] = gameBoard[BOARD_WIDTH - 1 - decreaseGameBoardCount][i] = '#';
-	}
-	decreaseGameBoardCount++;
-}
-
-void decreaseGameBoardByInterval(clock_t timeSinceLastGameBoardDecrease){
-	clock_t difference = (clock() - timeSinceLastGameBoardDecrease)*10/CLOCKS_PER_SEC;
-	if (difference > GAME_BOARD_DECREASE_TIME){
-		drawGameBoardBorder();
-		decreaseGameBoardSize();
-		timeSinceLastGameBoardDecrease = clock();
-	}
-	drawTimer(GAME_BOARD_DECREASE_TIME-difference);
-}
-
-void drawTimer(int time){
-	mvprintw(1,0,"Tempo:       ");
-	mvprintw(1,0,"Tempo: %d", time);
-}
-
-void showGameIntroduction() {
-	clear();
-	printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
-	printw("\n\t\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henrique, Thomaz Diniz");
-	printw("\n\n");
-	delay(60);
-	printw("\n\n\n");
-	delay(100);
-	printw("\t\t\t\tPressione [Enter] para começar o jogo");
-	delay(60);
-	printw("\n\n\n\n\t\tControles:");
-	delay(100);
-	printw("\tUtilize as [Setas] do teclado para se movimentar");
-	delay(10);
-	printw("\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
-	delay(70);
-	printw("\n\n\n\n\n\tObjetivo: Sobreviva o máximo de tempo sem bater nos limites do tabuleiro ou em outros jogadores.");
-	delay(100);
-}
-
-void showVictoryScreen(){
-	clear();
-	mvprintw(OFFSET_HEIGHT+BOARD_HEIGHT/2,OFFSET_WIDTH,"Parabéns, você venceu! :D");
-}
-
-void showFailureScreen(){
-	clear();
-	mvprintw(OFFSET_HEIGHT+BOARD_HEIGHT/2,OFFSET_WIDTH,"Você perdeu :(");
-}
-
-void delay(int milliseconds) {
-	usleep(milliseconds*1000);
-	refresh();
-}
-
-void ncursesInit() {
-	initscr();
-	curs_set(0);
-	cbreak();
-	noecho();
-	keypad(stdscr,true);
-	timeout(10);
-}
-
-void ncursesEnd() {
-	endwin();
+bool chance(int i){
+	//Returns true if a given chance has happened.
+	//A chance is determined by the first parameter, so for exemple chance(2) has a 50% of returning true
+	//chance(3) has a 33.3% of returning true and so on.
+	return getRandomInteger(i) == i;
 }
 
 void createPlayers() {
@@ -362,18 +341,6 @@ void updatePlayers(){
 	}
 }
 
-void playersCollision(){
-	playersCollisionWithBoard();
-	playersCollisionWithOtherPlayers();
-}
-
-void playerDie(Player *player){
-	if (player->isAlive){
-		playerCount--;
-		player->isAlive = false;
-	}
-}
-
 void playersCollisionWithBoard(){
 	for (int i = 0; i < PLAYERS_NUMBER; i++){
 		if (players[i].isAlive){
@@ -398,6 +365,18 @@ void playersCollisionWithOtherPlayers(){
 	}
 }
 
+void playersCollision(){
+	playersCollisionWithBoard();
+	playersCollisionWithOtherPlayers();
+}
+
+void playerDie(Player *player){
+	if (player->isAlive){
+		playerCount--;
+		player->isAlive = false;
+	}
+}
+
 void drawPlayers(){
 	for (int i = 0; i < PLAYERS_NUMBER; i++){
 			drawCharWithOffset(players[i].xPrevious, players[i].yPrevious, " ");
@@ -419,6 +398,11 @@ void drawPlayers(){
 	}
 }
 
+void drawTimer(int time){
+	mvprintw(1,0,"Tempo:       ");
+	mvprintw(1,0,"Tempo: %d", time);
+}
+
 bool checkLoseCondition(){
 	return !players[0].isAlive;
 }
@@ -437,17 +421,33 @@ void drawAlivePlayersNumber(){
 	mvprintw(0,0,"Alive: %d", playerCount);
 }
 
-int getRandomInteger(int i){
-	return rand() % i+1;
+void showVictoryScreen(){
+	clear();
+	mvprintw(OFFSET_HEIGHT+BOARD_HEIGHT/2,OFFSET_WIDTH,"Parabéns, você venceu! :D");
 }
 
-int getRandomIntegerInRange(int min,int max){
-	return  min + getRandomInteger(max-min);
+void showFailureScreen(){
+	clear();
+	mvprintw(OFFSET_HEIGHT+BOARD_HEIGHT/2,OFFSET_WIDTH,"Você perdeu :(");
 }
 
-bool chance(int i){
-	//Returns true if a given chance has happened.
-	//A chance is determined by the first parameter, so for exemple chance(2) has a 50% of returning true
-	//chance(3) has a 33.3% of returning true and so on.
-	return getRandomInteger(i) == i;
+bool isColidingWithBoard(int x, int y){
+	return gameBoard[x][y]=='#';
+}
+
+void drawGameBoardBorder(){
+	for (int i = 0; i < BOARD_WIDTH; i++){
+		drawCharWithOffset(i, decreaseGameBoardCount, "#");
+		drawCharWithOffset(i, BOARD_HEIGHT - decreaseGameBoardCount - 1, "#");
+		if (decreaseGameBoardCount==0) {
+			delay(10);
+		}
+	}
+	for (int i = 0; i < BOARD_HEIGHT; i++){
+		drawCharWithOffset(decreaseGameBoardCount, i, "#");
+		drawCharWithOffset(BOARD_WIDTH - decreaseGameBoardCount - 1, i, "#");
+		if (decreaseGameBoardCount==0) {
+			delay(10);
+		}
+	}
 }
