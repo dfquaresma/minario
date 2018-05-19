@@ -310,6 +310,7 @@ void showVictoryScreen(){
 	clear();
 	mvprintw(OFFSET_HEIGHT+BOARD_HEIGHT/2,OFFSET_WIDTH,"Parabéns, você venceu! :D");
 }
+
 void showFailureScreen(){
 	clear();
 	mvprintw(OFFSET_HEIGHT+BOARD_HEIGHT/2,OFFSET_WIDTH,"Você perdeu :(");
@@ -365,6 +366,7 @@ void playersCollision(){
 	playersCollisionWithBoard();
 	playersCollisionWithOtherPlayers();
 }
+
 void playerDie(Player *player){
 	if (player->isAlive){
 		playerCount--;
@@ -420,6 +422,7 @@ void drawPlayers(){
 bool checkLoseCondition(){
 	return !players[0].isAlive;
 }
+
 bool checkWinCondition(){
 	for (int i = 1; i < PLAYERS_NUMBER; i++){
 		if (players[i].isAlive) {
@@ -433,12 +436,15 @@ void drawAlivePlayersNumber(){
 	mvprintw(0,0,"Alive:       ");
 	mvprintw(0,0,"Alive: %d", playerCount);
 }
+
 int getRandomInteger(int i){
 	return rand() % i+1;
 }
+
 int getRandomIntegerInRange(int min,int max){
 	return  min + getRandomInteger(max-min);
 }
+
 bool chance(int i){
 	//Returns true if a given chance has happened.
 	//A chance is determined by the first parameter, so for exemple chance(2) has a 50% of returning true
