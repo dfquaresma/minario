@@ -1,4 +1,3 @@
-#include <curses.h>
 #include "util.h"
 
 void drawTimer(int time){
