@@ -34,8 +34,6 @@ bool userEscAction = false;
 bool userEnterAction = false;
 
 char gameBoard[BOARD_WIDTH][BOARD_HEIGHT];
-Player players[PLAYERS_NUMBER];
-int playerCount = PLAYERS_NUMBER;
 int decreaseGameBoardCount = 0;
 
 void delay(int milliseconds);
@@ -197,82 +195,6 @@ int keyboardHit() {
     }
 }
 
-void updateNextUserAction() {
-	leftMovement = rightMovement = upMovement = downMovement = false;
-	userEscAction = userEnterAction = false;
-
-	int key = 0;
-	if (keyboardHit() != 0) {
-		key = getch();
-		switch(key) {
-			case KEY_LEFT:	case 'a':	case 'A':	leftMovement = true;	break;
-			case KEY_UP:	case 'w': 	case 'W':	upMovement = true;		break;
-			case KEY_DOWN:	case 's': 	case 'S':	downMovement = true;	break;
-			case KEY_RIGHT:	case 'd':	case 'D':	rightMovement = true;	break;
-			case KEY_ESC:							userEscAction = true;	break;
-			case L_KEY_ENTER:						userEnterAction = true;	break;
-		}
-	}
-}
-
-void updateUserMovement(int* xVariation, int* yVariation) {
-	if (leftMovement) {
-		*xVariation = -1;
-		*yVariation = 0;
-	} else if (rightMovement) {
-		*xVariation = 1;
-		*yVariation = 0;
-	} else if (upMovement) {
-		*xVariation = 0;
-		*yVariation = -1;
-	} else if (downMovement) {
-		*xVariation = 0;
-		*yVariation = 1;
-	} else {
-		*xVariation = 0;
-		*yVariation = 0;
-	}
-}
-
-void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's where I would put the AI logic
-	if (!chance(100)) {
-		*xVariation = 0;
-		*yVariation = 0;
-	} else if (chance(5)){
-		*xVariation = -1;
-		*yVariation = 0;
-	} else if (chance(5)) {
-		*xVariation = 1;
-		*yVariation = 0;
-	} else if (chance(5)){
-		*xVariation = 0;
-		*yVariation = 1;
-	} else {
-		*xVariation = 0;
-		*yVariation = -1;
-	}
-	if (isColidingWithBoard(x+*xVariation,y+*yVariation)){
-		*xVariation=0;
-		*yVariation=0;
-	}
-}
-
-void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
-	int lowerBound = 1, xUpperBound = BOARD_WIDTH - 4, yUpperBound = BOARD_HEIGHT - 2;
-	if (*userXPosition < lowerBound) {
-		*userXPosition = lowerBound;
-	}
-	if (*userXPosition > xUpperBound) {
-		*userXPosition = xUpperBound;
-	}
-	if (*userYPosition < lowerBound) {
-		*userYPosition = lowerBound;
-	}
-	if (*userYPosition > yUpperBound) {
-		*userYPosition = yUpperBound;
-	}
-}
-
 int getRandomInteger(int i){
 	return rand() % i+1;
 }
@@ -286,70 +208,6 @@ bool chance(int i){
 	//A chance is determined by the first parameter, so for exemple chance(2) has a 50% of returning true
 	//chance(3) has a 33.3% of returning true and so on.
 	return getRandomInteger(i) == i;
-}
-
-void createPlayers() {
-	playerCount = PLAYERS_NUMBER;
-	for (int i = 0; i < PLAYERS_NUMBER; i++){
-		initPlayer(player);
-		players[i] = player;
-		players[i].x = 1+getRandomInteger(BOARD_WIDTH-3);
-		players[i].y = 1+getRandomInteger(BOARD_HEIGHT-3);
-		players[i].xPrevious = players[i].x;
-		players[i].yPrevious = players[i].y;
-	}
-}
-
-void updatePlayers(){
-	for (int i = 0; i < PLAYERS_NUMBER; i++){
-		if (players[i].isAlive){
-			if (i==0) {
-				updateUserMovement(&players[i].horizontalSpeed, &players[i].verticalSpeed);
-			}
-			else {
-				updateBotMovement(players[i].x,players[i].y,&players[i].horizontalSpeed, &players[i].verticalSpeed);
-			}
-
-			players[i].x += players[i].horizontalSpeed;
-			players[i].y += players[i].verticalSpeed;
-		}
-	}
-}
-
-void playersCollisionWithBoard(){
-	for (int i = 0; i < PLAYERS_NUMBER; i++){
-		if (players[i].isAlive){
-			if (isColidingWithBoard(players[i].x,players[i].y)){
-				playerDie(&players[i]);
-			}
-		}
-	}
-}
-
-void playersCollisionWithOtherPlayers(){
-	for (int i = 0; i < PLAYERS_NUMBER; i++){
-		if (players[i].isAlive){
-			for (int j = 0; j < PLAYERS_NUMBER; j++){
-				if (i != j){
-					if (players[i].x == players[j].x && players[i].y == players[j].y){
-						playerDie(&players[i]);
-					}
-				}
-			}
-		}
-	}
-}
-
-void playersCollision(){
-	playersCollisionWithBoard();
-	playersCollisionWithOtherPlayers();
-}
-
-void playerDie(Player *player){
-	if (player->isAlive){
-		playerCount--;
-		player->isAlive = false;
-	}
 }
 
 bool checkLoseCondition(){
