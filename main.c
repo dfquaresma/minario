@@ -64,7 +64,6 @@ void playersCollisionWithBoard();
 void playersCollisionWithOtherPlayers();
 void playersCollision();
 void playersDie(Player player);
-void updatePlayers();
 void drawPlayers();
 void drawTimer(int time);
 
