@@ -1,7 +1,5 @@
 #include "util.h"
 
-void menu();
-
 void drawTimer(int time){
 	mvprintw(1,0,"Tempo:       ");
 	mvprintw(1,0,"Tempo: %d", time);
