@@ -15,7 +15,7 @@ typedef struct {
 #define KEY_ESC 27
 #define L_KEY_ENTER 10
 
-#define PLAYERS_NUMBER 10
+#define PLAYERS_NUMBER 20
 
 bool leftMovement = false;
 bool rightMovement = false;
@@ -108,10 +108,6 @@ void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's
 		*xVariation = 0;
 		*yVariation = -1;
 	}
-	if (isColidingWithBoard(x+*xVariation,y+*yVariation)){
-		*xVariation=0;
-		*yVariation=0;
-	}
 }
 
 void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
@@ -130,15 +126,28 @@ void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
 	}
 }
 
+Player playerFactory(){
+        initPlayer(player);
+        player.x = 1+getRandomInteger(BOARD_WIDTH-3);
+        player.y = 1+getRandomInteger(BOARD_HEIGHT-3);
+        player.xPrevious = player.x;
+        player.yPrevious = player.y;
+        return player;
+}
+
+
+int playersCollisionWithOtherPlayers(int playerCount);
+
 void createPlayers() {
 	playerCount = PLAYERS_NUMBER;
-	for (int i = 0; i < PLAYERS_NUMBER; i++){
-		initPlayer(player);
-		players[i] = player;
-		players[i].x = 1+getRandomInteger(BOARD_WIDTH-3);
-		players[i].y = 1+getRandomInteger(BOARD_HEIGHT-3);
-		players[i].xPrevious = players[i].x;
-		players[i].yPrevious = players[i].y;
+	int createdPlayers = 0;
+	players[createdPlayers] = playerFactory();
+	createdPlayers++;
+	while (createdPlayers < playerCount){
+		players[createdPlayers] = playerFactory();
+		if(playersCollisionWithOtherPlayers(createdPlayers) == -1){
+			createdPlayers++;		
+		}
 	}
 }
 
@@ -165,6 +174,21 @@ void playerDie(Player *player){
 	}
 }
 
+int playersCollisionWithOtherPlayers(int playerCount){
+	for (int i = 0; i < playerCount; i++){
+		if (players[i].isAlive){
+			for (int j = 0; j < playerCount; j++){
+				if (i != j){
+					if (players[i].x == players[j].x && players[i].y == players[j].y){
+						return i;
+					}
+				}
+			}
+		}
+	}
+	return -1;
+}
+
 void playersCollisionWithBoard(){
 	for (int i = 0; i < PLAYERS_NUMBER; i++){
 		if (players[i].isAlive){
@@ -175,21 +199,14 @@ void playersCollisionWithBoard(){
 	}
 }
 
-void playersCollisionWithOtherPlayers(){
-	for (int i = 0; i < PLAYERS_NUMBER; i++){
-		if (players[i].isAlive){
-			for (int j = 0; j < PLAYERS_NUMBER; j++){
-				if (i != j){
-					if (players[i].x == players[j].x && players[i].y == players[j].y){
-						playerDie(&players[i]);
-					}
-				}
-			}
-		}
+void killPlayersWithCollisions(){
+	int checkCollision = playersCollisionWithOtherPlayers(PLAYERS_NUMBER);
+	if (checkCollision != -1){
+		playerDie(&players[checkCollision]);
 	}
 }
 
 void playersCollision(){
 	playersCollisionWithBoard();
-	playersCollisionWithOtherPlayers();
+	killPlayersWithCollisions();
 }
