@@ -25,7 +25,7 @@ int main() {
 
 		switch(gameState) {
 			case GAME_INTRODUCTION_STATE:
-				showGameIntroduction();
+				showGameIntroductionSelectStart();
 				gameState = MENU_STATE;
 			break;
 
