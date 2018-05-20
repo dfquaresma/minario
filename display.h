@@ -87,32 +87,3 @@ void showGameInstructions() {
     delay(60);
     printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
 }
-
-/*
- void showGameIntroduction() {
-
-	bool repeat = true;
-	bool chooseOption = userEnterAction;
-
-	do{
-	clear();
-	printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
-	printw("\n\t\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henrique, Thomaz Diniz");
-	printw("\n\n");
-	delay(60);
-	printw("\n\n\n");
-	delay(100);
-	printw("\t\t\t\tPressione [Enter] para começar o jogo");
-	delay(60);
-	printw("\n\n\n\n\t\tControles:");
-	delay(100);
-	printw("\tUtilize as [Setas] do teclado para se movimentar");
-	delay(10);
-	printw("\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
-	delay(70);
-	printw("\n\n\n\n\n\tObjetivo: Sobreviva o máximo de tempo sem bater nos limites do tabuleiro ou em outros jogadores.");
-	delay(100);
-	} while(repeat);
-}
-
- */
