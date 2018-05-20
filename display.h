@@ -1,7 +1,7 @@
 #include "util.h"
 
-void showGameIntroductionForStart();
-void showGameIntroductionForInstructions();
+void showGameIntroductionSelectStart();
+void showGameIntroductionSelectInstructions();
 void showGameInstructions();
 
 void menu();
@@ -50,15 +50,11 @@ void showGameIntroductionSelectInstructions() {
     printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
     printw("\n\t\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henrique, Thomaz Diniz");
     printw("\n\n");
-    delay(60);
     printw("\n\n\n");
-    delay(100);
     printw("\t\t\t\t\t\t  Começar o jogo");
-    delay(60);
     printw("\n\n\t\t\t\t\t\t> Instruções");
-    delay(100);
+    printw("\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
     printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
-    delay(100);
 }
 
 void showGameInstructions() {
