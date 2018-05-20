@@ -1,7 +1,7 @@
 #include "util.h"
 
-void showGameIntroductionSelectStart();
-void showGameIntroductionSelectInstructions();
+void showGameIntroductionStaticStart();
+void showGameIntroductionStaticInstructions();
 void showMainGameIntroduction();
 void showGameInstructions();
 
@@ -30,7 +30,7 @@ void drawCharWithOffset(int x, int y, char *c, int offset_height, int offset_wid
 void showMainGameIntroduction() {
     clear();
     printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
-    printw("\n\t\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henrique, Thomaz Diniz");
+    printw("\n\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henriques, Thomaz Diniz");
     printw("\n\n");
     delay(60);
     printw("\n\n\n");
@@ -45,11 +45,11 @@ void showMainGameIntroduction() {
     delay(100);
 }
 
-void showGameIntroductionSelectInstructions() {
+void showGameIntroductionStaticInstructions() {
 
     clear();
     printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
-    printw("\n\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henrique, Thomaz Diniz");
+    printw("\n\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henriques, Thomaz Diniz");
     printw("\n\n");
     printw("\n\n\n");
     printw("\t\t\t\t\t\t  Começar o jogo");
@@ -58,11 +58,11 @@ void showGameIntroductionSelectInstructions() {
     printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
 }
 
-void showGameIntroductionSelectStart() {
+void showGameIntroductionStaticStart() {
 
     clear();
     printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
-    printw("\n\t\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henrique, Thomaz Diniz");
+    printw("\n\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henriques, Thomaz Diniz");
     printw("\n\n");
     printw("\n\n\n");
     printw("\t\t\t\t\t\t> Começar o jogo");

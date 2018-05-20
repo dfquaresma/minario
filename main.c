@@ -34,13 +34,13 @@ int main() {
 			case MENU_STATE:
 				if(downMovement){
 					isDown = true;
-					showGameIntroductionSelectInstructions();
+					showGameIntroductionStaticInstructions();
 				} else if(isDown && userEnterAction){
 					showGameInstructions();
 					gameState = INSTRUCTION_STATE;
 				} else if(isDown && upMovement) {
 					isDown = false;
-					showGameIntroductionSelectStart();
+					showGameIntroductionStaticStart();
 				} else if(!isDown) {
 					if(userEnterAction){
 						gameState = START_GAME_STATE;
