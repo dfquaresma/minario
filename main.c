@@ -4,10 +4,11 @@
 
 #define GAME_INTRODUCTION_STATE 0
 #define MENU_STATE 1
-#define START_GAME_STATE 2
-#define PLAY_GAME_STATE 3
-#define WIN_STATE 4
-#define LOSE_STATE 5
+#define INSTRUCTION_STATE 2
+#define START_GAME_STATE 3
+#define PLAY_GAME_STATE 4
+#define WIN_STATE 5
+#define LOSE_STATE 6
 
 void ncursesInit();
 void ncursesEnd();
@@ -26,7 +27,7 @@ int main() {
 
 		switch(gameState) {
 			case GAME_INTRODUCTION_STATE:
-				showGameIntroductionSelectStart();
+				showMainGameIntroduction();
 				gameState = MENU_STATE;
 			break;
 
@@ -34,14 +35,25 @@ int main() {
 				if(downMovement){
 					isDown = true;
 					showGameIntroductionSelectInstructions();
+				} else if(isDown && userEnterAction){
+					showGameInstructions();
+					gameState = INSTRUCTION_STATE;
+				} else if(isDown && upMovement) {
+					isDown = false;
+					showGameIntroductionSelectStart();
+				} else if(!isDown) {
 					if(userEnterAction){
-						showGameIntroductionSelectStart();
+						gameState = START_GAME_STATE;
 					}
 				}
-				if (userEnterAction) {
-					clear();
-					gameState = START_GAME_STATE;
-				}
+			break;
+			case INSTRUCTION_STATE:
+					isDown = false;
+					if (userEnterAction) {
+						clear();
+						showMainGameIntroduction();
+						gameState = MENU_STATE;
+					}
 			break;
 
 			case START_GAME_STATE:

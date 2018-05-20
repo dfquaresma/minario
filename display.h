@@ -2,6 +2,7 @@
 
 void showGameIntroductionSelectStart();
 void showGameIntroductionSelectInstructions();
+void showMainGameIntroduction();
 void showGameInstructions();
 
 void menu();
@@ -26,7 +27,7 @@ void drawCharWithOffset(int x, int y, char *c, int offset_height, int offset_wid
 }
 
 
-void showGameIntroductionSelectStart() {
+void showMainGameIntroduction() {
     clear();
     printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
     printw("\n\t\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henrique, Thomaz Diniz");
@@ -57,6 +58,19 @@ void showGameIntroductionSelectInstructions() {
     printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
 }
 
+void showGameIntroductionSelectStart() {
+
+    clear();
+    printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
+    printw("\n\t\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henrique, Thomaz Diniz");
+    printw("\n\n");
+    printw("\n\n\n");
+    printw("\t\t\t\t\t\t> Começar o jogo");
+    printw("\n\n\t\t\t\t\t\t  Instruções");
+    printw("\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
+    printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
+}
+
 void showGameInstructions() {
     clear();
     printw("\n\t/////////////////////////////////\tInstruções\t/////////////////////////////////");
@@ -68,8 +82,6 @@ void showGameInstructions() {
     printw("\t\t\t\tUtilize as [Setas] do teclado para se movimentar");
     delay(60);
     printw("\n\n\n\t\t\t\t> Voltar");
-    delay(70);
-    delay(100);
 }
 
 /*
