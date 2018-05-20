@@ -49,7 +49,7 @@ void showGameIntroductionSelectInstructions() {
 
     clear();
     printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
-    printw("\n\t\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henrique, Thomaz Diniz");
+    printw("\n\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henrique, Thomaz Diniz");
     printw("\n\n");
     printw("\n\n\n");
     printw("\t\t\t\t\t\t  Começar o jogo");
@@ -76,12 +76,16 @@ void showGameInstructions() {
     printw("\n\t/////////////////////////////////\tInstruções\t/////////////////////////////////");
     printw("\n\n");
     delay(60);
-    printw("\n\n\n");
-    printw("\n\n\n\n\n\tObjetivo: Sobreviva o máximo de tempo sem bater nos limites do tabuleiro ou em outros jogadores.");
+    printw("\n\n\t\t\t\t\t\tObjetivo:");
+    delay(60);
+    printw("\n\n\t\tSobreviva o máximo de tempo sem bater nos limites do tabuleiro ou em outros jogadores.");
     delay(100);
-    printw("\t\t\t\tUtilize as [Setas] do teclado para se movimentar");
+    printw("\n\n\t\t\t\t\t\tComandos:");
+    printw("\n\n\t\t\t\tUtilize as [Setas] do teclado para se movimentar");
     delay(60);
     printw("\n\n\n\t\t\t\t> Voltar");
+    delay(60);
+    printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
 }
 
 /*
