@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include <curses.h>
 
-
 void delay(int milliseconds) {
 	usleep(milliseconds*1000);
 	refresh();

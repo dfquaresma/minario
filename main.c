@@ -15,7 +15,7 @@ void ncursesEnd();
 int getRandomIntegerInRange(int min,int max);
 bool checkLoseCondition();
 bool checkWinCondition();
-bool isDown = false;
+bool usingStaticInstructionScreen = false;
 
 int main() {
 	ncursesInit();
@@ -33,22 +33,22 @@ int main() {
 
 			case MENU_STATE:
 				if(downMovement){
-					isDown = true;
+					usingStaticInstructionScreen = true;
 					showGameIntroductionStaticInstructions();
-				} else if(isDown && userEnterAction){
+				} else if(usingStaticInstructionScreen && userEnterAction){
 					showGameInstructions();
 					gameState = INSTRUCTION_STATE;
-				} else if(isDown && upMovement) {
-					isDown = false;
+				} else if(usingStaticInstructionScreen && upMovement) {
+					usingStaticInstructionScreen = false;
 					showGameIntroductionStaticStart();
-				} else if(!isDown) {
+				} else if(!usingStaticInstructionScreen) {
 					if(userEnterAction){
 						gameState = START_GAME_STATE;
 					}
 				}
 			break;
 			case INSTRUCTION_STATE:
-					isDown = false;
+				usingStaticInstructionScreen = false;
 					if (userEnterAction) {
 						clear();
 						showMainGameIntroduction();

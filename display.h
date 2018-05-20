@@ -1,10 +1,5 @@
 #include "util.h"
 
-void showGameIntroductionStaticStart();
-void showGameIntroductionStaticInstructions();
-void showMainGameIntroduction();
-void showGameInstructions();
-
 void menu();
 
 void drawTimer(int time){
