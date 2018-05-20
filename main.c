@@ -4,16 +4,18 @@
 
 #define GAME_INTRODUCTION_STATE 0
 #define MENU_STATE 1
-#define START_GAME_STATE 2
-#define PLAY_GAME_STATE 3
-#define WIN_STATE 4
-#define LOSE_STATE 5
+#define INSTRUCTION_STATE 2
+#define START_GAME_STATE 3
+#define PLAY_GAME_STATE 4
+#define WIN_STATE 5
+#define LOSE_STATE 6
 
 void ncursesInit();
 void ncursesEnd();
 int getRandomIntegerInRange(int min,int max);
 bool checkLoseCondition();
 bool checkWinCondition();
+bool usingStaticInstructionScreen = false;
 
 int main() {
 	ncursesInit();
@@ -25,15 +27,33 @@ int main() {
 
 		switch(gameState) {
 			case GAME_INTRODUCTION_STATE:
-				showGameIntroduction();
+				showMainGameIntroduction();
 				gameState = MENU_STATE;
 			break;
 
 			case MENU_STATE:
-				if (userEnterAction) {
-					clear();
-					gameState = START_GAME_STATE;
+				if(downMovement){
+					usingStaticInstructionScreen = true;
+					showGameIntroductionStaticInstructions();
+				} else if(usingStaticInstructionScreen && userEnterAction){
+					showGameInstructions();
+					gameState = INSTRUCTION_STATE;
+				} else if(usingStaticInstructionScreen && upMovement) {
+					usingStaticInstructionScreen = false;
+					showGameIntroductionStaticStart();
+				} else if(!usingStaticInstructionScreen) {
+					if(userEnterAction){
+						gameState = START_GAME_STATE;
+					}
 				}
+			break;
+			case INSTRUCTION_STATE:
+				usingStaticInstructionScreen = false;
+					if (userEnterAction) {
+						clear();
+						showMainGameIntroduction();
+						gameState = MENU_STATE;
+					}
 			break;
 
 			case START_GAME_STATE:
