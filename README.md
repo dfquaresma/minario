@@ -12,6 +12,9 @@ and you also need to compile the code by the following command:
 
 **```gcc main.c -lncurses -o main```**
 
+For play the game you only need to execute
+
+**```./main```**
 
 ## How to play
 Minario is played on terminal and you can move your character using the arrow keys. The instructions are also avaliable on the main screen.
