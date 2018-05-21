@@ -126,7 +126,7 @@ void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
 	}
 }
 
-Player playerFactory(){
+Player buildPlayer(){
         initPlayer(player);
         player.x = 1+getRandomInteger(BOARD_WIDTH-3);
         player.y = 1+getRandomInteger(BOARD_HEIGHT-3);
@@ -135,16 +135,28 @@ Player playerFactory(){
         return player;
 }
 
-
-int playersCollisionWithOtherPlayers(int playerCount);
+int playersCollisionWithOtherPlayers(int playerCount){
+	for (int i = 0; i < playerCount; i++){
+		if (players[i].isAlive){
+			for (int j = 0; j < playerCount; j++){
+				if (i != j){
+					if (players[i].x == players[j].x && players[i].y == players[j].y){
+						return i;
+					}
+				}
+			}
+		}
+	}
+	return -1;
+}
 
 void createPlayers() {
 	playerCount = PLAYERS_NUMBER;
 	int createdPlayers = 0;
-	players[createdPlayers] = playerFactory();
+	players[createdPlayers] = buildPlayer();
 	createdPlayers++;
 	while (createdPlayers < playerCount){
-		players[createdPlayers] = playerFactory();
+		players[createdPlayers] = buildPlayer();
 		if(playersCollisionWithOtherPlayers(createdPlayers) == -1){
 			createdPlayers++;		
 		}
@@ -172,21 +184,6 @@ void playerDie(Player *player){
 		playerCount--;
 		player->isAlive = false;
 	}
-}
-
-int playersCollisionWithOtherPlayers(int playerCount){
-	for (int i = 0; i < playerCount; i++){
-		if (players[i].isAlive){
-			for (int j = 0; j < playerCount; j++){
-				if (i != j){
-					if (players[i].x == players[j].x && players[i].y == players[j].y){
-						return i;
-					}
-				}
-			}
-		}
-	}
-	return -1;
 }
 
 void playersCollisionWithBoard(){
