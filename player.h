@@ -150,14 +150,28 @@ int playersCollisionWithOtherPlayers(int playerCount){
 	return -1;
 }
 
+int playerCollisionWithOtherPlayers(int playerCount,int playerToTest){
+	for (int i = 0; i < playerCount; i++){
+		if (players[i].isAlive){
+			if (i != playerToTest){
+				if (players[i].x == players[playerToTest].x && players[i].y == players[playerToTest].y){
+					return i;
+				}
+			}
+		}
+	}
+	return -1;
+}
+
 void createPlayers() {
 	playerCount = PLAYERS_NUMBER;
 	int createdPlayers = 0;
 	players[createdPlayers] = buildPlayer();
 	createdPlayers++;
 	while (createdPlayers < playerCount){
+
 		players[createdPlayers] = buildPlayer();
-		if(playersCollisionWithOtherPlayers(createdPlayers) == -1){
+		if(playerCollisionWithOtherPlayers(createdPlayers,createdPlayers) == -1){
 			createdPlayers++;		
 		}
 	}
