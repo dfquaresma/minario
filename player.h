@@ -15,7 +15,7 @@ typedef struct {
 #define KEY_ESC 27
 #define L_KEY_ENTER 10
 
-#define PLAYERS_NUMBER 20
+#define PLAYERS_NUMBER 30
 
 bool leftMovement = false;
 bool rightMovement = false;
