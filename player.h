@@ -15,7 +15,7 @@ typedef struct {
 #define KEY_ESC 27
 #define L_KEY_ENTER 10
 
-#define PLAYERS_NUMBER 30
+#define PLAYERS_NUMBER 70
 
 bool leftMovement = false;
 bool rightMovement = false;
@@ -108,6 +108,10 @@ void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's
 		*xVariation = 0;
 		*yVariation = -1;
 	}
+	if (isColidingWithBoard(x+*xVariation,y+*yVariation)){
+		*xVariation=0;
+		*yVariation=0;
+}
 }
 
 void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
