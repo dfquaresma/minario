@@ -108,7 +108,7 @@ void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's
 		*xVariation = 0;
 		*yVariation = -1;
 	}
-	if (isColidingWithBoard(x+*xVariation,y+*yVariation)){
+	if (isCollidingWithBoard(x+*xVariation,y+*yVariation)){
 		*xVariation=0;
 		*yVariation=0;
 }
@@ -140,6 +140,7 @@ Player buildPlayer(){
 }
 
 int playersCollisionWithOtherPlayers(int playerCount){
+	int noCollision = -1;
 	for (int i = 0; i < playerCount; i++){
 		if (players[i].isAlive){
 			for (int j = 0; j < playerCount; j++){
@@ -151,10 +152,11 @@ int playersCollisionWithOtherPlayers(int playerCount){
 			}
 		}
 	}
-	return -1;
+	return noCollision;
 }
 
 int playerCollisionWithOtherPlayers(int playerCount,int playerToTest){
+	int noCollision = -1;
 	for (int i = 0; i < playerCount; i++){
 		if (players[i].isAlive){
 			if (i != playerToTest){
@@ -164,19 +166,20 @@ int playerCollisionWithOtherPlayers(int playerCount,int playerToTest){
 			}
 		}
 	}
-	return -1;
+	return noCollision;
 }
 
 void createPlayers() {
 	playerCount = PLAYERS_NUMBER;
 	int createdPlayers = 0;
+	int noCollision = -1;
 	players[createdPlayers] = buildPlayer();
 	createdPlayers++;
 	while (createdPlayers < playerCount){
 
 		players[createdPlayers] = buildPlayer();
-		if(playerCollisionWithOtherPlayers(createdPlayers,createdPlayers) == -1){
-			createdPlayers++;		
+		if(playerCollisionWithOtherPlayers(createdPlayers,createdPlayers) == noCollision){
+			createdPlayers++;
 		}
 	}
 }
@@ -207,7 +210,7 @@ void playerDie(Player *player){
 void playersCollisionWithBoard(){
 	for (int i = 0; i < PLAYERS_NUMBER; i++){
 		if (players[i].isAlive){
-			if (isColidingWithBoard(players[i].x,players[i].y)){
+			if (isCollidingWithBoard(players[i].x,players[i].y)){
 				playerDie(&players[i]);
 			}
 		}
