@@ -15,7 +15,7 @@ typedef struct {
 #define KEY_ESC 27
 #define L_KEY_ENTER 10
 
-#define PLAYERS_NUMBER 20
+#define PLAYERS_NUMBER 70
 
 bool leftMovement = false;
 bool rightMovement = false;
@@ -108,6 +108,10 @@ void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's
 		*xVariation = 0;
 		*yVariation = -1;
 	}
+	if (isCollidingWithBoard(x+*xVariation,y+*yVariation)){
+		*xVariation=0;
+		*yVariation=0;
+}
 }
 
 void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
@@ -136,6 +140,7 @@ Player buildPlayer(){
 }
 
 int playersCollisionWithOtherPlayers(int playerCount){
+	int noCollision = -1;
 	for (int i = 0; i < playerCount; i++){
 		if (players[i].isAlive){
 			for (int j = 0; j < playerCount; j++){
@@ -147,18 +152,34 @@ int playersCollisionWithOtherPlayers(int playerCount){
 			}
 		}
 	}
-	return -1;
+	return noCollision;
+}
+
+int playerCollisionWithOtherPlayers(int playerCount,int playerToTest){
+	int noCollision = -1;
+	for (int i = 0; i < playerCount; i++){
+		if (players[i].isAlive){
+			if (i != playerToTest){
+				if (players[i].x == players[playerToTest].x && players[i].y == players[playerToTest].y){
+					return i;
+				}
+			}
+		}
+	}
+	return noCollision;
 }
 
 void createPlayers() {
 	playerCount = PLAYERS_NUMBER;
 	int createdPlayers = 0;
+	int noCollision = -1;
 	players[createdPlayers] = buildPlayer();
 	createdPlayers++;
 	while (createdPlayers < playerCount){
+
 		players[createdPlayers] = buildPlayer();
-		if(playersCollisionWithOtherPlayers(createdPlayers) == -1){
-			createdPlayers++;		
+		if(playerCollisionWithOtherPlayers(createdPlayers,createdPlayers) == noCollision){
+			createdPlayers++;
 		}
 	}
 }
@@ -189,7 +210,7 @@ void playerDie(Player *player){
 void playersCollisionWithBoard(){
 	for (int i = 0; i < PLAYERS_NUMBER; i++){
 		if (players[i].isAlive){
-			if (isColidingWithBoard(players[i].x,players[i].y)){
+			if (isCollidingWithBoard(players[i].x,players[i].y)){
 				playerDie(&players[i]);
 			}
 		}
@@ -197,8 +218,9 @@ void playersCollisionWithBoard(){
 }
 
 void killPlayersWithCollisions(){
+	int noCollision = -1;
 	int checkCollision = playersCollisionWithOtherPlayers(PLAYERS_NUMBER);
-	if (checkCollision != -1){
+	if (checkCollision != noCollision){
 		playerDie(&players[checkCollision]);
 	}
 }

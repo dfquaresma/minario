@@ -5,12 +5,12 @@
 #define OFFSET_WIDTH 20
 #define OFFSET_HEIGHT 0
 
-#define GAME_BOARD_DECREASE_TIME 5
+#define GAME_BOARD_DECREASE_TIME 10
 
 char gameBoard[BOARD_WIDTH][BOARD_HEIGHT];
 int decreaseGameBoardCount = 0;
 
-bool isColidingWithBoard(int x, int y){
+bool isCollidingWithBoard(int x, int y){
 	return gameBoard[x][y]=='#';
 }
 
@@ -54,7 +54,7 @@ void settingGameBoard() {
 }
 
 void decreaseGameBoardByInterval(clock_t *timeSinceLastGameBoardDecrease){
-	clock_t difference = (clock() - *timeSinceLastGameBoardDecrease)*10/CLOCKS_PER_SEC;
+	clock_t difference = (clock() - *timeSinceLastGameBoardDecrease)*100/CLOCKS_PER_SEC;
 	if (difference > GAME_BOARD_DECREASE_TIME){
 		drawGameBoardBorder();
 		decreaseGameBoardSize();

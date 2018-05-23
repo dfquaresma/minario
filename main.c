@@ -19,7 +19,7 @@ bool usingStaticInstructionScreen = false;
 
 int main() {
 	ncursesInit();
-	clock_t timeSinceLastGameBoardDecrease;
+	clock_t timeSinceLastGameBoardDecrease = clock();
 	int gameState = GAME_INTRODUCTION_STATE;
 
 	while(!userEscAction){
@@ -81,6 +81,7 @@ int main() {
 				if (userEnterAction) {
 					clear();
 					gameState = GAME_INTRODUCTION_STATE;
+					timeSinceLastGameBoardDecrease = clock();
 				}
 			break;
 
@@ -89,6 +90,7 @@ int main() {
 				if (userEnterAction) {
 					clear();
 					gameState = GAME_INTRODUCTION_STATE;
+					timeSinceLastGameBoardDecrease = clock();
 				}
 			break;
 		}
