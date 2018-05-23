@@ -218,8 +218,9 @@ void playersCollisionWithBoard(){
 }
 
 void killPlayersWithCollisions(){
+	int noCollision = -1;
 	int checkCollision = playersCollisionWithOtherPlayers(PLAYERS_NUMBER);
-	if (checkCollision != -1){
+	if (checkCollision != noCollision){
 		playerDie(&players[checkCollision]);
 	}
 }
