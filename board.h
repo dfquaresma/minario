@@ -10,7 +10,7 @@
 char gameBoard[BOARD_WIDTH][BOARD_HEIGHT];
 int decreaseGameBoardCount = 0;
 
-bool isColidingWithBoard(int x, int y){
+bool isCollidingWithBoard(int x, int y){
 	return gameBoard[x][y]=='#';
 }
 
