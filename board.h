@@ -20,7 +20,7 @@ void drawGameBoardBorder(){
 	int leftEdge = decreaseGameBoardCount;
 	int rightEdge = BOARD_WIDTH - decreaseGameBoardCount - 1;
 
-	if  ((bottomEdge - topEdge > 2){
+	if  ((bottomEdge - topEdge) > 2){
 		for (int i = 0; i < BOARD_WIDTH; i++){
 			drawCharWithOffset(i, topEdge, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
 			drawCharWithOffset(i, bottomEdge, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
@@ -44,7 +44,7 @@ void decreaseGameBoardSize(){
 	int leftEdge = decreaseGameBoardCount;
 	int rightEdge = BOARD_WIDTH - decreaseGameBoardCount - 1;
 
-	if  ((bottomEdge - topEdge > 2){
+	if  ((bottomEdge - topEdge) > 2){
 		for (int i = 0; i < BOARD_WIDTH; i++){
 			gameBoard[i][topEdge] = gameBoard[i][bottomEdge] = '#';
 		}
