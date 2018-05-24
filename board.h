@@ -15,16 +15,23 @@ bool isCollidingWithBoard(int x, int y){
 }
 
 void drawGameBoardBorder(){
-	for (int i = 0; i < BOARD_WIDTH; i++){
-		drawCharWithOffset(i, decreaseGameBoardCount, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
-		drawCharWithOffset(i, BOARD_HEIGHT - decreaseGameBoardCount - 1, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
-		if (decreaseGameBoardCount==0) {
-			delay(10);
+	int topEdge = decreaseGameBoardCount;
+	int bottomEdge = BOARD_HEIGHT - decreaseGameBoardCount - 1;
+	int leftEdge = decreaseGameBoardCount;
+	int rightEdge = BOARD_WIDTH - decreaseGameBoardCount - 1;
+
+	if  ((bottomEdge - topEdge) > 2){
+		for (int i = 0; i < BOARD_WIDTH; i++){
+			drawCharWithOffset(i, topEdge, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
+			drawCharWithOffset(i, bottomEdge, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
+			if (decreaseGameBoardCount==0) {
+				delay(10);
+			}
 		}
 	}
 	for (int i = 0; i < BOARD_HEIGHT; i++){
-		drawCharWithOffset(decreaseGameBoardCount, i, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
-		drawCharWithOffset(BOARD_WIDTH - decreaseGameBoardCount - 1, i, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
+		drawCharWithOffset(leftEdge, i, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
+		drawCharWithOffset(rightEdge, i, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
 		if (decreaseGameBoardCount==0) {
 			delay(10);
 		}
@@ -32,11 +39,18 @@ void drawGameBoardBorder(){
 }
 
 void decreaseGameBoardSize(){
-	for (int i = 0; i < BOARD_WIDTH; i++){
-		gameBoard[i][decreaseGameBoardCount] = gameBoard[i][BOARD_HEIGHT - 1 - decreaseGameBoardCount] = '#';
+	int topEdge = decreaseGameBoardCount;
+	int bottomEdge = BOARD_HEIGHT - decreaseGameBoardCount - 1;
+	int leftEdge = decreaseGameBoardCount;
+	int rightEdge = BOARD_WIDTH - decreaseGameBoardCount - 1;
+
+	if  ((bottomEdge - topEdge) > 2){
+		for (int i = 0; i < BOARD_WIDTH; i++){
+			gameBoard[i][topEdge] = gameBoard[i][bottomEdge] = '#';
+		}
 	}
 	for (int i = 0; i < BOARD_HEIGHT; i++){
-		gameBoard[decreaseGameBoardCount][i] = gameBoard[BOARD_WIDTH - 1 - decreaseGameBoardCount][i] = '#';
+		gameBoard[leftEdge][i] = gameBoard[rightEdge][i] = '#';
 	}
 	decreaseGameBoardCount++;
 }
