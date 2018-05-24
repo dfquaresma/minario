@@ -91,29 +91,6 @@ void updateUserMovement(int* xVariation, int* yVariation) {
 	}
 }
 
-void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's where I would put the AI logic
-	if (!chance(100)) {
-		*xVariation = 0;
-		*yVariation = 0;
-	} else if (chance(5)){
-		*xVariation = -1;
-		*yVariation = 0;
-	} else if (chance(5)) {
-		*xVariation = 1;
-		*yVariation = 0;
-	} else if (chance(5)){
-		*xVariation = 0;
-		*yVariation = 1;
-	} else {
-		*xVariation = 0;
-		*yVariation = -1;
-	}
-	if (isCollidingWithBoard(x+*xVariation,y+*yVariation)){
-		*xVariation=0;
-		*yVariation=0;
-}
-}
-
 void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
 	int lowerBound = 1, xUpperBound = BOARD_WIDTH - 4, yUpperBound = BOARD_HEIGHT - 2;
 	if (*userXPosition < lowerBound) {
@@ -155,7 +132,7 @@ int playersCollisionWithOtherPlayers(int playerCount){
 	return noCollision;
 }
 
-int playerCollisionWithOtherPlayers(int playerCount,int playerToTest){
+int playerCollisionWithOtherPlayers(int playerCount, int playerToTest){
 	int noCollision = -1;
 	for (int i = 0; i < playerCount; i++){
 		if (players[i].isAlive){
@@ -169,33 +146,34 @@ int playerCollisionWithOtherPlayers(int playerCount,int playerToTest){
 	return noCollision;
 }
 
+int collisionBetweenPlayers(int playerCount, int x, int y, int xVariation, int yVariation){
+	int noCollision = -1;
+	for (int i = 0; i < playerCount; i++){
+		if (players[i].isAlive){
+			if(players[i].x == x && players[i].y == y){
+				for (int j = 0; j < playerCount; j++){
+					if (i != j){
+						if ((players[i].x + xVariation) == players[j].x && (players[i].y + yVariation) == players[j].y){
+							return i;
+						}
+					}
+				}
+			}
+		}
+	}
+	return noCollision;
+}
+
 void createPlayers() {
+	int noCollision = -1;
 	playerCount = PLAYERS_NUMBER;
 	int createdPlayers = 0;
-	int noCollision = -1;
 	players[createdPlayers] = buildPlayer();
 	createdPlayers++;
 	while (createdPlayers < playerCount){
-
 		players[createdPlayers] = buildPlayer();
 		if(playerCollisionWithOtherPlayers(createdPlayers,createdPlayers) == noCollision){
 			createdPlayers++;
-		}
-	}
-}
-
-void updatePlayers(){
-	for (int i = 0; i < PLAYERS_NUMBER; i++){
-		if (players[i].isAlive){
-			if (i==0) {
-				updateUserMovement(&players[i].horizontalSpeed, &players[i].verticalSpeed);
-			}
-			else {
-				updateBotMovement(players[i].x,players[i].y,&players[i].horizontalSpeed, &players[i].verticalSpeed);
-			}
-
-			players[i].x += players[i].horizontalSpeed;
-			players[i].y += players[i].verticalSpeed;
 		}
 	}
 }
@@ -228,4 +206,54 @@ void killPlayersWithCollisions(){
 void playersCollision(){
 	playersCollisionWithBoard();
 	killPlayersWithCollisions();
+}
+
+bool checkSafePosition(int x, int y, int xVariation, int yVariation){
+	int noCollision = -1;
+	bool safePosition = true;
+	if (isCollidingWithBoard(x + xVariation, y + yVariation)){
+		safePosition = false;
+	}
+	if(collisionBetweenPlayers(PLAYERS_NUMBER, x, y, xVariation, yVariation) != noCollision){
+		safePosition = false;
+	}
+	return safePosition;
+}
+
+void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's where I would put the AI logic	
+	int moveFoward = 1;
+	int moveBackward = -1;
+	int dontMove = 0;
+	if (!chance(100)) {
+		*xVariation = dontMove;
+		*yVariation = dontMove;
+	} else if (checkSafePosition(x, y, moveBackward, dontMove) && chance(5)){
+		*xVariation = moveBackward;
+		*yVariation = dontMove;
+	} else if (checkSafePosition(x, y, moveFoward, dontMove) && chance(5)) {
+		*xVariation = moveFoward;
+		*yVariation = dontMove;
+	} else if (checkSafePosition(x, y, dontMove, moveFoward) && chance(5)){
+		*xVariation = dontMove;
+		*yVariation = moveFoward;
+	} else if (checkSafePosition(x, y, dontMove, moveBackward) && chance(5)){
+		*xVariation = dontMove;
+		*yVariation = moveBackward;
+	}
+}
+
+void updatePlayers(){
+	for (int i = 0; i < PLAYERS_NUMBER; i++){
+		if (players[i].isAlive){
+			if (i==0) {
+				updateUserMovement(&players[i].horizontalSpeed, &players[i].verticalSpeed);
+			}
+			else {
+				updateBotMovement(players[i].x,players[i].y,&players[i].horizontalSpeed, &players[i].verticalSpeed);
+			}
+
+			players[i].x += players[i].horizontalSpeed;
+			players[i].y += players[i].verticalSpeed;
+		}
+	}
 }
