@@ -150,10 +150,10 @@ int collisionBetweenPlayers(int playerCount, int x, int y, int xVariation, int y
 	int noCollision = -1;
 	for (int i = 0; i < playerCount; i++){
 		if (players[i].isAlive){
-			if(players[i].x != x && players[i].y != y){
+			if(players[i].x == x && players[i].y == y){
 				for (int j = 0; j < playerCount; j++){
 					if (i != j){
-						if ((players[i].x + xVariation) != players[j].x && (players[i].y + yVariation) == players[j].y){
+						if ((players[i].x + xVariation) == players[j].x && (players[i].y + yVariation) == players[j].y){
 							return i;
 						}
 					}
@@ -210,12 +210,12 @@ void playersCollision(){
 
 bool checkSafePosition(int x, int y, int xVariation, int yVariation){
 	int noCollision = -1;
-	bool safePosition = false;
-	if (!(isCollidingWithBoard(x + xVariation, y + yVariation))){
-		safePosition = true ;
+	bool safePosition = true;
+	if (isCollidingWithBoard(x + xVariation, y + yVariation)){
+		safePosition = false;
 	}
-	else if(collisionBetweenPlayers(PLAYERS_NUMBER, x, y, xVariation, yVariation) == noCollision){
-		safePosition = true;
+	if(collisionBetweenPlayers(PLAYERS_NUMBER, x, y, xVariation, yVariation) != noCollision){
+		safePosition = false;
 	}
 	return safePosition;
 }
