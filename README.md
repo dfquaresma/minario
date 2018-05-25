@@ -10,11 +10,11 @@ For playing this, you need to install the library _ncurses_ by the following com
 
 and you also need to compile the code by the following command:
 
-**```gcc main.c -lncurses -o main```**
+**```gcc main.c -lncurses -o minario```**
 
 For play the game you only need to execute
 
-**```./main```**
+**```./minario```**
 
 ## How to play
 Minario is played on terminal and you can move your character using the arrow keys. The instructions are also avaliable on the main screen.
