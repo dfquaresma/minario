@@ -94,22 +94,6 @@ void updateUserMovement(int* xVariation, int* yVariation) {
 	}
 }
 
-void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
-	int lowerBound = 1, xUpperBound = BOARD_WIDTH - 4, yUpperBound = BOARD_HEIGHT - 2;
-	if (*userXPosition < lowerBound) {
-		*userXPosition = lowerBound;
-	}
-	if (*userXPosition > xUpperBound) {
-		*userXPosition = xUpperBound;
-	}
-	if (*userYPosition < lowerBound) {
-		*userYPosition = lowerBound;
-	}
-	if (*userYPosition > yUpperBound) {
-		*userYPosition = yUpperBound;
-	}
-}
-
 Player buildPlayer(){
         initPlayer(player);
         player.x = 1+getRandomInteger(BOARD_WIDTH-3);
@@ -250,10 +234,9 @@ void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {
 }
 
 void moveUser() {
-	Player user = players[USER_PLAYER_NUMBER];
-	updateUserMovement(&user.horizontalSpeed, &user.verticalSpeed);
-	user.x += user.horizontalSpeed;
-	user.y += user.verticalSpeed;
+	updateUserMovement(&players[USER_PLAYER_NUMBER].horizontalSpeed, &players[USER_PLAYER_NUMBER].verticalSpeed);
+	players[USER_PLAYER_NUMBER].x += players[USER_PLAYER_NUMBER].horizontalSpeed;
+	players[USER_PLAYER_NUMBER].y += players[USER_PLAYER_NUMBER].verticalSpeed;
 }
 
 void moveBots(long long int* lastBotsPositionUpdateTime) {
