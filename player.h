@@ -220,26 +220,27 @@ bool checkSafePosition(int x, int y, int xVariation, int yVariation){
 	return safePosition;
 }
 
-void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's where I would put the AI logic	
-	int moveFoward = 1;
-	int moveBackward = -1;
-	int dontMove = 0;
-	if (!chance(100)) {
-		*xVariation = dontMove;
-		*yVariation = dontMove;
-	} else if (checkSafePosition(x, y, moveBackward, dontMove) && chance(5)){
-		*xVariation = moveBackward;
-		*yVariation = dontMove;
-	} else if (checkSafePosition(x, y, moveFoward, dontMove) && chance(5)) {
-		*xVariation = moveFoward;
-		*yVariation = dontMove;
-	} else if (checkSafePosition(x, y, dontMove, moveFoward) && chance(5)){
-		*xVariation = dontMove;
-		*yVariation = moveFoward;
-	} else if (checkSafePosition(x, y, dontMove, moveBackward) && chance(5)){
-		*xVariation = dontMove;
-		*yVariation = moveBackward;
+void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {
+	// The bot always keep a distance of at least 1 cell from the Board and any other player.
+	// The bot can move to any adjacent cell.
+	int iMove[] = {0, 0, 0, 1, 1, 1, -1, -1, -1};
+	int jMove[] = {0, 1, -1, 0, 1, -1, 0, 1, -1};
+	int canMove[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+	int movementsNumber = 9, possibleMovementsNumber = 0;
+	for(int i = 0; i < movementsNumber;i++) {
+		if(checkSafePosition(x, y, iMove[i], jMove[j])) {
+			canMove[i] = 1;
+			possibleMovementsNumber++;
+		}
 	}
+	int electedMovement = getRandomInteger(possibleMovementsNumber), electedMovementPos = 0;
+	for(int i = 0; i < electedMovement && electedMovementPos < movementsNumber;electedMovementPos++) {
+		if(canMove[electedMovementPos] == 1) {
+			i++;
+		}
+	}
+	*xVariation = iMove[electedMovementPos - 1];
+	*yVariation = jMove[electedMovementPos - 1];
 }
 
 void updatePlayers(){
