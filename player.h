@@ -209,15 +209,20 @@ void playersCollision(){
 }
 
 bool checkSafePosition(int x, int y, int xVariation, int yVariation){
-	int noCollision = -1;
-	bool safePosition = true;
-	if (isCollidingWithBoard(x + xVariation, y + yVariation)){
-		safePosition = false;
+	int iMove[] = {0, 0, 0, 1, 1, 1, -1, -1, -1};
+	int jMove[] = {0, 1, -1, 0, 1, -1, 0, 1, -1};
+	int k = 9;
+	bool isSafePosition = true;
+	for(int i = 0;i < k && isSafePosition;i++) {
+		if (isCollidingWithBoard(x + xVariation + iMove[i], y + yVariation + jMove[i])) {
+			isSafePosition = false;
+		}
+		int noCollision = -1;
+		if (collisionBetweenPlayers(PLAYERS_NUMBER, x, y, xVariation + iMove[i], yVariation + jMove[i]) != noCollision) {
+			isSafePosition = false;
+		}
 	}
-	if(collisionBetweenPlayers(PLAYERS_NUMBER, x, y, xVariation, yVariation) != noCollision){
-		safePosition = false;
-	}
-	return safePosition;
+	return isSafePosition;
 }
 
 void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {
@@ -234,8 +239,8 @@ void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {
 	}
 	int movementPos = 0;
 	if(possibleMovements > 0) {
-		    int electedMovement = rand() % possibleMovements;
-		    movementPos = canMove[electedMovement];
+		int electedMovement = rand() % possibleMovements;
+		movementPos = canMove[electedMovement];
 	}
 	*xVariation = iMove[movementPos];
 	*yVariation = jMove[movementPos];
