@@ -16,6 +16,9 @@ typedef struct {
 #define L_KEY_ENTER 10
 
 #define PLAYERS_NUMBER 70
+#define USER_PLAYER_NUMBER 0
+
+#define BOTS_UPDATE_INTERVAL 500
 
 bool leftMovement = false;
 bool rightMovement = false;
@@ -246,18 +249,24 @@ void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {
 	*yVariation = jMove[movementPos];
 }
 
-void updatePlayers(){
-	for (int i = 0; i < PLAYERS_NUMBER; i++){
-		if (players[i].isAlive){
-			if (i==0) {
-				updateUserMovement(&players[i].horizontalSpeed, &players[i].verticalSpeed);
-			}
-			else {
-				updateBotMovement(players[i].x,players[i].y,&players[i].horizontalSpeed, &players[i].verticalSpeed);
-			}
+void moveUser() {
+	Player user = players[USER_PLAYER_NUMBER];
+	updateUserMovement(&user.horizontalSpeed, &user.verticalSpeed);
+	user.x += user.horizontalSpeed;
+	user.y += user.verticalSpeed;
+}
 
-			players[i].x += players[i].horizontalSpeed;
-			players[i].y += players[i].verticalSpeed;
+void moveBots(long long int* lastBotsPositionUpdateTime) {
+	long long int interval = getCurrentTimestamp() - *lastBotsPositionUpdateTime;
+	if(interval > BOTS_UPDATE_INTERVAL) {
+		for (int i = 1; i < PLAYERS_NUMBER; i++) {
+			if (players[i].isAlive) { 
+				updateBotMovement(players[i].x, players[i].y, &players[i].horizontalSpeed, &players[i].verticalSpeed);
+				players[i].x += players[i].horizontalSpeed;
+				players[i].y += players[i].verticalSpeed;
+			}
 		}
+		*lastBotsPositionUpdateTime = getCurrentTimestamp();
 	}
 }
+
