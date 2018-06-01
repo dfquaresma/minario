@@ -225,22 +225,20 @@ void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {
 	// The bot can move to any adjacent cell.
 	int iMove[] = {0, 0, 0, 1, 1, 1, -1, -1, -1};
 	int jMove[] = {0, 1, -1, 0, 1, -1, 0, 1, -1};
-	int canMove[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-	int movementsNumber = 9, possibleMovementsNumber = 0;
+	int movementsNumber = 9, possibleMovements = 0;
+	int canMove[9] = {0};
 	for(int i = 0; i < movementsNumber;i++) {
-		if(checkSafePosition(x, y, iMove[i], jMove[j])) {
-			canMove[i] = 1;
-			possibleMovementsNumber++;
+		if(checkSafePosition(x, y, iMove[i], jMove[i])) {
+			canMove[possibleMovements++] = i;
 		}
 	}
-	int electedMovement = getRandomInteger(possibleMovementsNumber), electedMovementPos = 0;
-	for(int i = 0; i < electedMovement && electedMovementPos < movementsNumber;electedMovementPos++) {
-		if(canMove[electedMovementPos] == 1) {
-			i++;
-		}
+	int movementPos = 0;
+	if(possibleMovements > 0) {
+		    int electedMovement = rand() % possibleMovements;
+		    movementPos = canMove[electedMovement];
 	}
-	*xVariation = iMove[electedMovementPos - 1];
-	*yVariation = jMove[electedMovementPos - 1];
+	*xVariation = iMove[movementPos];
+	*yVariation = jMove[movementPos];
 }
 
 void updatePlayers(){
