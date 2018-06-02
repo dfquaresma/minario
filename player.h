@@ -135,10 +135,10 @@ int playerCollisionWithOtherPlayers(int playerCount, int playerToTest){
 
 int collisionBetweenPlayers(int playerCount, int x, int y, int xVariation, int yVariation){
 	int noCollision = -1;
-	for (int i = 0; i < playerCount; i++){
+	for (int i = 1; i < playerCount; i++){
 		if (players[i].isAlive){
 			if(players[i].x == x && players[i].y == y){
-				for (int j = 0; j < playerCount; j++){
+				for (int j = 1; j < playerCount; j++){
 					if (i != j){
 						if ((players[i].x + xVariation) == players[j].x && (players[i].y + yVariation) == players[j].y){
 							return i;
