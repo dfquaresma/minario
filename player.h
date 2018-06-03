@@ -16,6 +16,9 @@ typedef struct {
 #define L_KEY_ENTER 10
 
 #define PLAYERS_NUMBER 70
+#define USER_PLAYER_NUMBER 0
+
+#define BOTS_UPDATE_INTERVAL 500
 
 bool leftMovement = false;
 bool rightMovement = false;
@@ -91,22 +94,6 @@ void updateUserMovement(int* xVariation, int* yVariation) {
 	}
 }
 
-void ensureUserPositionInLimits(int* userXPosition, int* userYPosition) {
-	int lowerBound = 1, xUpperBound = BOARD_WIDTH - 4, yUpperBound = BOARD_HEIGHT - 2;
-	if (*userXPosition < lowerBound) {
-		*userXPosition = lowerBound;
-	}
-	if (*userXPosition > xUpperBound) {
-		*userXPosition = xUpperBound;
-	}
-	if (*userYPosition < lowerBound) {
-		*userYPosition = lowerBound;
-	}
-	if (*userYPosition > yUpperBound) {
-		*userYPosition = yUpperBound;
-	}
-}
-
 Player buildPlayer(){
         initPlayer(player);
         player.x = 1+getRandomInteger(BOARD_WIDTH-3);
@@ -148,10 +135,10 @@ int playerCollisionWithOtherPlayers(int playerCount, int playerToTest){
 
 int collisionBetweenPlayers(int playerCount, int x, int y, int xVariation, int yVariation){
 	int noCollision = -1;
-	for (int i = 0; i < playerCount; i++){
+	for (int i = 1; i < playerCount; i++){
 		if (players[i].isAlive){
 			if(players[i].x == x && players[i].y == y){
-				for (int j = 0; j < playerCount; j++){
+				for (int j = 1; j < playerCount; j++){
 					if (i != j){
 						if ((players[i].x + xVariation) == players[j].x && (players[i].y + yVariation) == players[j].y){
 							return i;
@@ -209,51 +196,60 @@ void playersCollision(){
 }
 
 bool checkSafePosition(int x, int y, int xVariation, int yVariation){
-	int noCollision = -1;
-	bool safePosition = true;
-	if (isCollidingWithBoard(x + xVariation, y + yVariation)){
-		safePosition = false;
-	}
-	if(collisionBetweenPlayers(PLAYERS_NUMBER, x, y, xVariation, yVariation) != noCollision){
-		safePosition = false;
-	}
-	return safePosition;
-}
-
-void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {//Here's where I would put the AI logic	
-	int moveFoward = 1;
-	int moveBackward = -1;
-	int dontMove = 0;
-	if (!chance(100)) {
-		*xVariation = dontMove;
-		*yVariation = dontMove;
-	} else if (checkSafePosition(x, y, moveBackward, dontMove) && chance(5)){
-		*xVariation = moveBackward;
-		*yVariation = dontMove;
-	} else if (checkSafePosition(x, y, moveFoward, dontMove) && chance(5)) {
-		*xVariation = moveFoward;
-		*yVariation = dontMove;
-	} else if (checkSafePosition(x, y, dontMove, moveFoward) && chance(5)){
-		*xVariation = dontMove;
-		*yVariation = moveFoward;
-	} else if (checkSafePosition(x, y, dontMove, moveBackward) && chance(5)){
-		*xVariation = dontMove;
-		*yVariation = moveBackward;
-	}
-}
-
-void updatePlayers(){
-	for (int i = 0; i < PLAYERS_NUMBER; i++){
-		if (players[i].isAlive){
-			if (i==0) {
-				updateUserMovement(&players[i].horizontalSpeed, &players[i].verticalSpeed);
-			}
-			else {
-				updateBotMovement(players[i].x,players[i].y,&players[i].horizontalSpeed, &players[i].verticalSpeed);
-			}
-
-			players[i].x += players[i].horizontalSpeed;
-			players[i].y += players[i].verticalSpeed;
+	int iMove[] = {0, 0, 0, 1, 1, 1, -1, -1, -1};
+	int jMove[] = {0, 1, -1, 0, 1, -1, 0, 1, -1};
+	int k = 9;
+	bool isSafePosition = true;
+	for(int i = 0;i < k && isSafePosition;i++) {
+		if (isCollidingWithBoard(x + xVariation + iMove[i], y + yVariation + jMove[i])) {
+			isSafePosition = false;
+		}
+		int noCollision = -1;
+		if (collisionBetweenPlayers(PLAYERS_NUMBER, x, y, xVariation + iMove[i], yVariation + jMove[i]) != noCollision) {
+			isSafePosition = false;
 		}
 	}
+	return isSafePosition;
 }
+
+void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {
+	// The bot always keep a distance of at least 1 cell from the Board and any other player.
+	// The bot can move to any adjacent cell.
+	int iMove[] = {0, 0, 0, 1, 1, 1, -1, -1, -1};
+	int jMove[] = {0, 1, -1, 0, 1, -1, 0, 1, -1};
+	int movementsNumber = 9, possibleMovements = 0;
+	int canMove[9] = {0};
+	for(int i = 0; i < movementsNumber;i++) {
+		if(checkSafePosition(x, y, iMove[i], jMove[i])) {
+			canMove[possibleMovements++] = i;
+		}
+	}
+	int movementPos = 0;
+	if(possibleMovements > 0) {
+		int electedMovement = rand() % possibleMovements;
+		movementPos = canMove[electedMovement];
+	}
+	*xVariation = iMove[movementPos];
+	*yVariation = jMove[movementPos];
+}
+
+void moveUser() {
+	updateUserMovement(&players[USER_PLAYER_NUMBER].horizontalSpeed, &players[USER_PLAYER_NUMBER].verticalSpeed);
+	players[USER_PLAYER_NUMBER].x += players[USER_PLAYER_NUMBER].horizontalSpeed;
+	players[USER_PLAYER_NUMBER].y += players[USER_PLAYER_NUMBER].verticalSpeed;
+}
+
+void moveBots(long long int* lastBotsPositionUpdateTime) {
+	long long int interval = getCurrentTimestamp() - *lastBotsPositionUpdateTime;
+	if(interval > BOTS_UPDATE_INTERVAL) {
+		for (int i = 1; i < PLAYERS_NUMBER; i++) {
+			if (players[i].isAlive) { 
+				updateBotMovement(players[i].x, players[i].y, &players[i].horizontalSpeed, &players[i].verticalSpeed);
+				players[i].x += players[i].horizontalSpeed;
+				players[i].y += players[i].verticalSpeed;
+			}
+		}
+		*lastBotsPositionUpdateTime = getCurrentTimestamp();
+	}
+}
+

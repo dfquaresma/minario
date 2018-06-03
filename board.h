@@ -67,12 +67,12 @@ void settingGameBoard() {
 	decreaseGameBoardSize();
 }
 
-void decreaseGameBoardByInterval(clock_t *timeSinceLastGameBoardDecrease){
-	clock_t difference = (clock() - *timeSinceLastGameBoardDecrease)*100/CLOCKS_PER_SEC;
+void decreaseGameBoardByInterval(long long int* timeSinceLastGameBoardDecrease) {
+	long long int difference = (getCurrentTimestamp() - *timeSinceLastGameBoardDecrease)/1000;
 	if (difference > GAME_BOARD_DECREASE_TIME){
 		drawGameBoardBorder();
 		decreaseGameBoardSize();
-		*timeSinceLastGameBoardDecrease = clock();
+		*timeSinceLastGameBoardDecrease = getCurrentTimestamp();
 	}
 	drawTimer(GAME_BOARD_DECREASE_TIME-difference);
 }
