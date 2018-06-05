@@ -199,13 +199,14 @@ bool checkSafePosition(int x, int y, int xVariation, int yVariation){
 	int iMove[] = {0, 0, 0, 1, 1, 1, -1, -1, -1};
 	int jMove[] = {0, 1, -1, 0, 1, -1, 0, 1, -1};
 	int k = 9;
+	int chance = 2;
 	bool isSafePosition = true;
 	for(int i = 0;i < k && isSafePosition;i++) {
 		if (isCollidingWithBoard(x + xVariation + iMove[i], y + yVariation + jMove[i])) {
 			isSafePosition = false;
 		}
 
-		if (getRandomInteger(2) != 2) {
+		if (getRandomInteger(chance) != chance) {
 			int noCollision = -1;
 			if (collisionBetweenPlayers(PLAYERS_NUMBER, x, y, xVariation + iMove[i], yVariation + jMove[i]) != noCollision) {
 				isSafePosition = false;
