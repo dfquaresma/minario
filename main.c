@@ -19,8 +19,8 @@ bool usingStaticInstructionScreen = false;
 
 int main() {
 	ncursesInit();
-	long long int timeSinceLastGameBoardDecrease = getCurrentTimestamp();
-	long long int lastBotsPositionUpdateTime = getCurrentTimestamp();
+	long long int timeSinceLastGameBoardDecrease;
+	long long int lastBotsPositionUpdateTime;
 	int gameState = GAME_INTRODUCTION_STATE;
 
 	while(!userEscAction){
@@ -58,6 +58,8 @@ int main() {
 			break;
 
 			case START_GAME_STATE:
+				timeSinceLastGameBoardDecrease = getCurrentTimestamp();
+				lastBotsPositionUpdateTime = getCurrentTimestamp();
 				createPlayers();
 				settingGameBoard();
 				delay(60);
@@ -83,8 +85,6 @@ int main() {
 				if (userEnterAction) {
 					clear();
 					gameState = GAME_INTRODUCTION_STATE;
-					timeSinceLastGameBoardDecrease = getCurrentTimestamp();
-					lastBotsPositionUpdateTime = getCurrentTimestamp();
 				}
 			break;
 
@@ -93,8 +93,6 @@ int main() {
 				if (userEnterAction) {
 					clear();
 					gameState = GAME_INTRODUCTION_STATE;
-					timeSinceLastGameBoardDecrease = getCurrentTimestamp();
-					lastBotsPositionUpdateTime = getCurrentTimestamp();
 				}
 			break;
 		}
