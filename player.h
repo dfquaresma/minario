@@ -15,7 +15,7 @@ typedef struct {
 #define KEY_ESC 27
 #define L_KEY_ENTER 10
 
-#define PLAYERS_NUMBER 70
+#define PLAYERS_NUMBER 50
 #define USER_PLAYER_NUMBER 0
 
 #define BOTS_UPDATE_INTERVAL 500
@@ -204,9 +204,12 @@ bool checkSafePosition(int x, int y, int xVariation, int yVariation){
 		if (isCollidingWithBoard(x + xVariation + iMove[i], y + yVariation + jMove[i])) {
 			isSafePosition = false;
 		}
-		int noCollision = -1;
-		if (collisionBetweenPlayers(PLAYERS_NUMBER, x, y, xVariation + iMove[i], yVariation + jMove[i]) != noCollision) {
-			isSafePosition = false;
+
+		if (getRandomInteger(2) != 2) {
+			int noCollision = -1;
+			if (collisionBetweenPlayers(PLAYERS_NUMBER, x, y, xVariation + iMove[i], yVariation + jMove[i]) != noCollision) {
+				isSafePosition = false;
+			}
 		}
 	}
 	return isSafePosition;
