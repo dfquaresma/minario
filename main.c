@@ -4,11 +4,12 @@
 
 #define GAME_INTRODUCTION_STATE 0
 #define MENU_STATE 1
-#define INSTRUCTION_STATE 2
-#define START_GAME_STATE 3
-#define PLAY_GAME_STATE 4
-#define WIN_STATE 5
-#define LOSE_STATE 6
+#define DIFFICULTY_STATE 2
+#define INSTRUCTION_STATE 3
+#define START_GAME_STATE 4
+#define PLAY_GAME_STATE 5
+#define WIN_STATE 6
+#define LOSE_STATE 7
 
 void ncursesInit();
 void ncursesEnd();
@@ -44,10 +45,11 @@ int main() {
 					showGameIntroductionStaticStart();
 				} else if(!usingStaticInstructionScreen) {
 					if(userEnterAction){
-						gameState = START_GAME_STATE;
+						gameState = DIFFICULTY_STATE;
 					}
 				}
 			break;
+			
 			case INSTRUCTION_STATE:
 				usingStaticInstructionScreen = false;
 					if (userEnterAction) {
@@ -55,6 +57,63 @@ int main() {
 						showMainGameIntroduction();
 						gameState = MENU_STATE;
 					}
+			break;
+
+			case DIFFICULTY_STATE:
+				int difficultyOption = 0;
+				showGameDifficultyOptions0();
+				if(downMovement){
+					difficultyOption = (difficultyOption + 1) % 3;
+					switch (difficultyOption) {
+					case 0:
+						showGameDifficultyOptions0();
+					break;
+					
+					case 1:
+						showGameDifficultyOptions2();
+					break;
+					
+					case 2:
+						showGameDifficultyOptions2();
+					break;
+					}
+				
+				} else if (upMovement) {
+					difficultyOption = difficultyOption - 1;
+					if (difficultyOption < 0) {
+						difficultyOption = 0;
+					}
+					switch (difficultyOption) {
+					case 0:
+						showGameDifficultyOptions0();
+					break;
+					
+					case 1:
+						showGameDifficultyOptions2();
+					break;
+					
+					case 2:
+						showGameDifficultyOptions2();
+					break;
+					}
+				
+				} else if(userEnterAction){
+					switch (difficultyOption) {
+					case 0:
+						PLAYERS_NUMBER = 30;
+					break;
+					
+					case 1:
+						PLAYERS_NUMBER = 50;
+					break;
+					
+					case 2:
+						PLAYERS_NUMBER = 100;
+					break;
+					}
+					
+					gameState = START_GAME_STATE;
+				} 
 			break;
 
 			case START_GAME_STATE:

@@ -15,7 +15,6 @@ typedef struct {
 #define KEY_ESC 27
 #define L_KEY_ENTER 10
 
-#define PLAYERS_NUMBER 100
 #define USER_PLAYER_NUMBER 0
 
 #define BOTS_UPDATE_INTERVAL 500
@@ -28,11 +27,20 @@ bool downMovement = false;
 bool userEscAction = false;
 bool userEnterAction = false;
 
-int playerCount = PLAYERS_NUMBER;
-Player players[PLAYERS_NUMBER];
+int viewChance = 3;
+int players_number = 100;
+int playerCount = 100;
+Player players[100];
+
+void updateDifficulty(int newNumberOfPlayers, int newViewChance) {
+	viewChance = newViewChance;	
+	players_number = newNumberOfPlayers;
+	playerCount = newNumberOfPlayers;
+	players[newNumberOfPlayers];
+}
 
 void drawPlayers(){
-	for (int i = 0; i < PLAYERS_NUMBER; i++){
+	for (int i = 0; i < players_number; i++){
 		drawCharWithOffset(players[i].xPrevious, players[i].yPrevious, " ", OFFSET_HEIGHT, OFFSET_WIDTH);
 
 		players[i].xPrevious = players[i].x;
@@ -153,7 +161,7 @@ int collisionBetweenPlayers(int playerCount, int x, int y, int xVariation, int y
 
 void createPlayers() {
 	int noCollision = -1;
-	playerCount = PLAYERS_NUMBER;
+	playerCount = players_number;
 	int createdPlayers = 0;
 	players[createdPlayers] = buildPlayer();
 	createdPlayers++;
@@ -173,13 +181,13 @@ void playerDie(Player *player){
 }
 
 void killAllBots() {
-	for (int i = 1; i < PLAYERS_NUMBER; i++){
+	for (int i = 1; i < players_number; i++){
 		playerDie(&players[i]);
 	}
 }
 
 void playersCollisionWithBoard(){
-	for (int i = 0; i < PLAYERS_NUMBER; i++){
+	for (int i = 0; i < players_number; i++){
 		if (players[i].isAlive){
 			if (isCollidingWithBoard(players[i].x,players[i].y)){
 				playerDie(&players[i]);
@@ -190,7 +198,7 @@ void playersCollisionWithBoard(){
 
 void killPlayersWithCollisions(){
 	int noCollision = -1;
-	int checkCollision = playersCollisionWithOtherPlayers(PLAYERS_NUMBER);
+	int checkCollision = playersCollisionWithOtherPlayers(players_number);
 	if (checkCollision != noCollision){
 		playerDie(&players[checkCollision]);
 	}
@@ -206,14 +214,13 @@ bool checkSafePosition(int x, int y, int xVariation, int yVariation){
 	int jMove[] = {0, 1, -1, 0, 1, -1, 0, 1, -1};
 	int k = 9;
 	bool isSafePosition = true;
-	int difficulty = 2;
 	for(int i = 0;i < k && isSafePosition;i++) {
 		if (isCollidingWithBoard(x + xVariation + iMove[i], y + yVariation + jMove[i])) {
 			isSafePosition = false;
 		}
-		if (getRandomInteger(difficulty) != difficulty) {
+		if (getRandomInteger(viewChance) != viewChance) {
 			int noCollision = -1;
-			if (collisionBetweenPlayers(PLAYERS_NUMBER, x, y, xVariation + iMove[i], yVariation + jMove[i]) != noCollision) {
+			if (collisionBetweenPlayers(players_number, x, y, xVariation + iMove[i], yVariation + jMove[i]) != noCollision) {
 				isSafePosition = false;
 			}
 		}
@@ -255,7 +262,7 @@ void moveUser() {
 void moveBots(long long int* lastBotsPositionUpdateTime) {
 	long long int interval = getCurrentTimestamp() - *lastBotsPositionUpdateTime;
 	if(interval > BOTS_UPDATE_INTERVAL) {
-		for (int i = 1; i < PLAYERS_NUMBER; i++) {
+		for (int i = 1; i < players_number; i++) {
 			if (players[i].isAlive) { 
 				updateBotMovement(players[i].x, players[i].y, &players[i].horizontalSpeed, &players[i].verticalSpeed);
 				players[i].x += players[i].horizontalSpeed;
@@ -265,4 +272,5 @@ void moveBots(long long int* lastBotsPositionUpdateTime) {
 		*lastBotsPositionUpdateTime = getCurrentTimestamp();
 	}
 }
+
 

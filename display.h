@@ -39,7 +39,6 @@ void showMainGameIntroduction() {
 }
 
 void showGameIntroductionStaticInstructions() {
-
     clear();
     printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
     printw("\n\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henriques, Thomaz Diniz");
@@ -52,7 +51,6 @@ void showGameIntroductionStaticInstructions() {
 }
 
 void showGameIntroductionStaticStart() {
-
     clear();
     printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
     printw("\n\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henriques, Thomaz Diniz");
@@ -80,3 +78,43 @@ void showGameInstructions() {
     delay(60);
     printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
 }
+
+void showGameDifficultyOptions0() {
+    clear();
+    printw("\n\t/////////////////////////////////\tDificuldade\t/////////////////////////////////");
+    printw("\n\t\Escolha uma dificuldade:");
+    printw("\n\n");
+    printw("\n\n\n");
+    printw("\t\t\t\t\t\t> Frangote");
+    printw("\n\n\t\t\t\t\t\t Ok");
+    printw("\n\n\t\t\t\t\t\t Hardcore");
+    printw("\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
+    printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
+}
+
+void showGameDifficultyOptions1() {
+    clear();
+    printw("\n\t/////////////////////////////////\tDificuldade\t/////////////////////////////////");
+    printw("\n\t\Escolha uma dificuldade:");
+    printw("\n\n");
+    printw("\n\n\n");
+    printw("\t\t\t\t\t\t Frangote");
+    printw("\n\n\t\t\t\t\t\t> Ok");
+    printw("\n\n\t\t\t\t\t\t Hardcore");
+    printw("\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
+    printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
+}
+
+void showGameDifficultyOptions2() {
+    clear();
+    printw("\n\t/////////////////////////////////\tDificuldade\t/////////////////////////////////");
+    printw("\n\t\Escolha uma dificuldade:");
+    printw("\n\n");
+    printw("\n\n\n");
+    printw("\t\t\t\t\t\t Frangote");
+    printw("\n\n\t\t\t\t\t\t Ok");
+    printw("\n\n\t\t\t\t\t\t> Hardcore");
+    printw("\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
+    printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
+}
+

@@ -32,15 +32,17 @@ void drawGameBoardBorder(){
 		}
 	} else {
 		cataclysm = true;
-	}
+	} 
 
-	for (int i = 0; i < BOARD_HEIGHT; i++){
-		drawCharWithOffset(leftEdge, i, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
-		drawCharWithOffset(rightEdge, i, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
-		if (decreaseGameBoardCount==0) {
-			delay(10);
-		}
-	}
+	if (!cataclysm) {
+		for (int i = 0; i < BOARD_HEIGHT; i++){
+			drawCharWithOffset(leftEdge, i, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
+			drawCharWithOffset(rightEdge, i, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
+			if (decreaseGameBoardCount==0) {
+				delay(10);
+			}
+		}	
+	}	
 }
 
 void decreaseGameBoardSize(){
@@ -57,10 +59,12 @@ void decreaseGameBoardSize(){
 		cataclysm = true;
 	}
 
-	for (int i = 0; i < BOARD_HEIGHT; i++){
-		gameBoard[leftEdge][i] = gameBoard[rightEdge][i] = '#';
+	if (!cataclysm) {
+		for (int i = 0; i < BOARD_HEIGHT; i++){
+			gameBoard[leftEdge][i] = gameBoard[rightEdge][i] = '#';
+		}
+		decreaseGameBoardCount++;
 	}
-	decreaseGameBoardCount++;
 }
 
 void settingGameBoard() {
