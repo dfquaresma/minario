@@ -5,10 +5,12 @@
 #define OFFSET_WIDTH 20
 #define OFFSET_HEIGHT 0
 
-#define GAME_BOARD_DECREASE_TIME 3
+#define GAME_BOARD_DECREASE_TIME 1
 
 char gameBoard[BOARD_WIDTH][BOARD_HEIGHT];
 int decreaseGameBoardCount = 0;
+int limitOfEdges = 4;
+bool cataclysm = false;
 
 bool isCollidingWithBoard(int x, int y){
 	return gameBoard[x][y]=='#';
@@ -20,7 +22,7 @@ void drawGameBoardBorder(){
 	int leftEdge = decreaseGameBoardCount;
 	int rightEdge = BOARD_WIDTH - decreaseGameBoardCount - 1;
 
-	if  ((bottomEdge - topEdge) > 2){
+	if  ((bottomEdge - topEdge) > limitOfEdges){
 		for (int i = 0; i < BOARD_WIDTH; i++){
 			drawCharWithOffset(i, topEdge, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
 			drawCharWithOffset(i, bottomEdge, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
@@ -28,7 +30,10 @@ void drawGameBoardBorder(){
 				delay(10);
 			}
 		}
+	} else {
+		cataclysm = true;
 	}
+
 	for (int i = 0; i < BOARD_HEIGHT; i++){
 		drawCharWithOffset(leftEdge, i, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
 		drawCharWithOffset(rightEdge, i, "#", OFFSET_HEIGHT, OFFSET_WIDTH);
@@ -44,11 +49,14 @@ void decreaseGameBoardSize(){
 	int leftEdge = decreaseGameBoardCount;
 	int rightEdge = BOARD_WIDTH - decreaseGameBoardCount - 1;
 
-	if  ((bottomEdge - topEdge) > 2){
+	if  ((bottomEdge - topEdge) > limitOfEdges){
 		for (int i = 0; i < BOARD_WIDTH; i++){
 			gameBoard[i][topEdge] = gameBoard[i][bottomEdge] = '#';
 		}
+	} else {
+		cataclysm = true;
 	}
+
 	for (int i = 0; i < BOARD_HEIGHT; i++){
 		gameBoard[leftEdge][i] = gameBoard[rightEdge][i] = '#';
 	}

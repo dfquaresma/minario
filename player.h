@@ -15,7 +15,7 @@ typedef struct {
 #define KEY_ESC 27
 #define L_KEY_ENTER 10
 
-#define PLAYERS_NUMBER 50
+#define PLAYERS_NUMBER 100
 #define USER_PLAYER_NUMBER 0
 
 #define BOTS_UPDATE_INTERVAL 500
@@ -33,10 +33,10 @@ Player players[PLAYERS_NUMBER];
 
 void drawPlayers(){
 	for (int i = 0; i < PLAYERS_NUMBER; i++){
-			drawCharWithOffset(players[i].xPrevious, players[i].yPrevious, " ", OFFSET_HEIGHT, OFFSET_WIDTH);
+		drawCharWithOffset(players[i].xPrevious, players[i].yPrevious, " ", OFFSET_HEIGHT, OFFSET_WIDTH);
 
-			players[i].xPrevious = players[i].x;
-			players[i].yPrevious = players[i].y;
+		players[i].xPrevious = players[i].x;
+		players[i].yPrevious = players[i].y;
 
 		if (players[i].isAlive) {
 			if (i == 0) {
@@ -172,6 +172,12 @@ void playerDie(Player *player){
 	}
 }
 
+void killAllBots() {
+	for (int i = 1; i < PLAYERS_NUMBER; i++){
+		playerDie(&players[i]);
+	}
+}
+
 void playersCollisionWithBoard(){
 	for (int i = 0; i < PLAYERS_NUMBER; i++){
 		if (players[i].isAlive){
@@ -204,6 +210,7 @@ bool checkSafePosition(int x, int y, int xVariation, int yVariation){
 		if (isCollidingWithBoard(x + xVariation + iMove[i], y + yVariation + jMove[i])) {
 			isSafePosition = false;
 		}
+		if () {
 
 		int noCollision = -1;
 		if (collisionBetweenPlayers(PLAYERS_NUMBER, x, y, xVariation + iMove[i], yVariation + jMove[i]) != noCollision) {
@@ -232,6 +239,10 @@ void updateBotMovement(int x, int y, int* xVariation, int* yVariation) {
 	}
 	*xVariation = iMove[movementPos];
 	*yVariation = jMove[movementPos];
+
+	if (cataclysm) {
+		killAllBots();
+	}
 }
 
 void moveUser() {
