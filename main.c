@@ -58,6 +58,7 @@ int main() {
 			break;
 
 			case START_GAME_STATE:
+				cataclysm = false;
 				timeSinceLastGameBoardDecrease = getCurrentTimestamp();
 				lastBotsPositionUpdateTime = getCurrentTimestamp();
 				createPlayers();
