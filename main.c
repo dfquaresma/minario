@@ -16,13 +16,14 @@ void ncursesEnd();
 int getRandomIntegerInRange(int min,int max);
 bool checkLoseCondition();
 bool checkWinCondition();
-bool usingStaticInstructionScreen = false;
 
 int main() {
 	ncursesInit();
 	long long int timeSinceLastGameBoardDecrease;
 	long long int lastBotsPositionUpdateTime;
 	int gameState = GAME_INTRODUCTION_STATE;
+	int difficultyOption = 0;
+	bool usingStaticInstructionScreen = false;
 
 	while(!userEscAction){
 		updateNextUserAction();
@@ -60,55 +61,46 @@ int main() {
 			break;
 
 			case DIFFICULTY_STATE:
-				int difficultyOption = 0;
-				showGameDifficultyOptions0();
+				switch (difficultyOption) {
+				case 0:
+					showGameDifficultyOptions0();
+				break;
+				
+				case 1:
+					showGameDifficultyOptions1();
+				break;
+				
+				case 2:
+					showGameDifficultyOptions2();
+				break;
+				}
+
 				if(downMovement){
-					difficultyOption = (difficultyOption + 1) % 3;
-					switch (difficultyOption) {
-					case 0:
-						showGameDifficultyOptions0();
-					break;
-					
-					case 1:
-						showGameDifficultyOptions2();
-					break;
-					
-					case 2:
-						showGameDifficultyOptions2();
-					break;
+					difficultyOption++;
+					if (difficultyOption > 2) {
+						difficultyOption = 2;
 					}
+
 				
 				} else if (upMovement) {
-					difficultyOption = difficultyOption - 1;
+					difficultyOption--;
 					if (difficultyOption < 0) {
 						difficultyOption = 0;
-					}
+					}				
+				} 
+
+				if(userEnterAction){
 					switch (difficultyOption) {
 					case 0:
-						showGameDifficultyOptions0();
+						updateDifficulty(30, 1);
 					break;
 					
 					case 1:
-						showGameDifficultyOptions2();
+						updateDifficulty(50, 3);
 					break;
 					
 					case 2:
-						showGameDifficultyOptions2();
-					break;
-					}
-				
-				} else if(userEnterAction){
-					switch (difficultyOption) {
-					case 0:
-						PLAYERS_NUMBER = 30;
-					break;
-					
-					case 1:
-						PLAYERS_NUMBER = 50;
-					break;
-					
-					case 2:
-						PLAYERS_NUMBER = 100;
+						updateDifficulty(100, 3);
 					break;
 					}
 					
@@ -185,7 +177,7 @@ bool checkLoseCondition(){
 }
 
 bool checkWinCondition(){
-	for (int i = 1; i < PLAYERS_NUMBER; i++){
+	for (int i = 1; i < players_number; i++){
 		if (players[i].isAlive) {
 			return false;
 		}
