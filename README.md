@@ -3,24 +3,11 @@
 ## What is
 Minario is a simplified game based in the browser game agar.io, developed for PLP project.
 
-## Install
-For playing this, you need to install the library _ncurses_ by the following command:
-
-**```sudo apt-get install ncurses-dev```**
-
-and you also need to compile the code by the following command:
-
-**```gcc main.c -lncurses -o minario```**
-
-For play the game you only need to execute
-
-**```./minario```**
-
 ## How to play
 Minario is played on terminal and you can move your character using the arrow keys. The instructions are also avaliable on the main screen.
 
 ## Objective
-The main objective is be the last survivor in the gameboard.
+The main objective is survive till the game board reduce twelve times.
 
 ## Technologies
 * C
