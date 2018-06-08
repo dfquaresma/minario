@@ -85,9 +85,9 @@ void showGameDifficultyOptionsEasy() {
     printw("\n\n");
     printw("\n\n\t\t\t\tEscolha uma dificuldade:");
     printw("\n\n\n");
-    printw("\t\t\t\t\t\t> Frangote (Fácil)");
-    printw("\n\n\t\t\t\t\t\t Ok (Médio)");
-    printw("\n\n\t\t\t\t\t\t Hardcore (Difícil)");
+    printw("\t\t\t\t\t\t> Fácil");
+    printw("\n\n\t\t\t\t\t\t Médio");
+    printw("\n\n\t\t\t\t\t\t Difícil");
     printw("\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
     printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
 }
@@ -98,9 +98,9 @@ void showGameDifficultyOptionsMedium() {
     printw("\n\n");
     printw("\n\n\t\t\t\tEscolha uma dificuldade:");
     printw("\n\n\n");
-    printw("\t\t\t\t\t\t Frangote (Fácil)");
-    printw("\n\n\t\t\t\t\t\t> Ok (Médio)");
-    printw("\n\n\t\t\t\t\t\t Hardcore (Difícil)");
+    printw("\t\t\t\t\t\t Fácil");
+    printw("\n\n\t\t\t\t\t\t> Médio");
+    printw("\n\n\t\t\t\t\t\t Difícil");
     printw("\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
     printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
 }
@@ -111,9 +111,9 @@ void showGameDifficultyOptionsHard() {
     printw("\n\n");
     printw("\n\n\t\t\t\tEscolha uma dificuldade:");
     printw("\n\n\n");
-    printw("\t\t\t\t\t\t Frangote (Fácil)");
-    printw("\n\n\t\t\t\t\t\t Ok (Médio)");
-    printw("\n\n\t\t\t\t\t\t> Hardcore (Difícil)");
+    printw("\t\t\t\t\t\t Fácil");
+    printw("\n\n\t\t\t\t\t\t Médio");
+    printw("\n\n\t\t\t\t\t\t> Difícil");
     printw("\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
     printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
 }
