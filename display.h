@@ -7,12 +7,12 @@ void drawTimer(int time){
 
 void showVictoryScreen(int offset_height, int board_height, int offset_width){
 	clear();
-	mvprintw(offset_height + board_height / 2, offset_width, "Parabéns, você venceu! :D");
+	mvprintw(offset_height + board_height / 2, offset_width, "Parabéns, você sobreviveu! :D");
 }
 
 void showFailureScreen(int offset_height, int board_height, int offset_width){
 	clear();
-	mvprintw(offset_height + board_height / 2, offset_width,"Você perdeu :(");
+	mvprintw(offset_height + board_height / 2, offset_width,"Você morreu :(");
 }
 
 void drawCharWithOffset(int x, int y, char *c, int offset_height, int offset_width) {
