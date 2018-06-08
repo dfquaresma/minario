@@ -82,12 +82,12 @@ void showGameInstructions() {
 void showGameDifficultyOptions0() {
     clear();
     printw("\n\t/////////////////////////////////\tDificuldade\t/////////////////////////////////");
-    printw("\n\t\Escolha uma dificuldade:");
     printw("\n\n");
+    printw("\n\n\t\t\t\tEscolha uma dificuldade:");
     printw("\n\n\n");
-    printw("\t\t\t\t\t\t> Frangote");
-    printw("\n\n\t\t\t\t\t\t Ok");
-    printw("\n\n\t\t\t\t\t\t Hardcore");
+    printw("\t\t\t\t\t\t> Frangote (Fácil)");
+    printw("\n\n\t\t\t\t\t\t Ok (Médio)");
+    printw("\n\n\t\t\t\t\t\t Hardcore (Difícil)");
     printw("\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
     printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
 }
@@ -95,12 +95,12 @@ void showGameDifficultyOptions0() {
 void showGameDifficultyOptions1() {
     clear();
     printw("\n\t/////////////////////////////////\tDificuldade\t/////////////////////////////////");
-    printw("\n\t\Escolha uma dificuldade:");
     printw("\n\n");
+    printw("\n\n\t\t\t\tEscolha uma dificuldade:");
     printw("\n\n\n");
-    printw("\t\t\t\t\t\t Frangote");
-    printw("\n\n\t\t\t\t\t\t> Ok");
-    printw("\n\n\t\t\t\t\t\t Hardcore");
+    printw("\t\t\t\t\t\t Frangote (Fácil)");
+    printw("\n\n\t\t\t\t\t\t> Ok (Médio)");
+    printw("\n\n\t\t\t\t\t\t Hardcore (Difícil)");
     printw("\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
     printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
 }
@@ -108,12 +108,12 @@ void showGameDifficultyOptions1() {
 void showGameDifficultyOptions2() {
     clear();
     printw("\n\t/////////////////////////////////\tDificuldade\t/////////////////////////////////");
-    printw("\n\t\Escolha uma dificuldade:");
     printw("\n\n");
+    printw("\n\n\t\t\t\tEscolha uma dificuldade:");
     printw("\n\n\n");
-    printw("\t\t\t\t\t\t Frangote");
-    printw("\n\n\t\t\t\t\t\t Ok");
-    printw("\n\n\t\t\t\t\t\t> Hardcore");
+    printw("\t\t\t\t\t\t Frangote (Fácil)");
+    printw("\n\n\t\t\t\t\t\t Ok (Médio)");
+    printw("\n\n\t\t\t\t\t\t> Hardcore (Difícil)");
     printw("\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
     printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
 }
