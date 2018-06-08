@@ -79,7 +79,7 @@ void showGameInstructions() {
     printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
 }
 
-void showGameDifficultyOptions0() {
+void showGameDifficultyOptionsEasy() {
     clear();
     printw("\n\t/////////////////////////////////\tDificuldade\t/////////////////////////////////");
     printw("\n\n");
@@ -92,7 +92,7 @@ void showGameDifficultyOptions0() {
     printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
 }
 
-void showGameDifficultyOptions1() {
+void showGameDifficultyOptionsMedium() {
     clear();
     printw("\n\t/////////////////////////////////\tDificuldade\t/////////////////////////////////");
     printw("\n\n");
@@ -105,7 +105,7 @@ void showGameDifficultyOptions1() {
     printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
 }
 
-void showGameDifficultyOptions2() {
+void showGameDifficultyOptionsHard() {
     clear();
     printw("\n\t/////////////////////////////////\tDificuldade\t/////////////////////////////////");
     printw("\n\n");

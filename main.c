@@ -63,15 +63,15 @@ int main() {
 			case DIFFICULTY_STATE:
 				switch (difficultyOption) {
 				case 0:
-					showGameDifficultyOptions0();
+					showGameDifficultyOptionsEasy();
 				break;
 				
 				case 1:
-					showGameDifficultyOptions1();
+					showGameDifficultyOptionsMedium();
 				break;
 				
 				case 2:
-					showGameDifficultyOptions2();
+					showGameDifficultyOptionsHard();
 				break;
 				}
 
