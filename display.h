@@ -39,7 +39,6 @@ void showMainGameIntroduction() {
 }
 
 void showGameIntroductionStaticInstructions() {
-
     clear();
     printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
     printw("\n\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henriques, Thomaz Diniz");
@@ -52,7 +51,6 @@ void showGameIntroductionStaticInstructions() {
 }
 
 void showGameIntroductionStaticStart() {
-
     clear();
     printw("\n\t/////////////////////////////////\tMinário\t/////////////////////////////////");
     printw("\n\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henriques, Thomaz Diniz");
@@ -80,3 +78,43 @@ void showGameInstructions() {
     delay(60);
     printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
 }
+
+void showGameDifficultyOptionsEasy() {
+    clear();
+    printw("\n\t/////////////////////////////////\tDificuldade\t/////////////////////////////////");
+    printw("\n\n");
+    printw("\n\n\t\t\t\tEscolha uma dificuldade:");
+    printw("\n\n\n");
+    printw("\t\t\t\t\t\t> Frangote (Fácil)");
+    printw("\n\n\t\t\t\t\t\t Ok (Médio)");
+    printw("\n\n\t\t\t\t\t\t Hardcore (Difícil)");
+    printw("\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
+    printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
+}
+
+void showGameDifficultyOptionsMedium() {
+    clear();
+    printw("\n\t/////////////////////////////////\tDificuldade\t/////////////////////////////////");
+    printw("\n\n");
+    printw("\n\n\t\t\t\tEscolha uma dificuldade:");
+    printw("\n\n\n");
+    printw("\t\t\t\t\t\t Frangote (Fácil)");
+    printw("\n\n\t\t\t\t\t\t> Ok (Médio)");
+    printw("\n\n\t\t\t\t\t\t Hardcore (Difícil)");
+    printw("\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
+    printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
+}
+
+void showGameDifficultyOptionsHard() {
+    clear();
+    printw("\n\t/////////////////////////////////\tDificuldade\t/////////////////////////////////");
+    printw("\n\n");
+    printw("\n\n\t\t\t\tEscolha uma dificuldade:");
+    printw("\n\n\n");
+    printw("\t\t\t\t\t\t Frangote (Fácil)");
+    printw("\n\n\t\t\t\t\t\t Ok (Médio)");
+    printw("\n\n\t\t\t\t\t\t> Hardcore (Difícil)");
+    printw("\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo");
+    printw("\n\n\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////");
+}
+

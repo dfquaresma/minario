@@ -4,24 +4,26 @@
 
 #define GAME_INTRODUCTION_STATE 0
 #define MENU_STATE 1
-#define INSTRUCTION_STATE 2
-#define START_GAME_STATE 3
-#define PLAY_GAME_STATE 4
-#define WIN_STATE 5
-#define LOSE_STATE 6
+#define DIFFICULTY_STATE 2
+#define INSTRUCTION_STATE 3
+#define START_GAME_STATE 4
+#define PLAY_GAME_STATE 5
+#define WIN_STATE 6
+#define LOSE_STATE 7
 
 void ncursesInit();
 void ncursesEnd();
 int getRandomIntegerInRange(int min,int max);
 bool checkLoseCondition();
 bool checkWinCondition();
-bool usingStaticInstructionScreen = false;
 
 int main() {
 	ncursesInit();
 	long long int timeSinceLastGameBoardDecrease;
 	long long int lastBotsPositionUpdateTime;
 	int gameState = GAME_INTRODUCTION_STATE;
+	int difficultyOption = 0;
+	bool usingStaticInstructionScreen = false;
 
 	while(!userEscAction){
 		updateNextUserAction();
@@ -44,10 +46,11 @@ int main() {
 					showGameIntroductionStaticStart();
 				} else if(!usingStaticInstructionScreen) {
 					if(userEnterAction){
-						gameState = START_GAME_STATE;
+						gameState = DIFFICULTY_STATE;
 					}
 				}
 			break;
+			
 			case INSTRUCTION_STATE:
 				usingStaticInstructionScreen = false;
 					if (userEnterAction) {
@@ -57,7 +60,56 @@ int main() {
 					}
 			break;
 
+			case DIFFICULTY_STATE:
+				switch (difficultyOption) {
+				case 0:
+					showGameDifficultyOptionsEasy();
+				break;
+				
+				case 1:
+					showGameDifficultyOptionsMedium();
+				break;
+				
+				case 2:
+					showGameDifficultyOptionsHard();
+				break;
+				}
+
+				if(downMovement){
+					difficultyOption++;
+					if (difficultyOption > 2) {
+						difficultyOption = 2;
+					}
+
+				
+				} else if (upMovement) {
+					difficultyOption--;
+					if (difficultyOption < 0) {
+						difficultyOption = 0;
+					}				
+				} 
+
+				if(userEnterAction){
+					switch (difficultyOption) {
+					case 0:
+						updateDifficulty(30, 1);
+					break;
+					
+					case 1:
+						updateDifficulty(50, 3);
+					break;
+					
+					case 2:
+						updateDifficulty(100, 3);
+					break;
+					}
+					
+					gameState = START_GAME_STATE;
+				} 
+			break;
+
 			case START_GAME_STATE:
+				cataclysm = false;
 				timeSinceLastGameBoardDecrease = getCurrentTimestamp();
 				lastBotsPositionUpdateTime = getCurrentTimestamp();
 				createPlayers();
@@ -125,7 +177,7 @@ bool checkLoseCondition(){
 }
 
 bool checkWinCondition(){
-	for (int i = 1; i < PLAYERS_NUMBER; i++){
+	for (int i = 1; i < players_number; i++){
 		if (players[i].isAlive) {
 			return false;
 		}
