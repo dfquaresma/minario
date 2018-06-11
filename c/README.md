@@ -1,4 +1,4 @@
-# Minario - Projeto PLP 2018
+# Minario - C implementation
 
 ## Install
 For playing this, you need to install the library _ncurses_ by the following command:
