@@ -18,8 +18,8 @@ buildPlayer :: Player
 buildPlayer = do 
               xPosition = (randomInt (xMin, xMax))
               yPosition = (randomInt (yMin, yMax))
-              iLive = True
-              newPlayer = Player xPosition yPosition iLive
+              isAlive = True
+              newPlayer = Player xPosition yPosition isAlive
               return newPlayer
 
 createPlayers :: Int -> [Player]
