@@ -1,7 +1,9 @@
 module Players ( 
     buildPlayer,
     createPlayers,
-    getNewBotsState 
+    getNewBotsState,
+    checkSafePosition,
+    updatePlayerState 
 ) where 
 
 import Util
@@ -27,7 +29,16 @@ createPlayers 0 = []
 createPlayers n = buildPlayer : createPlayers (n - 1)
 
 -- to be implemented yet.
+-- TODO(David)
+checkSafePosition :: [Player] -> (Int, Int) -> Bool 
+checkSafePosition bots position = False
+
+-- to be implemented yet.
+-- TODO(David)
 getNewBotsState :: [Player] -> [Player]
-getNewBotsState [] = [] 
-getNewBotsState n = n
+getNewBotsState bots = []
                     
+-- to be implemented yet.
+-- TODO(David)
+updatePlayerState :: [Player] -> (Int, Int) -> [Player]
+updatePlayerState playerAndBots position = []
