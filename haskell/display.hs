@@ -1,7 +1,3 @@
--- cabal install ansi-terminal
--- It specifically has functions for clearing the screen ***NEED THIS***
-import System.Console.ANSI
-
 module Display  
 ( showMainGameIntroduction,
 showGameIntroductionStaticInstructions,
@@ -10,6 +6,10 @@ showGameDifficultyOptionsEasy,
 showGameDifficultyOptionsMedium,
 showGameDifficultyOptionsHard 
 ) where  
+
+-- cabal install ansi-terminal
+-- It specifically has functions for clearing the screen ***NEED THIS***
+import System.Console.ANSI
 
 showMainGameIntroduction :: IO ()
 showMainGameIntroduction = do 
