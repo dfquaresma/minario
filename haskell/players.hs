@@ -1,28 +1,26 @@
-import System.Random
+import Util
 
-data Player = Player {xPosition :: Int
-                      , yPosition :: Int
-                      , isAlive :: Bool
-                      } deriving (Show)
+module Players  
+( buildPlayer,
+createPlayers 
+) where 
 
-randomInt :: (Int, Int) -> IO Int
-randomInt range = do 
-                  randInt <- (randomRIO range)
-                  return randInt
-             
+data Player = Player {xPosition :: Int, yPosition :: Int, isAlive :: Bool} deriving (Show)
+
 xMin = 0 
 xMax = 10
 yMin = 0
 yMax = 10
 buildPlayer :: Player
-buildPlayer = do 
-              xPosition = (randomInt (xMin, xMax))
-              yPosition = (randomInt (yMin, yMax))
-              isAlive = True
-              newPlayer = Player xPosition yPosition isAlive
-              return newPlayer
-
+buildPlayer = newPlayer
+                where 
+                    xPosition = 1-- <- getRandomInteger (xMin, xMax)
+                    yPosition = 1-- <- getRandomInteger (yMin, yMax)
+                    isAlive = True
+                    newPlayer = Player xPosition yPosition isAlive 
+                
 createPlayers :: Int -> [Player]
 createPlayers 0 = []
 createPlayers n = buildPlayer : createPlayers (n - 1)
-
+                    
+                    
