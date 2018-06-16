@@ -4,7 +4,7 @@ module Players (
     safeByView,
     checkSafeByViewPosition,
     newBotPosition,
-    updateBotPosition
+    updateBotsPosition
 ) where 
 
 import Util (getRandomInteger)
@@ -48,16 +48,16 @@ newBotPosition :: (Int, Int) -> (Int, Int)
 newBotPosition (xPos, yPos) = (xPos + 0, yPos + 0) -- (xPos + getRandomInteger botMovementRange, yPos + getRandomInteger botMovementRange)                                                  
 
 -- It gives a new bots distribution list. Note that it does not ensures that colliding bots are dead. 
-updateBotPosition :: [Player] -> [Player]
-updateBotPosition [] = []
-updateBotPosition (headBot:bots) =  if isAlive headBot then 
+updateBotsPosition :: [Player] -> [Player]
+updateBotsPosition [] = []
+updateBotsPosition (headBot:bots) =  if isAlive headBot then 
                                         if checkSafeByViewPosition bots newPos then 
-                                            Player (fst newPos) (snd newPos) True : updateBotPosition bots
+                                            Player (fst newPos) (snd newPos) True : updateBotsPosition bots
                                         else
-                                            updateBotPosition (headBot:bots) -- try again a newPos.
+                                            updateBotsPosition (headBot:bots) -- try again a newPos.
 
                                     else 
-                                        headBot : updateBotPosition bots
+                                        headBot : updateBotsPosition bots
                                   
                                     where newPos = newBotPosition (xPosition headBot, yPosition headBot)
                
