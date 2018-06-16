@@ -7,8 +7,12 @@ module Players (
     updateBotsPosition,
     samePosition,
     killAtPosition,
-    updateDeadBots,
-    getNewBotsState
+    updateDead,
+    getNewBotsState,
+    newPlayerPosition,
+    updatePlayerPosition,
+    getNewPlayerState,
+    newPlayersState
 ) where 
 
 import Util (getRandomInteger)
@@ -81,9 +85,9 @@ killAtPosition (head:tail) (x, y) id = if (idHead) /= id && isAlive head && same
                                         idHead = identifier head
 
 -- It verifies if there is any alive players collinding with each other or with a dead player or with the board and kill them.
-updateDeadBots :: [Player] -> [Player] -> [Player]
-updateDeadBots players [] = players
-updateDeadBots players (headBot:bots) = updateDeadBots (killAtPosition players (xHead, yHead) idHead) bots
+updateDead :: [Player] -> [Player] -> [Player]
+updateDead players [] = players
+updateDead players (headBot:bots) = updateDead (killAtPosition players (xHead, yHead) idHead) bots
                                         where
                                             xHead = xPosition headBot
                                             yHead = yPosition headBot
@@ -93,9 +97,33 @@ getNewBotsState :: [Player] -> [Player]
 getNewBotsState bots = newBotsState
                     where
                         botAfterMovement = updateBotsPosition bots
-                        newBotsState = updateDeadBots botAfterMovement botAfterMovement
+                        newBotsState = updateDead botAfterMovement botAfterMovement
+
+-- not implemented yet.
+-- It gives a new position for the player given an old one.
+-- TODO(Renato)
+newPlayerPosition :: (Int, Int) -> (Int, Int)
+newPlayerPosition (xPos, yPos) = (xPos, yPos)
+
+updatePlayerPosition :: [Player] -> [Player]
+updatePlayerPosition [] = []
+updatePlayerPosition (player:bots) =  if isAlive player then 
+                                        Player (fst newPos) (snd newPos) (identifier player) True : bots
+                                    else 
+                                        (player:bots)
+                                  
+                                    where newPos = newPlayerPosition (xPosition player, yPosition player)
 
 -- It returns a list with the player and all bots.
--- TODO(Renato)
-updatePlayerState :: [Player] -> (Int, Int) -> [Player]
-updatePlayerState (player:bots) (xPos, yPos) = [] 
+getNewPlayerState :: [Player] -> [Player]
+getNewPlayerState all = newPlayerState
+                    where
+                        playerAfterMovement = updatePlayerPosition all
+                        newPlayerState = updateDead playerAfterMovement playerAfterMovement
+
+newPlayersState :: [Player] -> [Player]
+newPlayersState (player:bots) = playersState
+                    where
+                        newBots = getNewBotsState bots
+                        playersState = getNewPlayerState player : newBots 
+                        
