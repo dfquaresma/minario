@@ -6,7 +6,7 @@ module Players (
     updatePlayerState 
 ) where 
 
-import Util
+import Util (getRandomInteger)
 
 data Player = Player {xPosition :: Int, yPosition :: Int, isAlive :: Bool} deriving (Show)
 
