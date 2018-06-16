@@ -2,6 +2,15 @@
 -- It specifically has functions for clearing the screen ***NEED THIS***
 import System.Console.ANSI
 
+module Display  
+( showMainGameIntroduction,
+showGameIntroductionStaticInstructions,
+showGameInstructions,
+showGameDifficultyOptionsEasy,
+showGameDifficultyOptionsMedium,
+showGameDifficultyOptionsHard 
+) where  
+
 showMainGameIntroduction :: IO ()
 showMainGameIntroduction = do 
     clearScreen    
