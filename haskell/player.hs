@@ -17,7 +17,12 @@ module Players (
 
 import Util (getRandomInteger)
 
-data Player = Player {xPosition :: Int, yPosition :: Int, identifier :: Int, isAlive :: Bool} deriving (Show)
+data Player = Player {
+    xPosition :: Int, 
+    yPosition :: Int, 
+    identifier :: Int, 
+    isAlive :: Bool
+} deriving (Show)
 
 xMin = 0 
 xMax = 10
