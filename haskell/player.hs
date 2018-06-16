@@ -27,8 +27,8 @@ yMax = 10
 buildPlayer :: Int -> Player
 buildPlayer id = newPlayer
                 where 
-                    xPosition = 1-- <- getRandomInteger (xMin, xMax)
-                    yPosition = 1-- <- getRandomInteger (yMin, yMax)
+                    xPosition = getRandomInteger (xMin, xMax)
+                    yPosition = getRandomInteger (yMin, yMax)
                     isAlive = True
                     newPlayer = Player xPosition yPosition id isAlive 
                 
@@ -40,7 +40,7 @@ createPlayers n = buildPlayer n : createPlayers (n - 1)
 -- It checks if is a safe position considering view chance.
 viewChance = 2
 safeByView :: (Int, Int) -> (Int, Int) -> Bool
-safeByView (x1, y1) (x2, y2) =  if viewChance == viewChance -- getRandomInteger (1, viewChance) 
+safeByView (x1, y1) (x2, y2) =  if viewChance == getRandomInteger (1, viewChance) 
                                     then x1 /= x2 || y1 /= y2 
                                 else True
 
@@ -53,7 +53,7 @@ checkSafeByViewPosition (headBot:tailBots) (xPos, yPos) = safeByView (xPos, yPos
 -- It gives a new positions given an old one.
 botMovementRange = (-1, 1) 
 newBotPosition :: (Int, Int) -> (Int, Int)
-newBotPosition (xPos, yPos) = (xPos + 0, yPos + 0) -- (xPos + getRandomInteger botMovementRange, yPos + getRandomInteger botMovementRange)                                                  
+newBotPosition (xPos, yPos) = (xPos + getRandomInteger botMovementRange, yPos + getRandomInteger botMovementRange)                                                  
 
 -- It gives a new bots distribution list. Note that it does not ensures that colliding bots are dead. 
 updateBotsPosition :: [Player] -> [Player]
