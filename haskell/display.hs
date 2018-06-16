@@ -1,10 +1,10 @@
-module Display  
-( showMainGameIntroduction,
-showGameIntroductionStaticInstructions,
-showGameInstructions,
-showGameDifficultyOptionsEasy,
-showGameDifficultyOptionsMedium,
-showGameDifficultyOptionsHard 
+module Display ( 
+    showMainGameIntroduction,
+    showGameIntroductionStaticInstructions,
+    showGameInstructions,
+    showGameDifficultyOptionsEasy,
+    showGameDifficultyOptionsMedium,
+    showGameDifficultyOptionsHard 
 ) where  
 
 -- cabal install ansi-terminal
