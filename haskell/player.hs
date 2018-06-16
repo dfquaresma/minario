@@ -125,5 +125,5 @@ newPlayersState :: [Player] -> [Player]
 newPlayersState (player:bots) = playersState
                     where
                         newBots = getNewBotsState bots
-                        playersState = getNewPlayerState player : newBots 
+                        playersState = getNewPlayerState (player : newBots) 
                         
