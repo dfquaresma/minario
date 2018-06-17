@@ -42,14 +42,14 @@ createPlayers :: Int -> [Player]
 createPlayers 0 = []
 createPlayers n = buildPlayer n : createPlayers (n - 1)
 
--- It checks if is a safe position considering view chance.
+-- It checks if the given positions are safe positions considering view chance.
 viewChance = 2
 safeByView :: (Int, Int) -> (Int, Int) -> Bool
 safeByView (x1, y1) (x2, y2) =  if viewChance == getRandomInteger (1, viewChance) 
                                     then x1 /= x2 || y1 /= y2 
                                 else True
 
--- It checks if the given position is safe compared with (may) all other bots positions.
+-- It checks if the given position is safe by view compared with (may) all other bots positions.
 checkSafeByViewPosition :: [Player] -> (Int, Int) -> Bool 
 checkSafeByViewPosition [] pos = True
 checkSafeByViewPosition (headBot:tailBots) (xPos, yPos) = safeByView (xPos, yPos) (xPosition headBot, yPosition headBot) 
@@ -67,7 +67,7 @@ updateBotsPosition (headBot:bots) =  if isAlive headBot then
                                         if checkSafeByViewPosition bots newPos then 
                                             Player (fst newPos) (snd newPos) (identifier headBot) True : updateBotsPosition bots
                                         else
-                                            updateBotsPosition (headBot:bots) -- try again a newPos.
+                                            updateBotsPosition (headBot:bots) -- try again with a newPos.
 
                                     else 
                                         headBot : updateBotsPosition bots
@@ -98,6 +98,7 @@ updateDead players (headBot:bots) = updateDead (killAtPosition players (xHead, y
                                             yHead = yPosition headBot
                                             idHead = identifier headBot
 
+-- It returns a new bots state, a list with all bots after a movement.                                             
 getNewBotsState :: [Player] -> [Player]
 getNewBotsState bots = newBotsState
                     where
@@ -110,6 +111,8 @@ getNewBotsState bots = newBotsState
 newPlayerPosition :: (Int, Int) -> (Int, Int)
 newPlayerPosition (xPos, yPos) = (xPos, yPos)
 
+-- It gives a new bots distribution list, but this one considers the head as  
+-- the player. Note that it does not ensures that colliding bots are dead. 
 updatePlayerPosition :: [Player] -> [Player]
 updatePlayerPosition [] = []
 updatePlayerPosition (player:bots) =  if isAlive player then 
@@ -126,6 +129,7 @@ getNewPlayerState all = newPlayerState
                         playerAfterMovement = updatePlayerPosition all
                         newPlayerState = updateDead playerAfterMovement playerAfterMovement
 
+-- It returns a new players state. It means a new list with player and all bots in new positions.                         
 newPlayersState :: [Player] -> [Player]
 newPlayersState (player:bots) = playersState
                     where
