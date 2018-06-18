@@ -1,3 +1,12 @@
+module Display ( 
+    showMainGameIntroduction,
+    showGameIntroductionStaticInstructions,
+    showGameInstructions,
+    showGameDifficultyOptionsEasy,
+    showGameDifficultyOptionsMedium,
+    showGameDifficultyOptionsHard 
+) where  
+
 -- cabal install ansi-terminal
 -- It specifically has functions for clearing the screen ***NEED THIS***
 import System.Console.ANSI
