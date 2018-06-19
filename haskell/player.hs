@@ -9,6 +9,7 @@ module Players (
     killAtPosition,
     updateDead,
     getNewBotsState,
+    getPlayerArrows,
     newPlayerPosition,
     updatePlayerPosition,
     getNewPlayerState,
