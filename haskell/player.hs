@@ -120,7 +120,6 @@ getPlayerArrows :: PlayerArrows
 getPlayerArrows = PlayerArrows 0 0 0 0 -- example of return when no arrows were pressed.
 
 -- It gives a new position for the player given an old one.
--- TODO(Renato)
 newPlayerPosition :: (Int, Int) -> (Int, Int)
 newPlayerPosition (xPos, yPos) = (xPos + rightVar + leftVar, yPos + upVar + downVar)
                                  where
