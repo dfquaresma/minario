@@ -50,7 +50,7 @@ showGameIntroductionStaticInstructions = do
     putStrLn "\t\t\t\t\t   Começar o jogo"
     putStrLn "\n\n\t\t\t\t\t>  Instruções"
     putStrLn "\n\n\t\t\tPressione [Esc] a qualquer momento para fechar o jogo"
-    putStrLn "\n\n\nt///////////////////////////////////////////////////////////////////////////////////////////"
+    putStrLn "\n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////"
 
 showGameInstructions :: IO ()
 showGameInstructions = do 
