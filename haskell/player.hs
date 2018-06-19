@@ -117,9 +117,8 @@ getNewBotsState bots = newBotsState
 -- It returns the players arrows state.
 -- TODO(Renato)
 getPlayerArrows :: PlayerArrows
-getPlayerArrows = PlayerArrows 0 0 0 0 
+getPlayerArrows = PlayerArrows 0 0 0 0 -- example of return when no arrows were pressed.
 
--- not implemented yet.
 -- It gives a new position for the player given an old one.
 -- TODO(Renato)
 newPlayerPosition :: (Int, Int) -> (Int, Int)
