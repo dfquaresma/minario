@@ -71,7 +71,7 @@ newBotPosition (xPos, yPos) = (xPos + getRandomInteger botMovementRange, yPos + 
 updateBotsPosition :: [Player] -> [Player]
 updateBotsPosition [] = []
 updateBotsPosition (headBot:bots) =  if isAlive headBot then 
-                                        if checkSafeByViewPosition bots newPos then 
+                                        if checkSafeByViewPosition bots newPos then -- TODO(Paulo): Inserts here a call to check if the bot collides with the boards.
                                             Player (fst newPos) (snd newPos) (identifier headBot) True : updateBotsPosition bots
                                         else
                                             updateBotsPosition (headBot:bots) -- try again with a newPos.
