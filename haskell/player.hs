@@ -24,11 +24,18 @@ data Player = Player {
     isAlive :: Bool
 } deriving (Show)
 
+data PlayerArrows = PlayerArrows {
+    up :: Int, 
+    down :: Int, 
+    right :: Int, 
+    left :: Int
+} deriving (Show)
+
+-- It returns a player.
 xMin = 0 
 xMax = 10
 yMin = 0
 yMax = 10
--- It returns a player.
 buildPlayer :: Int -> Player
 buildPlayer id = newPlayer
                 where 
@@ -105,11 +112,23 @@ getNewBotsState bots = newBotsState
                         botAfterMovement = updateBotsPosition bots
                         newBotsState = updateDead botAfterMovement botAfterMovement
 
+
+-- not implemented yet.
+-- It returns the players arrows state.
+-- TODO(Renato)
+getPlayerArrows :: PlayerArrows
+getPlayerArrows = PlayerArrows 0 0 0 0 
+
 -- not implemented yet.
 -- It gives a new position for the player given an old one.
 -- TODO(Renato)
 newPlayerPosition :: (Int, Int) -> (Int, Int)
-newPlayerPosition (xPos, yPos) = (xPos, yPos)
+newPlayerPosition (xPos, yPos) = (xPos + rightVar + leftVar, yPos + upVar + downVar)
+                                 where
+                                    upVar = (up getPlayerArrows)
+                                    downVar = (down getPlayerArrows)
+                                    rightVar = (right getPlayerArrows)
+                                    leftVar = (left getPlayerArrows)
 
 -- It gives a new bots distribution list, but this one considers the head as  
 -- the player. Note that it does not ensures that colliding bots are dead. 
