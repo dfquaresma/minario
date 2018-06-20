@@ -9,6 +9,7 @@ module Players (
     killAtPosition,
     updateDead,
     getNewBotsState,
+    getPlayerArrows,
     newPlayerPosition,
     updatePlayerPosition,
     getNewPlayerState,
@@ -43,11 +44,23 @@ buildPlayer id = newPlayer
                     yPosition = getRandomInteger (yMin, yMax)
                     isAlive = True
                     newPlayer = Player xPosition yPosition id isAlive 
-                
+
+-- It returns a list of players with no players collisions.
+createPlayersEnsuringNoCollisions :: Int ->  Int -> [(Int, Int)] -> [Player]
+createPlayersEnsuringNoCollisions totalOfPlayers 0 usedPositions = []
+createPlayersEnsuringNoCollisions totalOfPlayers numberOfPlayersToCreate usedPositions = if not (elem (xPos, yPos) usedPositions) then 
+                                                        newPlayer : (createPlayersEnsuringNoCollisions totalOfPlayers (numberOfPlayersToCreate - 1) ((xPos, yPos) : usedPositions))
+                                                    else
+                                                        createPlayersEnsuringNoCollisions totalOfPlayers numberOfPlayersToCreate usedPositions
+                                                             
+                                                    where 
+                                                        newPlayer = buildPlayer (totalOfPlayers - numberOfPlayersToCreate)
+                                                        xPos = xPosition newPlayer 
+                                                        yPos = yPosition newPlayer 
+                        
 -- It returns a list of players.
 createPlayers :: Int -> [Player]
-createPlayers 0 = []
-createPlayers n = buildPlayer n : createPlayers (n - 1)
+createPlayers numberOfPlayers = createPlayersEnsuringNoCollisions numberOfPlayers numberOfPlayers []
 
 -- It checks if the given positions are safe positions considering view chance.
 viewChance = 2
@@ -123,10 +136,11 @@ getPlayerArrows = PlayerArrows 0 0 0 0 -- example of return when no arrows were 
 newPlayerPosition :: (Int, Int) -> (Int, Int)
 newPlayerPosition (xPos, yPos) = (xPos + rightVar + leftVar, yPos + upVar + downVar)
                                  where
-                                    upVar = (up getPlayerArrows)
-                                    downVar = (down getPlayerArrows)
-                                    rightVar = (right getPlayerArrows)
-                                    leftVar = (left getPlayerArrows)
+                                    playerArrows = getPlayerArrows
+                                    upVar = (up playerArrows)
+                                    downVar = (down playerArrows)
+                                    rightVar = (right playerArrows)
+                                    leftVar = (left playerArrows)
 
 -- It gives a new bots distribution list, but this one considers the head as  
 -- the player. Note that it does not ensures that colliding bots are dead. 
