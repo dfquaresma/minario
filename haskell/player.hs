@@ -136,10 +136,11 @@ getPlayerArrows = PlayerArrows 0 0 0 0 -- example of return when no arrows were 
 newPlayerPosition :: (Int, Int) -> (Int, Int)
 newPlayerPosition (xPos, yPos) = (xPos + rightVar + leftVar, yPos + upVar + downVar)
                                  where
-                                    upVar = (up getPlayerArrows)
-                                    downVar = (down getPlayerArrows)
-                                    rightVar = (right getPlayerArrows)
-                                    leftVar = (left getPlayerArrows)
+                                    playerArrows = getPlayerArrows
+                                    upVar = (up playerArrows)
+                                    downVar = (down playerArrows)
+                                    rightVar = (right playerArrows)
+                                    leftVar = (left playerArrows)
 
 -- It gives a new bots distribution list, but this one considers the head as  
 -- the player. Note that it does not ensures that colliding bots are dead. 
