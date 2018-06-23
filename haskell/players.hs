@@ -1,4 +1,5 @@
 module Players ( 
+    Player,
     buildPlayer,
     createPlayers,
     safeByView,
