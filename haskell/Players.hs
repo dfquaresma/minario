@@ -10,11 +10,12 @@ module Players (
     killAtPosition,
     updateDead,
     getNewBotsState,
-    getPlayerArrows,
-    newPlayerPosition,
     updatePlayerPosition,
     getNewPlayerState,
-    newPlayersState
+    getNewPlayerPosition,
+    isThatPlayerAlive,
+    getXPositionOfPlayer,
+    getYPositionOfPlayer
 ) where 
 
 import Util (getRandomInteger)
@@ -24,13 +25,6 @@ data Player = Player {
     yPosition :: Int, 
     identifier :: Int, 
     isAlive :: Bool
-} deriving (Show)
-
-data PlayerArrows = PlayerArrows {
-    up :: Int, 
-    down :: Int, 
-    right :: Int, 
-    left :: Int
 } deriving (Show)
 
 -- It returns a player.
@@ -126,45 +120,34 @@ getNewBotsState bots = newBotsState
                         botAfterMovement = updateBotsPosition bots
                         newBotsState = updateDead botAfterMovement botAfterMovement
 
-
--- not implemented yet.
--- It returns the players arrows state.
--- TODO(Renato)
-getPlayerArrows :: PlayerArrows
-getPlayerArrows = PlayerArrows 0 0 0 0 -- example of return when no arrows were pressed.
-
--- It gives a new position for the player given an old one.
-newPlayerPosition :: (Int, Int) -> (Int, Int)
-newPlayerPosition (xPos, yPos) = (xPos + rightVar + leftVar, yPos + upVar + downVar)
-                                 where
-                                    playerArrows = getPlayerArrows
-                                    upVar = (up playerArrows)
-                                    downVar = (down playerArrows)
-                                    rightVar = (right playerArrows)
-                                    leftVar = (left playerArrows)
-
 -- It gives a new bots distribution list, but this one considers the head as  
 -- the player. Note that it does not ensures that colliding bots are dead. 
-updatePlayerPosition :: [Player] -> [Player]
-updatePlayerPosition [] = []
-updatePlayerPosition (player:bots) =  if isAlive player then 
-                                        Player (fst newPos) (snd newPos) (identifier player) True : bots
-                                    else 
-                                        (player:bots)
+updatePlayerPosition :: Player -> (Int, Int) -> Player
+updatePlayerPosition player newPos =  if isAlive player then Player (fst newPos) (snd newPos) (identifier player) True else player
                                   
-                                    where newPos = newPlayerPosition (xPosition player, yPosition player)
-
 -- It returns a list with the player and all bots.
-getNewPlayerState :: [Player] -> [Player]
-getNewPlayerState all = newPlayerState
+getNewPlayerState :: [Player] -> (Int, Int) -> Player
+getNewPlayerState (player:bots) newPos = newPlayerState
                     where
-                        playerAfterMovement = updatePlayerPosition all
-                        newPlayerState = updateDead playerAfterMovement playerAfterMovement
+                        playerAfterMovement = updatePlayerPosition player newPos
+                        newPlayerState = (head (updateDead (playerAfterMovement:bots) (playerAfterMovement:bots)))
 
--- It returns a new players state. It means a new list with player and all bots in new positions.                         
-newPlayersState :: [Player] -> [Player]
-newPlayersState (player:bots) = playersState
-                    where
-                        newBots = getNewBotsState bots
-                        playersState = getNewPlayerState (player : newBots) 
-                        
+getNewPlayerPosition :: Player -> Char -> (Int, Int)
+getNewPlayerPosition player char | char == 'w' = (xPos, yPos + 1)
+                                 | char == 'a' = (xPos - 1, yPos) 
+                                 | char == 's' = (xPos, yPos - 1)
+                                 | char == 'd' = (xPos + 1, yPos)
+                                 | otherwise = (xPos, yPos)
+                      
+                                 where 
+                                     xPos = xPosition player
+                                     yPos = yPosition player
+
+isThatPlayerAlive :: Player -> Bool
+isThatPlayerAlive player = isAlive player
+
+getXPositionOfPlayer :: Player -> Int
+getXPositionOfPlayer player = xPosition player
+
+getYPositionOfPlayer :: Player -> Int
+getYPositionOfPlayer player = yPosition player

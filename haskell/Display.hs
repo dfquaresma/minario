@@ -7,8 +7,11 @@ module Display (
     showGameDifficultyOptions,
     showGameDifficultyOptionsEasy,
     showGameDifficultyOptionsMedium,
-    showGameDifficultyOptionsHard 
+    showGameDifficultyOptionsHard, 
+    showPlayers
 ) where  
+
+import Players
 
 -- cabal install ansi-terminal
 -- It specifically has functions for clearing the screen ***NEED THIS***
@@ -119,7 +122,7 @@ showGameDifficultyOptionsMedium = do
     putStrLn "\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo"
     putStrLn "\n\n\t///////////////////////////////////////////////////////////////////////////////////////////"
     
-showGameDifficultyOptionsHard:: IO ()
+showGameDifficultyOptionsHard :: IO ()
 showGameDifficultyOptionsHard = do 
     clearScreen      
     putStrLn "\n\t/////////////////////////////////\tDificuldade \t/////////////////////////////////"
@@ -129,7 +132,13 @@ showGameDifficultyOptionsHard = do
     putStrLn "\n\n\t\t\t\t\t\t> Difícil"
     putStrLn "\n\n\n\t\t\t\tPressione [Esc] a qualquer momento para fechar o jogo"
     putStrLn "\n\n\t///////////////////////////////////////////////////////////////////////////////////////////"
-        
+    
+showPlayers :: [Player] -> IO ()  
+showPlayers (player:bots) = do
+    clearScreen    
+    putStrLn ("[" ++ show(isThatPlayerAlive player) ++ ",(" ++ show(getXPositionOfPlayer player) ++ "," ++show(getYPositionOfPlayer player) ++ ")]")
+    let firstBot = head bots
+    putStrLn ("[" ++ show(isThatPlayerAlive firstBot) ++ ",(" ++ show(getXPositionOfPlayer firstBot) ++ "," ++show(getYPositionOfPlayer firstBot) ++ ")]")
     
 
-
+    
