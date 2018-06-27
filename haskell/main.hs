@@ -1,4 +1,5 @@
 import Display
+import Players
 
 import Control.Concurrent
 import Control.Monad
@@ -48,22 +49,22 @@ nextState oldState char | oldState == menu_state_up && char == 's' = menu_state_
 
 run :: Int -> IO()
 run state = do
-    char <- newEmptyMVar 
-    hSetBuffering stdin NoBuffering
-    hSetEcho stdin False
-    forkIO $ do
-        aux <- getChar
-        putMVar char aux 
+        char <- newEmptyMVar 
+        hSetBuffering stdin NoBuffering
+        hSetEcho stdin False
+        forkIO $ do
+            aux <- getChar
+            putMVar char aux 
     
-    wait char
-    where wait char = do
-          aux <- tryTakeMVar char
-          if isJust aux then do 
-              showScreen state (fromJust aux)
-              let newState = nextState state (fromJust aux)
-              run newState
-          else 
-              threadDelay 500 >> wait char
+        wait char
+        where wait char = do
+              aux <- tryTakeMVar char
+              if isJust aux then do 
+                  showScreen state (fromJust aux)
+                  let newState = nextState state (fromJust aux)
+                  run newState
+              else 
+                  threadDelay 500 >> wait char
 
 main :: IO()
 main = do
