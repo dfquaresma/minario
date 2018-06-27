@@ -3,6 +3,7 @@ module Display (
     showMainGameStaticStart,
     showGameIntroductionStaticInstructions,
     showGameInstructions,
+    showGameInstructionsWithDelay,
     showGameDifficultyOptions,
     showGameDifficultyOptionsEasy,
     showGameDifficultyOptionsMedium,
@@ -54,6 +55,17 @@ showGameIntroductionStaticInstructions = do
 
 showGameInstructions :: IO ()
 showGameInstructions = do 
+    clearScreen      
+    putStrLn "\n\t/////////////////////////////////\t Instruções \t/////////////////////////////////"
+    putStrLn "\n\n\t\t\t\t\t\tObjetivo:"
+    putStrLn "\n\n\t\tSobreviva o máximo de tempo sem bater nos limites do tabuleiro ou em outros jogadores."
+    putStrLn "\n\n\t\t\t\t\t\tComandos:"
+    putStrLn "\n\n\t\t\t\tUtilize as [Setas] do teclado para se movimentar"
+    putStrLn "\n\n\n\t\t\t\t> Voltar"
+    putStrLn "\n\n\t///////////////////////////////////////////////////////////////////////////////////////////"
+
+showGameInstructionsWithDelay :: IO ()
+showGameInstructionsWithDelay = do 
     clearScreen      
     putStrLn "\n\t/////////////////////////////////\t Instruções \t/////////////////////////////////"
     threadDelay 200000
