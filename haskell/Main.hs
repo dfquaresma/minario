@@ -53,7 +53,7 @@ showScreen state char | state == menu_state_up && char == 's' = showGameIntroduc
                       | state == menu_state_down && char == 'w' = showMainGameStaticStart
                       
                       | state == menu_state_up && char == 'e' = showGameDifficultyOptionsEasy   
-                      | state == menu_state_down && char == 'e' = showGameInstructions
+                      | state == menu_state_down && char == 'e' = showGameInstructionsWithDelay
                                          
                       | state == difficulty_state_easy && char == 's' = showGameDifficultyOptionsMedium
                       | state == difficulty_state_medium && char == 'w' = showGameDifficultyOptionsEasy
@@ -114,5 +114,5 @@ runMenu state = do
 
 main :: IO()
 main = do
-    showMainGameStaticStart
+    showMainGameIntroduction
     runMenu menu_state_up
