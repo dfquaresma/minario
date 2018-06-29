@@ -1,5 +1,6 @@
 import Display
 import Players
+import Board
 
 import Control.Concurrent
 import Control.Monad
@@ -35,7 +36,8 @@ runGame (player:bots) = do
     
         wait charGame bots 0
         where wait charGame bots time = do
-              showPlayers (player:bots) -- should update screen here.
+              --showPlayers (player:bots) -- should update screen here.
+              drawGameBoard 10 10 1 (player:bots)
               aux <- tryTakeMVar charGame
               if isJust aux then do
                   let newBotsState = getBots time bots

@@ -133,9 +133,9 @@ getNewPlayerState (player:bots) newPos = newPlayerState
                         newPlayerState = (head (updateDead (playerAfterMovement:bots) (playerAfterMovement:bots)))
 
 getNewPlayerPosition :: Player -> Char -> (Int, Int)
-getNewPlayerPosition player char | char == 'w' = (xPos, yPos + 1)
+getNewPlayerPosition player char | char == 'w' = (xPos, yPos - 1)
                                  | char == 'a' = (xPos - 1, yPos) 
-                                 | char == 's' = (xPos, yPos - 1)
+                                 | char == 's' = (xPos, yPos + 1)
                                  | char == 'd' = (xPos + 1, yPos)
                                  | otherwise = (xPos, yPos)
                       
