@@ -21,6 +21,10 @@ game_state_easy = 30
 game_state_medium = 50
 game_state_hard = 100
 
+board_width = 20
+board_height = 20
+board_wall_size = 1
+
 interval_to_update_bots = 500000
 getBots :: Int -> [Player] -> [Player]
 getBots time bots = if (time `mod` interval_to_update_bots) == 0 then getNewBotsState bots else bots
@@ -37,7 +41,7 @@ runGame (player:bots) = do
         wait charGame bots 0
         where wait charGame bots time = do
               --showPlayers (player:bots) -- should update screen here.
-              drawGameBoard 30 25 5 (player:bots)
+              drawGameBoard board_width board_height board_wall_size (player:bots)
               aux <- tryTakeMVar charGame
               if isJust aux then do
                   let newBotsState = getBots time bots
