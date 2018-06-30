@@ -6,6 +6,7 @@ import Control.Concurrent
 import Control.Monad
 import Data.Maybe
 import System.IO
+import System.Exit
 
 menu_state_up = 1
 menu_state_down = 2
@@ -29,11 +30,14 @@ interval_to_update_bots = 500000
 getBots :: Int -> [Player] -> [Player]
 getBots time bots = if (time `mod` interval_to_update_bots) == 0 then getNewBotsState bots else bots
 
+checkUserAction :: Char -> IO()
+checkUserAction userAction = do
+    if userAction == '\ESC' then exitSuccess
+    else return ()
+
 runGame :: [Player] -> IO()
 runGame (player:bots) = do
-        charGame <- newEmptyMVar 
-        hSetBuffering stdin NoBuffering  
-        hSetEcho stdin False
+        charGame <- newEmptyMVar
         forkIO $ do
             aux <- getChar
             putMVar charGame aux 
@@ -45,7 +49,9 @@ runGame (player:bots) = do
               aux <- tryTakeMVar charGame
               if isJust aux then do
                   let newBotsState = getBots time bots
-                  let newPlayerState = getNewPlayerState (player:bots) (getNewPlayerPosition player (fromJust aux))
+                  let userAction = fromJust aux
+                  checkUserAction userAction
+                  let newPlayerState = getNewPlayerState (player:bots) (getNewPlayerPosition player userAction)
                   if isThatPlayerAlive newPlayerState then runGame (newPlayerState:newBotsState) 
                   else 
                       putStrLn "YOU LOSE!" >>  
@@ -98,27 +104,16 @@ nextState oldState char | oldState == menu_state_up && char == 's' = menu_state_
 
 runMenu :: Int -> IO()
 runMenu state = do
-        charMenu <- newEmptyMVar 
-        hSetBuffering stdin NoBuffering
-        hSetEcho stdin False
-        forkIO $ do
-            aux <- getChar
-            putMVar charMenu aux 
-    
-        wait charMenu
-        where wait charMenu = do
-              aux <- tryTakeMVar charMenu
-              if isJust aux then do 
-                  showScreen state (fromJust aux)
-                  let newState = nextState state (fromJust aux)
-                  
-                  if newState < game_state_easy then runMenu newState
-                  else runGame (createPlayers newState)
-                  
-              else 
-                  threadDelay 500 >> wait charMenu
+    userAction <- getChar
+    checkUserAction userAction
+    showScreen state userAction
+    let newState = nextState state userAction
+    if newState < game_state_easy then runMenu newState
+    else runGame (createPlayers newState)
 
 main :: IO()
 main = do
+    hSetBuffering stdin NoBuffering
+    hSetEcho stdin False
     showMainGameIntroduction
     runMenu menu_state_up
