@@ -1,14 +1,23 @@
 # Minario - Haskell implementation
 
+## Pre-installation
+Before playing, is necessary to install the library _ANSI terminal_, from _cabal_ using the following commands:
+
+```bash
+cabal update
+cabal install ansi-terminal
+```
+
 ## Install
-For playing this, you need to install the library _ANSI terminal_, from _cabal_ by the following command:
+After installing the dependencies you need to compile the project using the following command:
 
-**```cabal install ansi-terminal```**
+```bash
+ghc minario.hs -o minario
+```
 
-and you also need to compile the code by the following command:
+## Run
+To play the game execute the following command:
 
-**```ghc minario.hs -o minario```**
-
-For play the game you only need to execute
-
-**```./minario```**
+```bash
+./minario
+```
