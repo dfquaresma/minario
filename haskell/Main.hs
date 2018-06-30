@@ -28,7 +28,7 @@ getBots time bots = if (time `mod` interval_to_update_bots) == 0 then getNewBots
 runGame :: [Player] -> IO()
 runGame (player:bots) = do
         charGame <- newEmptyMVar 
-        hSetBuffering stdin NoBuffering
+        hSetBuffering stdin NoBuffering  
         hSetEcho stdin False
         forkIO $ do
             aux <- getChar
@@ -37,7 +37,7 @@ runGame (player:bots) = do
         wait charGame bots 0
         where wait charGame bots time = do
               --showPlayers (player:bots) -- should update screen here.
-              drawGameBoard 10 10 1 (player:bots)
+              drawGameBoard 30 25 5 (player:bots)
               aux <- tryTakeMVar charGame
               if isJust aux then do
                   let newBotsState = getBots time bots
