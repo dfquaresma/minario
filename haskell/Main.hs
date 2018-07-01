@@ -45,7 +45,7 @@ runGame (player:bots) = do
         wait charGame bots 0
         where wait charGame bots time = do
               --showPlayers (player:bots) -- should update screen here.
-              drawGameBoard board_width board_height board_wall_size (player:bots)
+              drawGameBoard board_height board_width board_wall_size (player:bots)
               aux <- tryTakeMVar charGame
               if isJust aux then do
                   let newBotsState = getBots time bots
