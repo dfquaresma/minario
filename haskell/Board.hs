@@ -10,39 +10,35 @@ import Control.Concurrent
 
 --It draws the game board given a width, height, boardState (how many walls there is), Player list
 drawGameBoard :: Int -> Int -> Int -> [Player] -> IO()
-drawGameBoard width height state (player:bots) = do 
- clearScreen
- putStr (unlines (buildGameBoard width height state))
- boardDrawPlayer player
- boardDrawPlayers bots
- threadDelay 300000
+drawGameBoard height width wallSize (player:bots) = do 
+    clearScreen 
+    putStr (unlines (buildGameBoard height width wallSize (player:bots))) 
+    threadDelay 300000
 
 --builds the board as a list of chars
-buildGameBoard :: Int -> Int -> Int -> [[Char]]
-buildGameBoard width height state = buildBoard width height width height state
-
---Draws the bot list on top of the board
-boardDrawPlayers :: [Player] -> IO()
-boardDrawPlayers [] = return ()
-boardDrawPlayers (bot:bots) = do
- setCursorPosition (getYPositionOfPlayer bot) (getXPositionOfPlayer bot)
- if isThatPlayerAlive bot then putStr "X"
- else putStr "="
- boardDrawPlayers (bots)
-
---Draws the player on top of the board
-boardDrawPlayer :: Player -> IO()
-boardDrawPlayer player = do
- setCursorPosition (getYPositionOfPlayer player) (getXPositionOfPlayer player)
- putStr "O"
+buildGameBoard :: Int -> Int -> Int -> [Player] -> [[Char]]
+buildGameBoard height width wallSize (player:bots) = buildBoard height width height width wallSize (player:bots)
 
 --builds the board
-buildBoard :: Int -> Int -> Int -> Int -> Int -> [[Char]]
-buildBoard _ (-1) _ _ _ = []
-buildBoard x y width height state = buildBoard x (y-1) width height state ++ [buildRow x y width height state]
+buildBoard :: Int -> Int -> Int -> Int -> Int -> [Player] -> [[Char]]
+buildBoard 0 _ _ _ _ _ = []
+buildBoard row col height width wallSize (player:bots) = 
+    buildBoard (row - 1) col height width wallSize (player:bots) ++ [buildRow row col height width wallSize (player:bots)]
 
 --builds each row of the board
-buildRow :: Int -> Int -> Int -> Int -> Int -> [Char]
-buildRow 0 _ _ _ _ = []
-buildRow x y width height state | x <= state || y < state || x > (width-state) || y > (height-state) = ['#'] ++ buildRow (x-1) (y) width height state
-                                | otherwise = [' '] ++ buildRow (x-1) (y) width height state
+buildRow :: Int -> Int -> Int -> Int -> Int -> [Player] -> [Char]
+buildRow _ 0 _ _ _ _ = [] 
+buildRow row col height width wallSize (player:bots) = if ((getXPositionOfPlayer player, getYPositionOfPlayer player) == (row, col)) 
+        then [getPlayerDraw ] ++ buildRow row (col - 1) height width wallSize (player:bots) 
+    else if (length (getBotInBoardCell bots row col) > 0) 
+        then [getBotDraw ((getBotInBoardCell bots row col) !! 0)] ++ buildRow row (col - 1) height width wallSize (player:bots) 
+    else if (row <= wallSize || row >= (height - wallSize + 1) || col <= wallSize || col >= (width - wallSize + 1)) 
+        then ['#'] ++ buildRow row (col - 1) height width wallSize (player:bots)
+    else [' '] ++ buildRow row (col - 1) height width wallSize (player:bots) 
+
+--Draws the bot list on top of the board
+getBotDraw :: Player -> Char
+getBotDraw bot = if isThatPlayerAlive bot then 'X' else '='
+
+getPlayerDraw :: Char
+getPlayerDraw = 'O'

@@ -15,7 +15,8 @@ module Players (
     getNewPlayerPosition,
     isThatPlayerAlive,
     getXPositionOfPlayer,
-    getYPositionOfPlayer
+    getYPositionOfPlayer,
+    getBotInBoardCell
 ) where 
 
 import Util (getRandomInteger)
@@ -151,3 +152,8 @@ getXPositionOfPlayer player = xPosition player
 
 getYPositionOfPlayer :: Player -> Int
 getYPositionOfPlayer player = yPosition player
+
+getBotInBoardCell :: [Player] -> Int -> Int -> [Player]
+getBotInBoardCell [] row col = []
+getBotInBoardCell (headBot:bots) row col = if samePosition (xPosition headBot, yPosition headBot) (row, col) then [headBot]
+    else getBotInBoardCell bots row col
