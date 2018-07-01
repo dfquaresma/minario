@@ -12,7 +12,7 @@ cabal install ansi-terminal
 After installing the dependencies you need to compile the project using the following command:
 
 ```bash
-ghc minario.hs -o minario
+ghc Main.hs -o minario
 ```
 
 ## Run
