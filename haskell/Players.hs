@@ -15,7 +15,8 @@ module Players (
     getNewPlayerPosition,
     isThatPlayerAlive,
     getXPositionOfPlayer,
-    getYPositionOfPlayer
+    getYPositionOfPlayer,
+    getBotInBoardCell
 ) where 
 
 import Util (getRandomInteger)
@@ -133,10 +134,10 @@ getNewPlayerState (player:bots) newPos = newPlayerState
                         newPlayerState = (head (updateDead (playerAfterMovement:bots) (playerAfterMovement:bots)))
 
 getNewPlayerPosition :: Player -> Char -> (Int, Int)
-getNewPlayerPosition player char | char == 'w' = (xPos, yPos - 1)
-                                 | char == 'a' = (xPos - 1, yPos) 
-                                 | char == 's' = (xPos, yPos + 1)
-                                 | char == 'd' = (xPos + 1, yPos)
+getNewPlayerPosition player char | char == 'w' = (xPos - 1, yPos)
+                                 | char == 'a' = (xPos, yPos - 1) 
+                                 | char == 's' = (xPos + 1, yPos)
+                                 | char == 'd' = (xPos, yPos + 1)
                                  | otherwise = (xPos, yPos)
                       
                                  where 
@@ -151,3 +152,8 @@ getXPositionOfPlayer player = xPosition player
 
 getYPositionOfPlayer :: Player -> Int
 getYPositionOfPlayer player = yPosition player
+
+getBotInBoardCell :: [Player] -> Int -> Int -> [Player]
+getBotInBoardCell [] row col = []
+getBotInBoardCell (headBot:bots) row col = if samePosition (xPosition headBot, yPosition headBot) (row, col) then [headBot]
+    else getBotInBoardCell bots row col
