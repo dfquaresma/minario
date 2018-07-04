@@ -28,7 +28,7 @@ board_wall_size = 1
 
 interval_to_update_bots = 500000
 getBots :: Int -> [Player] -> [Player]
-getBots time bots = if (time `mod` interval_to_update_bots) == 0 then getNewBotsState bots else bots
+getBots time bots = if (time `mod` interval_to_update_bots) == 0 then getNewBotsState bots board_wall_size else bots
 
 checkUserAction :: Char -> IO()
 checkUserAction userAction = do
@@ -51,7 +51,7 @@ runGame (player:bots) = do
                   let newBotsState = getBots time bots
                   let userAction = fromJust aux
                   checkUserAction userAction
-                  let newPlayerState = getNewPlayerState (player:bots) (getNewPlayerPosition player userAction)
+                  let newPlayerState = getNewPlayerState (player:bots) (getNewPlayerPosition player userAction) board_wall_size
                   if isThatPlayerAlive newPlayerState then runGame (newPlayerState:newBotsState) 
                   else 
                       putStrLn "YOU LOSE!" >>  

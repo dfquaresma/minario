@@ -29,15 +29,15 @@ data Player = Player {
 } deriving (Show)
 
 -- It returns a player.
-xMin = 0 
-xMax = 10
+xMin = 0
+xMax = 20
 yMin = 0
-yMax = 10
+yMax = 20
 buildPlayer :: Int -> Player
 buildPlayer id = newPlayer
                 where 
-                    xPosition = getRandomInteger (xMin, xMax)
-                    yPosition = getRandomInteger (yMin, yMax)
+                    xPosition = getRandomInteger (1+xMin, xMax-1)
+                    yPosition = getRandomInteger (1+yMin, yMax-1)
                     isAlive = True
                     newPlayer = Player xPosition yPosition id isAlive 
 
@@ -95,31 +95,38 @@ samePosition :: (Int, Int) -> (Int, Int) -> Bool
 samePosition (x1, y1) (x2, y2) = x1 == x2 && y1 == y2
 
 -- Kill all players at the given position.
-killAtPosition :: [Player] -> (Int, Int) -> Int -> [Player]
-killAtPosition [] x id = []
-killAtPosition (head:tail) (x, y) id = if (idHead) /= id && isAlive head && samePosition (x, y) (xHead, yHead) 
-                                        then Player xHead yHead idHead False : killAtPosition tail (x, y) id
-                                    else head : killAtPosition tail (x, y) id
+killAtPosition :: [Player] -> (Int, Int) -> Int -> Int -> [Player]
+killAtPosition [] x id _ = []
+killAtPosition (head:tail) (x, y) id wallSize = if (idHead) /= id && isAlive head && samePosition (x, y) (xHead, yHead) ||
+                                        playerIsCollidingWithWalls head wallSize
+                                        then Player xHead yHead idHead False : killAtPosition tail (x, y) id wallSize
+                                    else head : killAtPosition tail (x, y) id wallSize
                                     where 
                                         xHead = xPosition head
                                         yHead = yPosition head
                                         idHead = identifier head
 
+playerIsCollidingWithWalls :: Player -> Int -> Bool
+playerIsCollidingWithWalls player wallSize = ((getXPositionOfPlayer player) <= wallSize) || 
+                                             ((getXPositionOfPlayer player) > (xMax - wallSize)) || 
+                                             ((getYPositionOfPlayer player) <= wallSize) || 
+                                             ((getYPositionOfPlayer player) > (yMax - wallSize)) 
+
 -- It verifies if there is any alive players collinding with each other or with a dead player or with the board and kill them.
-updateDead :: [Player] -> [Player] -> [Player]
-updateDead players [] = players
-updateDead players (headBot:bots) = updateDead (killAtPosition players (xHead, yHead) idHead) bots
+updateDead :: [Player] -> [Player] -> Int -> [Player]
+updateDead players [] _ = players
+updateDead players (headBot:bots) wallSize = updateDead (killAtPosition players (xHead, yHead) idHead wallSize) bots wallSize
                                         where
                                             xHead = xPosition headBot
                                             yHead = yPosition headBot
                                             idHead = identifier headBot
 
 -- It returns a new bots state, a list with all bots after a movement.                                             
-getNewBotsState :: [Player] -> [Player]
-getNewBotsState bots = newBotsState
+getNewBotsState :: [Player] -> Int -> [Player]
+getNewBotsState bots wallSize = newBotsState
                     where
                         botAfterMovement = updateBotsPosition bots
-                        newBotsState = updateDead botAfterMovement botAfterMovement
+                        newBotsState = updateDead botAfterMovement botAfterMovement wallSize
 
 -- It gives a new bots distribution list, but this one considers the head as  
 -- the player. Note that it does not ensures that colliding bots are dead. 
@@ -127,11 +134,11 @@ updatePlayerPosition :: Player -> (Int, Int) -> Player
 updatePlayerPosition player newPos =  if isAlive player then Player (fst newPos) (snd newPos) (identifier player) True else player
                                   
 -- It returns a list with the player and all bots.
-getNewPlayerState :: [Player] -> (Int, Int) -> Player
-getNewPlayerState (player:bots) newPos = newPlayerState
+getNewPlayerState :: [Player] -> (Int, Int) -> Int -> Player
+getNewPlayerState (player:bots) newPos wallSize = newPlayerState
                     where
                         playerAfterMovement = updatePlayerPosition player newPos
-                        newPlayerState = (head (updateDead (playerAfterMovement:bots) (playerAfterMovement:bots)))
+                        newPlayerState = (head (updateDead (playerAfterMovement:bots) (playerAfterMovement:bots) wallSize))
 
 getNewPlayerPosition :: Player -> Char -> (Int, Int)
 getNewPlayerPosition player char | char == 'w' = (xPos - 1, yPos)
