@@ -22,8 +22,8 @@ game_state_easy = 30
 game_state_medium = 50
 game_state_hard = 100
 
-board_width = 20
-board_height = 20
+board_width = 70
+board_height = 30
 board_wall_size = 1
 
 interval_to_update_bots = 500000
@@ -35,30 +35,33 @@ checkUserAction userAction = do
     if userAction == '\ESC' then exitSuccess
     else return ()
 
-runGame :: [Player] -> IO()
-runGame (player:bots) = do
+interval_to_reduce_board = 3000000
+runGame :: Int -> [Player] -> Int -> Int -> IO()
+runGame timeBoard (player:bots) height width = do
         charGame <- newEmptyMVar
         forkIO $ do
             aux <- getChar
             putMVar charGame aux 
     
-        wait charGame bots 0
-        where wait charGame bots time = do
+        wait charGame bots 0 height width
+        where wait charGame bots time b_height b_width = do
               --showPlayers (player:bots) -- should update screen here.
-              drawGameBoard board_height board_width board_wall_size (player:bots)
+              drawGameBoard b_height b_width board_wall_size (player:bots)
               aux <- tryTakeMVar charGame
               if isJust aux then do
                   let newBotsState = getBots time bots
                   let userAction = fromJust aux
                   checkUserAction userAction
                   let newPlayerState = getNewPlayerState (player:bots) (getNewPlayerPosition player userAction) board_wall_size
-                  if isThatPlayerAlive newPlayerState then runGame (newPlayerState:newBotsState) 
+                  if isThatPlayerAlive newPlayerState then runGame (timeBoard + 5000)(newPlayerState:newBotsState) b_height b_width
                   else 
                       putStrLn "YOU LOSE!" >>  
                       runMenu loser_statement
               else           
                   -- Non player depending logic should be implemented here.
-                  threadDelay 5000 >> wait charGame (getBots time bots) (time + 5000)
+                  if (timeBoard `mod` interval_to_reduce_board) == 0 then threadDelay 5000 >> wait charGame (getBots time bots) (time + 5000) (b_height - 1) (b_width - 1)
+                  else
+                      threadDelay 5000 >> wait charGame (getBots time bots) (time + 5000) b_height b_width
 
 showScreen :: Int -> Char -> IO()
 showScreen state char | state == menu_state_up && char == 's' = showGameIntroductionStaticInstructions
@@ -109,7 +112,7 @@ runMenu state = do
     showScreen state userAction
     let newState = nextState state userAction
     if newState < game_state_easy then runMenu newState
-    else runGame (createPlayers newState)
+    else runGame 0 (createPlayers newState) board_height board_width
 
 main :: IO()
 main = do
