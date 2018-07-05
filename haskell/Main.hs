@@ -17,30 +17,33 @@ instruction_state = 6
 
 end_game_statement = 10
 
+board_width = 70
+board_height = 30
+
 game_state_easy = 30
 game_state_medium = 50
 game_state_hard = 100
 
-board_width = 70
-board_height = 30
-board_wall_size = 1
-
 roundsToEndGame = 12
-waitingTime = 50000
-interval_to_update_bots = 10000
-interval_to_increase_board_wall_size = 500000
+waitingTime = 100000
+updateBotsInterval = 300000
+increaseWallSizeInterval = 3000000
 
-getNewTmpBots :: Int -> [Player] -> [Player]
-getNewTmpBots time bots = if (time >= interval_to_update_bots) then getNewBotsState bots board_wall_size else bots
+getNewTmpBots :: Int -> [Player] -> Int -> [Player]
+getNewTmpBots time bots wallSize = if (time >= updateBotsInterval) then getNewBotsState bots wallSize else bots
 
-getNewBoard_wall_size :: Int -> Int -> Int
-getNewBoard_wall_size time board_wall_size = if (time >= interval_to_increase_board_wall_size) then board_wall_size + 1 else board_wall_size
+getNewWallSize :: Int -> Int -> Int
+getNewWallSize time wallSize = if (time >= increaseWallSizeInterval) then wallSize + 1 else wallSize
 
 getNewTimeToUpdateBots :: Int -> Int -> Int 
-getNewTimeToUpdateBots timeToUpdateBots waitingTime= if timeToUpdateBots <= interval_to_update_bots then timeToUpdateBots + waitingTime else waitingTime
+getNewTimeToUpdateBots timeToUpdateBots waitingTime = if timeToUpdateBots <= updateBotsInterval 
+    then timeToUpdateBots + waitingTime 
+    else waitingTime
 
 getNewTimeToUpdateBoard :: Int -> Int -> Int
-getNewTimeToUpdateBoard timeToUpdateBoard waitingTime= if timeToUpdateBoard <= interval_to_increase_board_wall_size then timeToUpdateBoard + waitingTime else waitingTime
+getNewTimeToUpdateBoard timeToUpdateBoard waitingTime = if timeToUpdateBoard <= increaseWallSizeInterval 
+    then timeToUpdateBoard + waitingTime 
+    else waitingTime
 
 checkUserAction :: Char -> IO()
 checkUserAction userAction = do
@@ -55,14 +58,14 @@ runGame botsTime boardTime (player:bots) gameBoard_wall_size = do
             putMVar charGame aux 
 
         wait charGame (player:bots) botsTime boardTime gameBoard_wall_size
-        where wait charGame (tmpPlayer:tmpBots) timeToUpdateBots timeToUpdateBoard currBoard_wall_size = do
+        where wait charGame (tmpPlayer:tmpBots) timeToUpdateBots timeToUpdateBoard currentWallSize = do
                 if isThatPlayerAlive tmpPlayer then do
-                    drawGameBoard board_height board_width currBoard_wall_size (player:tmpBots) 
-                    let newBotsState = getNewTmpBots timeToUpdateBots tmpBots
-                    let newBoard_wall_size = getNewBoard_wall_size (timeToUpdateBoard + waitingTime) currBoard_wall_size
+                    drawGameBoard board_height board_width currentWallSize (player:tmpBots) 
+                    let newBotsState = getNewTmpBots timeToUpdateBots tmpBots currentWallSize
+                    let newBoard_wall_size = getNewWallSize (timeToUpdateBoard + waitingTime) currentWallSize
                     threadDelay waitingTime
                     aux <- tryTakeMVar charGame
-                    if currBoard_wall_size > roundsToEndGame then 
+                    if currentWallSize > roundsToEndGame then 
                         showWinnerWindow >>
                         runMenu end_game_statement
 
@@ -74,7 +77,7 @@ runGame botsTime boardTime (player:bots) gameBoard_wall_size = do
 
                     else                                                       
                         threadDelay waitingTime >>
-                        wait charGame (updateDead (tmpPlayer:newBotsState) (tmpPlayer:newBotsState) currBoard_wall_size) (getNewTimeToUpdateBots timeToUpdateBots waitingTime) (getNewTimeToUpdateBoard timeToUpdateBoard waitingTime) newBoard_wall_size
+                        wait charGame (updateDead (tmpPlayer:newBotsState) (tmpPlayer:newBotsState) currentWallSize) (getNewTimeToUpdateBots timeToUpdateBots waitingTime) (getNewTimeToUpdateBoard timeToUpdateBoard waitingTime) newBoard_wall_size
         
                 else 
                     showLoserWindow >>
@@ -122,12 +125,13 @@ nextState oldState char | oldState == menu_state_up && char == 's' = menu_state_
 
 runMenu :: Int -> IO()
 runMenu state = do
+    let wallSize = 1
     userAction <- getChar
     checkUserAction userAction
     showScreen state userAction
     let newState = nextState state userAction
     if newState < game_state_easy then runMenu newState
-    else runGame 0 0 (createPlayers newState) board_wall_size
+    else runGame 0 0 (createPlayers newState) wallSize
 
 main :: IO()
 main = do
