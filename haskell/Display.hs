@@ -148,12 +148,12 @@ showPlayers (player:bots) = do
     
 showWinnerWindow :: IO()
 showWinnerWindow = do
-    clearScreen    
+    --clearScreen    
     putStrLn "YOU SURVIVED!" 
 
 showLoserWindow :: IO()
 showLoserWindow = do
-    clearScreen    
+    --clearScreen    
     putStrLn "YOU LOSE!" 
 
 
