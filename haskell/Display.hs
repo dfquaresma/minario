@@ -8,6 +8,8 @@ module Display (
     showGameDifficultyOptionsEasy,
     showGameDifficultyOptionsMedium,
     showGameDifficultyOptionsHard, 
+    showWinnerWindow,
+    showLoserWindow,
     showPlayers
 ) where  
 
@@ -144,5 +146,15 @@ showPlayers (player:bots) = do
     let firstBot = head bots
     putStrLn ("[" ++ show(isThatPlayerAlive firstBot) ++ ",(" ++ show(getXPositionOfPlayer firstBot) ++ "," ++show(getYPositionOfPlayer firstBot) ++ ")]")
     
+showWinnerWindow :: IO()
+showWinnerWindow = do
+    clearScreen    
+    putStrLn "YOU SURVIVED!" 
+
+showLoserWindow :: IO()
+showLoserWindow = do
+    clearScreen    
+    putStrLn "YOU LOSE!" 
+
 
     

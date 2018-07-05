@@ -21,53 +21,55 @@ game_state_easy = 30
 game_state_medium = 50
 game_state_hard = 100
 
-board_width = 70
-board_height = 30
+board_width = 30
+board_height = 70
 board_wall_size = 1
 
-interval_to_update_bots = 500000
-getBots :: Int -> [Player] -> [Player]
-getBots time bots = if (time `mod` interval_to_update_bots) == 0 then getNewBotsState bots board_wall_size else bots
+interval_to_update_bots = 1000000
+getNewTmpBots :: Int -> [Player] -> [Player]
+getNewTmpBots time bots = if (time `mod` interval_to_update_bots) == 0 then getNewBotsState bots board_wall_size else bots
 
-interval_to_reduce_board = 3000000
-newBoardLimitsTuple :: Int -> (Int, Int) -> (Int, Int)
-newBoardLimitsTuple time (h, w) = if (time `mod` interval_to_reduce_board) == 0 then (h - 1, w - 1) else (h, w)
+interval_to_increase_board_wall_size = 3000000
+getNewBoard_wall_size :: Int -> Int -> Int
+getNewBoard_wall_size time board_wall_size = if (time `mod` interval_to_increase_board_wall_size) == 0 then board_wall_size + 1 else board_wall_size
 
 checkUserAction :: Char -> IO()
 checkUserAction userAction = do
     if userAction == '\ESC' then exitSuccess
     else return ()
 
-runGame :: Int -> [Player] -> Int -> Int -> IO()
-runGame timeBoard (player:bots) height width = do
+waitingTime = 500
+runGame :: Int -> [Player] -> Int -> IO()
+runGame gameTime (player:bots) board_wall_size = do
         charGame <- newEmptyMVar
         forkIO $ do
             aux <- getChar
             putMVar charGame aux 
 
-        wait charGame bots 0 height width
-        where wait charGame bots time b_height b_width = do
-                let newBoardLimits = newBoardLimitsTuple time (b_height, b_width)
-                drawGameBoard b_height b_width board_wall_size (player:bots)
-                aux <- tryTakeMVar charGame
-                if isJust aux then do
-                    let newBotsState = getBots time bots
-                    let userAction = fromJust aux
-                    checkUserAction userAction
-                    let newPlayerState = getNewPlayerState (player:bots) (getNewPlayerPosition player userAction) board_wall_size
-                    if isThatPlayerAlive newPlayerState then 
-                        runGame timeBoard (newPlayerState:newBotsState) (fst newBoardLimits) (snd newBoardLimits)
-                    else 
-                        putStrLn "YOU LOSE!" >>  
+        wait charGame bots gameTime board_wall_size
+        where wait charGame tmpBots time board_wall_size = do
+                if isThatPlayerAlive player then do
+                    drawGameBoard board_width board_height board_wall_size (player:tmpBots) 
+                    let newBoard_wall_size = getNewBoard_wall_size (time) board_wall_size
+                    let newBotsState = getNewTmpBots time tmpBots
+                    aux <- tryTakeMVar charGame
+                    if newBoard_wall_size >= 14 then 
+                        showWinnerWindow >>
                         runMenu end_game_statement
-                else           
-                    threadDelay 5000 >>
-                    if b_height == 20 && b_width == 60 then 
-                        putStrLn "YOU SURVIVED!" >>  
-                        runMenu end_game_statement
-                    else 
-                        wait charGame (getBots time bots) (time + 5000) (fst newBoardLimits) (snd newBoardLimits)
-                    
+
+                    else if isJust aux then do
+                        let userAction = fromJust aux
+                        checkUserAction userAction
+                        let newPlayerState = getNewPlayerState (player:newBotsState) (getNewPlayerPosition player userAction) newBoard_wall_size
+                        runGame time (newPlayerState:newBotsState) newBoard_wall_size
+
+                    else           
+                        threadDelay waitingTime >>
+                        wait charGame newBotsState (time + waitingTime) newBoard_wall_size
+    
+                else 
+                    showLoserWindow >>
+                    runMenu end_game_statement
 
 showScreen :: Int -> Char -> IO()
 showScreen state char | state == menu_state_up && char == 's' = showGameIntroductionStaticInstructions
@@ -116,7 +118,7 @@ runMenu state = do
     showScreen state userAction
     let newState = nextState state userAction
     if newState < game_state_easy then runMenu newState
-    else runGame 0 (createPlayers newState) board_height board_width
+    else runGame 0 (createPlayers newState) board_wall_size
 
 main :: IO()
 main = do
