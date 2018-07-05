@@ -6,6 +6,7 @@ Before playing, is necessary to install the library _ANSI terminal_, from _cabal
 ```bash
 cabal update
 cabal install ansi-terminal
+cabal install random
 ```
 
 ## Install
