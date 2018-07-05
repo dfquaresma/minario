@@ -5,7 +5,7 @@ module Board (
     buildRow
 ) where  
 import Players
-import System.Console.ANSI
+import Util
 import Control.Concurrent
 
 --It draws the game board given a width, height, boardState (how many walls there is), Player list
