@@ -26,9 +26,9 @@ board_height = 30
 board_wall_size = 1
 
 roundsToEndGame = 12
-waitingTime = 10000
-interval_to_update_bots = 100000
-interval_to_increase_board_wall_size = 1000000
+waitingTime = 20000
+interval_to_update_bots = 10000
+interval_to_increase_board_wall_size = 500000
 
 getNewTmpBots :: Int -> [Player] -> [Player]
 getNewTmpBots time bots = if (time >= interval_to_update_bots) then getNewBotsState bots board_wall_size else bots
@@ -37,10 +37,10 @@ getNewBoard_wall_size :: Int -> Int -> Int
 getNewBoard_wall_size time board_wall_size = if (time >= interval_to_increase_board_wall_size) then board_wall_size + 1 else board_wall_size
 
 getNewTimeToUpdateBots :: Int -> Int -> Int 
-getNewTimeToUpdateBots timeToUpdateBots waitingTime= if timeToUpdateBots < interval_to_update_bots then timeToUpdateBots + waitingTime else waitingTime
+getNewTimeToUpdateBots timeToUpdateBots waitingTime= if timeToUpdateBots <= interval_to_update_bots then timeToUpdateBots + waitingTime else waitingTime
 
 getNewTimeToUpdateBoard :: Int -> Int -> Int
-getNewTimeToUpdateBoard timeToUpdateBoard waitingTime= if timeToUpdateBoard < interval_to_increase_board_wall_size then timeToUpdateBoard + waitingTime else waitingTime
+getNewTimeToUpdateBoard timeToUpdateBoard waitingTime= if timeToUpdateBoard <= interval_to_increase_board_wall_size then timeToUpdateBoard + waitingTime else waitingTime
 
 checkUserAction :: Char -> IO()
 checkUserAction userAction = do
@@ -61,7 +61,6 @@ runGame botsTime boardTime (player:bots) gameBoard_wall_size = do
                     let newBotsState = getNewTmpBots timeToUpdateBots tmpBots
                     let newBoard_wall_size = getNewBoard_wall_size (timeToUpdateBoard + waitingTime) currBoard_wall_size
                     threadDelay waitingTime
-                    let totalWaited = waitingTime + 150000
                     aux <- tryTakeMVar charGame
                     if currBoard_wall_size > roundsToEndGame then 
                         showWinnerWindow >>
@@ -71,11 +70,11 @@ runGame botsTime boardTime (player:bots) gameBoard_wall_size = do
                         let userAction = fromJust aux
                         checkUserAction userAction
                         let newPlayerState = getNewPlayerState (player:newBotsState) (getNewPlayerPosition player userAction) newBoard_wall_size
-                        runGame (getNewTimeToUpdateBots timeToUpdateBots totalWaited) (getNewTimeToUpdateBoard timeToUpdateBoard totalWaited) (newPlayerState:newBotsState) newBoard_wall_size
+                        runGame (getNewTimeToUpdateBots timeToUpdateBots waitingTime) (getNewTimeToUpdateBoard timeToUpdateBoard waitingTime) (newPlayerState:newBotsState) newBoard_wall_size
 
                     else                                                       
                         threadDelay waitingTime >>
-                        wait charGame (updateDead (tmpPlayer:newBotsState) (tmpPlayer:newBotsState) currBoard_wall_size) (getNewTimeToUpdateBots timeToUpdateBots totalWaited) (getNewTimeToUpdateBoard timeToUpdateBoard totalWaited) newBoard_wall_size
+                        wait charGame (updateDead (tmpPlayer:newBotsState) (tmpPlayer:newBotsState) currBoard_wall_size) (getNewTimeToUpdateBots timeToUpdateBots waitingTime) (getNewTimeToUpdateBoard timeToUpdateBoard waitingTime) newBoard_wall_size
         
                 else 
                     showLoserWindow >>

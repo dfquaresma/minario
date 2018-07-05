@@ -16,9 +16,6 @@ module Display (
 import Players
 import Util
 
--- cabal install ansi-terminal
--- It specifically has functions for clearing the screen ***NEED THIS***
---import System.Console.ANSI
 import Control.Concurrent
 
 showMainGameIntroduction :: IO ()
@@ -149,12 +146,12 @@ showPlayers (player:bots) = do
     
 showWinnerWindow :: IO()
 showWinnerWindow = do
-    --clearScreen    
+    clearScreen    
     putStrLn "YOU SURVIVED!" 
 
 showLoserWindow :: IO()
 showLoserWindow = do
-    --clearScreen    
+    clearScreen    
     putStrLn "YOU LOSE!" 
 
 

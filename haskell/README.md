@@ -1,11 +1,10 @@
 # Minario - Haskell implementation
 
 ## Pre-installation
-Before playing, is necessary to install the library _ANSI terminal_, from _cabal_ using the following commands:
+Before playing, is necessary to install the library _Random_, from _cabal_ using the following commands:
 
 ```bash
 cabal update
-cabal install ansi-terminal
 cabal install random
 ```
 
