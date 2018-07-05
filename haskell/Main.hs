@@ -40,17 +40,17 @@ checkUserAction userAction = do
 
 waitingTime = 500
 runGame :: Int -> [Player] -> Int -> IO()
-runGame gameTime (player:bots) board_wall_size = do
+runGame gameTime (player:bots) gameBoard_wall_size = do
         charGame <- newEmptyMVar
         forkIO $ do
             aux <- getChar
             putMVar charGame aux 
 
-        wait charGame bots gameTime board_wall_size
-        where wait charGame tmpBots time board_wall_size = do
+        wait charGame bots gameTime gameBoard_wall_size
+        where wait charGame tmpBots time currBoard_wall_size = do
                 if isThatPlayerAlive player then do
-                    drawGameBoard board_width board_height board_wall_size (player:tmpBots) 
-                    let newBoard_wall_size = getNewBoard_wall_size (time) board_wall_size
+                    drawGameBoard board_width board_height currBoard_wall_size (player:tmpBots) 
+                    let newBoard_wall_size = getNewBoard_wall_size time currBoard_wall_size
                     let newBotsState = getNewTmpBots time tmpBots
                     aux <- tryTakeMVar charGame
                     if newBoard_wall_size >= 14 then 
