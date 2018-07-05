@@ -28,7 +28,7 @@ board_wall_size = 1
 roundsToEndGame = 12
 waitingTime = 10000
 interval_to_update_bots = 100000
-interval_to_increase_board_wall_size = 500000
+interval_to_increase_board_wall_size = 1000000
 
 getNewTmpBots :: Int -> [Player] -> [Player]
 getNewTmpBots time bots = if (time >= interval_to_update_bots) then getNewBotsState bots board_wall_size else bots
