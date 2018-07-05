@@ -21,8 +21,8 @@ game_state_easy = 30
 game_state_medium = 50
 game_state_hard = 100
 
-board_width = 30
-board_height = 70
+board_width = 70
+board_height = 30
 board_wall_size = 1
 
 interval_to_update_bots = 1000000
@@ -38,6 +38,7 @@ checkUserAction userAction = do
     if userAction == '\ESC' then exitSuccess
     else return ()
 
+roundsToEndGame = 12
 waitingTime = 500
 runGame :: Int -> [Player] -> Int -> IO()
 runGame gameTime (player:bots) gameBoard_wall_size = do
@@ -49,23 +50,22 @@ runGame gameTime (player:bots) gameBoard_wall_size = do
         wait charGame bots gameTime gameBoard_wall_size
         where wait charGame tmpBots time currBoard_wall_size = do
                 if isThatPlayerAlive player then do
-                    drawGameBoard board_width board_height currBoard_wall_size (player:tmpBots) 
-                    let newBoard_wall_size = getNewBoard_wall_size time currBoard_wall_size
+                    drawGameBoard board_height board_width currBoard_wall_size (player:tmpBots) 
                     let newBotsState = getNewTmpBots time tmpBots
                     aux <- tryTakeMVar charGame
-                    if newBoard_wall_size >= 14 then 
+                    if currBoard_wall_size > roundsToEndGame then 
                         showWinnerWindow >>
                         runMenu end_game_statement
 
                     else if isJust aux then do
                         let userAction = fromJust aux
                         checkUserAction userAction
-                        let newPlayerState = getNewPlayerState (player:newBotsState) (getNewPlayerPosition player userAction) newBoard_wall_size
-                        runGame time (newPlayerState:newBotsState) newBoard_wall_size
+                        let newPlayerState = getNewPlayerState (player:newBotsState) (getNewPlayerPosition player userAction) currBoard_wall_size
+                        runGame time (newPlayerState:newBotsState) currBoard_wall_size
 
                     else           
                         threadDelay waitingTime >>
-                        wait charGame newBotsState (time + waitingTime) newBoard_wall_size
+                        wait charGame newBotsState (time + waitingTime) (getNewBoard_wall_size time currBoard_wall_size)
     
                 else 
                     showLoserWindow >>
