@@ -26,7 +26,7 @@ board_height = 30
 board_wall_size = 1
 
 roundsToEndGame = 12
-waitingTime = 20000
+waitingTime = 50000
 interval_to_update_bots = 10000
 interval_to_increase_board_wall_size = 500000
 

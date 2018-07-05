@@ -12,7 +12,7 @@ import Control.Concurrent
 drawGameBoard :: Int -> Int -> Int -> [Player] -> IO()
 drawGameBoard height width wallSize (player:bots) = do 
     clearScreen 
-    putStr (unlines (buildGameBoard height width wallSize (player:bots))) 
+    putAsShell (unlines (buildGameBoard height width wallSize (player:bots))) 
 
 --builds the board as a list of chars
 buildGameBoard :: Int -> Int -> Int -> [Player] -> [[Char]]
