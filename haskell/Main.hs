@@ -15,8 +15,7 @@ difficulty_state_medium = 4
 difficulty_state_hard = 5
 instruction_state = 6
 
-winner_statement = 12
-loser_statement = 10
+end_game_statement = 10
 
 game_state_easy = 30
 game_state_medium = 50
@@ -30,38 +29,45 @@ interval_to_update_bots = 500000
 getBots :: Int -> [Player] -> [Player]
 getBots time bots = if (time `mod` interval_to_update_bots) == 0 then getNewBotsState bots board_wall_size else bots
 
+interval_to_reduce_board = 3000000
+newBoardLimitsTuple :: Int -> (Int, Int) -> (Int, Int)
+newBoardLimitsTuple time (h, w) = if (time `mod` interval_to_reduce_board) == 0 then (h - 1, w - 1) else (h, w)
+
 checkUserAction :: Char -> IO()
 checkUserAction userAction = do
     if userAction == '\ESC' then exitSuccess
     else return ()
 
-interval_to_reduce_board = 3000000
 runGame :: Int -> [Player] -> Int -> Int -> IO()
 runGame timeBoard (player:bots) height width = do
         charGame <- newEmptyMVar
         forkIO $ do
             aux <- getChar
             putMVar charGame aux 
-    
+
         wait charGame bots 0 height width
         where wait charGame bots time b_height b_width = do
-              --showPlayers (player:bots) -- should update screen here.
-              drawGameBoard b_height b_width board_wall_size (player:bots)
-              aux <- tryTakeMVar charGame
-              if isJust aux then do
-                  let newBotsState = getBots time bots
-                  let userAction = fromJust aux
-                  checkUserAction userAction
-                  let newPlayerState = getNewPlayerState (player:bots) (getNewPlayerPosition player userAction) board_wall_size
-                  if isThatPlayerAlive newPlayerState then runGame (timeBoard + 5000)(newPlayerState:newBotsState) b_height b_width
-                  else 
-                      putStrLn "YOU LOSE!" >>  
-                      runMenu loser_statement
-              else           
-                  -- Non player depending logic should be implemented here.
-                  if (timeBoard `mod` interval_to_reduce_board) == 0 then threadDelay 5000 >> wait charGame (getBots time bots) (time + 5000) (b_height - 1) (b_width - 1)
-                  else
-                      threadDelay 5000 >> wait charGame (getBots time bots) (time + 5000) b_height b_width
+                let newBoardLimits = newBoardLimitsTuple time (b_height, b_width)
+                drawGameBoard b_height b_width board_wall_size (player:bots)
+                aux <- tryTakeMVar charGame
+                if isJust aux then do
+                    let newBotsState = getBots time bots
+                    let userAction = fromJust aux
+                    checkUserAction userAction
+                    let newPlayerState = getNewPlayerState (player:bots) (getNewPlayerPosition player userAction) board_wall_size
+                    if isThatPlayerAlive newPlayerState then 
+                        runGame timeBoard (newPlayerState:newBotsState) (fst newBoardLimits) (snd newBoardLimits)
+                    else 
+                        putStrLn "YOU LOSE!" >>  
+                        runMenu end_game_statement
+                else           
+                    threadDelay 5000 >>
+                    if b_height == 20 && b_width == 60 then 
+                        putStrLn "YOU SURVIVED!" >>  
+                        runMenu end_game_statement
+                    else 
+                        wait charGame (getBots time bots) (time + 5000) (fst newBoardLimits) (snd newBoardLimits)
+                    
 
 showScreen :: Int -> Char -> IO()
 showScreen state char | state == menu_state_up && char == 's' = showGameIntroductionStaticInstructions
@@ -75,8 +81,7 @@ showScreen state char | state == menu_state_up && char == 's' = showGameIntroduc
                       | state == difficulty_state_medium && char == 's' = showGameDifficultyOptionsHard
                       | state == difficulty_state_hard && char == 'w' = showGameDifficultyOptionsMedium
 
-                      | state == winner_statement && (char == 'q' || char == 'e') = showMainGameStaticStart
-                      | state == loser_statement && (char == 'q' || char == 'e') = showMainGameStaticStart
+                      | state == end_game_statement && (char == 'q' || char == 'e') = showMainGameStaticStart
                       | state == instruction_state && (char == 'q' || char == 'e') = showMainGameStaticStart
                       | (state == difficulty_state_easy || state == difficulty_state_medium || state == difficulty_state_hard)  && char == 'q' = showMainGameStaticStart
                       
@@ -98,8 +103,7 @@ nextState oldState char | oldState == menu_state_up && char == 's' = menu_state_
                         | oldState == difficulty_state_medium && char == 'e' = game_state_medium
                         | oldState == difficulty_state_hard && char == 'e' = game_state_hard 
                         
-                        | oldState == winner_statement && (char == 'q' || char == 'e') = menu_state_up
-                        | oldState == loser_statement && (char == 'q' || char == 'e') = menu_state_up                           
+                        | oldState == end_game_statement && (char == 'q' || char == 'e') = menu_state_up                           
                         | oldState == instruction_state && (char == 'q' || char == 'e') = menu_state_up
                         | (oldState == difficulty_state_easy || oldState == difficulty_state_medium || oldState == difficulty_state_hard)  && char == 'q' = menu_state_up
                          
