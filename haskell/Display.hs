@@ -8,19 +8,19 @@ module Display (
     showGameDifficultyOptionsEasy,
     showGameDifficultyOptionsMedium,
     showGameDifficultyOptionsHard, 
+    showWinnerWindow,
+    showLoserWindow,
     showPlayers
 ) where  
 
 import Players
+import Util
 
--- cabal install ansi-terminal
--- It specifically has functions for clearing the screen ***NEED THIS***
-import System.Console.ANSI
 import Control.Concurrent
 
 showMainGameIntroduction :: IO ()
-showMainGameIntroduction = do 
-    clearScreen    
+showMainGameIntroduction = do    
+    clearScreen
     putStrLn "\n\t/////////////////////////////////\t Minário \t/////////////////////////////////"
     threadDelay 100000
     putStrLn "\n\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henriques, Thomaz Diniz"
@@ -38,7 +38,7 @@ showMainGameIntroduction = do
 
 showMainGameStaticStart :: IO ()
 showMainGameStaticStart = do 
-    clearScreen    
+    clearScreen
     putStrLn "\n\t/////////////////////////////////\t Minário \t/////////////////////////////////"
     putStrLn "\n\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henriques, Thomaz Diniz"
     putStrLn "\n\n\n"
@@ -50,7 +50,7 @@ showMainGameStaticStart = do
 
 showGameIntroductionStaticInstructions :: IO ()
 showGameIntroductionStaticInstructions = do 
-    clearScreen      
+    clearScreen
     putStrLn "\n\t/////////////////////////////////\t Minário \t/////////////////////////////////"
     putStrLn "\n\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henriques, Thomaz Diniz"
     putStrLn "\n\n\n"
@@ -144,5 +144,15 @@ showPlayers (player:bots) = do
     let firstBot = head bots
     putStrLn ("[" ++ show(isThatPlayerAlive firstBot) ++ ",(" ++ show(getXPositionOfPlayer firstBot) ++ "," ++show(getYPositionOfPlayer firstBot) ++ ")]")
     
+showWinnerWindow :: IO()
+showWinnerWindow = do
+    clearScreen    
+    putStrLn "YOU SURVIVED!" 
+
+showLoserWindow :: IO()
+showLoserWindow = do
+    clearScreen    
+    putStrLn "YOU LOSE!" 
+
 
     

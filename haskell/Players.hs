@@ -19,7 +19,7 @@ module Players (
     getBotInBoardCell
 ) where 
 
-import Util (getRandomInteger)
+import Util
 
 data Player = Player {
     xPosition :: Int, 
@@ -30,9 +30,9 @@ data Player = Player {
 
 -- It returns a player.
 xMin = 0
-xMax = 20
+xMax = getMaxYCoord
 yMin = 0
-yMax = 20
+yMax = getMaxXCoord
 buildPlayer :: Int -> Player
 buildPlayer id = newPlayer
                 where 
@@ -76,24 +76,6 @@ botMovementRange = (-1, 1)
 newBotPosition :: (Int, Int) -> (Int, Int)
 newBotPosition (xPos, yPos) = (xPos + getRandomInteger botMovementRange, yPos + getRandomInteger botMovementRange)                                                  
 
--- It gives a new bots distribution list. Note that it does not ensures that colliding bots are dead. 
-updateBotsPosition :: [Player] -> [Player]
-updateBotsPosition [] = []
-updateBotsPosition (headBot:bots) =  if isAlive headBot then 
-                                        if checkSafeByViewPosition bots newPos then -- TODO(Paulo): Inserts here a call to check if the bot collides with the boards.
-                                            Player (fst newPos) (snd newPos) (identifier headBot) True : updateBotsPosition bots
-                                        else
-                                            updateBotsPosition (headBot:bots) -- try again with a newPos.
-
-                                    else 
-                                        headBot : updateBotsPosition bots
-                                  
-                                    where newPos = newBotPosition (xPosition headBot, yPosition headBot)
-
--- Verify if two coordinates are the same.                                    
-samePosition :: (Int, Int) -> (Int, Int) -> Bool
-samePosition (x1, y1) (x2, y2) = x1 == x2 && y1 == y2
-
 -- Kill all players at the given position.
 killAtPosition :: [Player] -> (Int, Int) -> Int -> Int -> [Player]
 killAtPosition [] x id _ = []
@@ -105,6 +87,26 @@ killAtPosition (head:tail) (x, y) id wallSize = if (idHead) /= id && isAlive hea
                                         xHead = xPosition head
                                         yHead = yPosition head
                                         idHead = identifier head
+
+-- It gives a new bots distribution list. Note that it does not ensures that colliding bots are dead. 
+updateBotsPosition :: [Player] -> Int -> [Player]
+updateBotsPosition [] _ = []
+updateBotsPosition (headBot:bots) wallSize =  if isAlive headBot then 
+                                        if checkSafeByViewPosition bots newPos && not (playerIsCollidingWithWalls headBot wallSize) then
+                                            newPlayer : updateBotsPosition bots wallSize
+                                        else
+                                            updateBotsPosition (headBot:bots) wallSize -- try again with a newPos.
+
+                                    else 
+                                        headBot : updateBotsPosition bots wallSize
+                                  
+                                    where 
+                                        newPos = newBotPosition (xPosition headBot, yPosition headBot)
+                                        newPlayer = (Player (fst newPos) (snd newPos) (identifier headBot) True) 
+
+-- Verify if two coordinates are the same.                                    
+samePosition :: (Int, Int) -> (Int, Int) -> Bool
+samePosition (x1, y1) (x2, y2) = x1 == x2 && y1 == y2
 
 playerIsCollidingWithWalls :: Player -> Int -> Bool
 playerIsCollidingWithWalls player wallSize = ((getXPositionOfPlayer player) <= wallSize) || 
@@ -125,7 +127,7 @@ updateDead players (headBot:bots) wallSize = updateDead (killAtPosition players 
 getNewBotsState :: [Player] -> Int -> [Player]
 getNewBotsState bots wallSize = newBotsState
                     where
-                        botAfterMovement = updateBotsPosition bots
+                        botAfterMovement = updateBotsPosition bots wallSize
                         newBotsState = updateDead botAfterMovement botAfterMovement wallSize
 
 -- It gives a new bots distribution list, but this one considers the head as  

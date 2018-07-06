@@ -5,15 +5,13 @@ module Board (
     buildRow
 ) where  
 import Players
-import System.Console.ANSI
-import Control.Concurrent
+import Util
 
 --It draws the game board given a width, height, boardState (how many walls there is), Player list
 drawGameBoard :: Int -> Int -> Int -> [Player] -> IO()
 drawGameBoard height width wallSize (player:bots) = do 
     clearScreen 
-    putStr (unlines (buildGameBoard height width wallSize (player:bots))) 
-    threadDelay 300000
+    putAsShell (unlines (buildGameBoard height width wallSize (player:bots))) 
 
 --builds the board as a list of chars
 buildGameBoard :: Int -> Int -> Int -> [Player] -> [[Char]]
