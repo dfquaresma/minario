@@ -26,9 +26,9 @@ game_state_medium = 50
 game_state_hard = 100
 
 roundsToEndGame = 12
-runGameTime = 1000
+runGameTime = 10000
 updateBotsInterval = 200000
-increaseWallSizeInterval = 2000000
+increaseWallSizeInterval = 1500000
 
 getNewTmpBots :: Int -> Int -> Int -> [Player] -> [Player]
 getNewTmpBots time lastBotUpdate wallSize bots = if ((time - lastBotUpdate) >= updateBotsInterval) 
@@ -55,34 +55,31 @@ checkUserAction userAction = do
     if userAction == '\ESC' then exitSuccess
     else return ()
 
-runGame :: IORef Char -> Int -> Int -> Int -> [Player] -> Int -> IO()
+runGame :: IORef Char -> Int -> Int -> Int -> [Player] -> Int -> IO [Char]
 runGame sharedChar time lastBotsUpdate lastBoardUpdate (player:bots) wallSize = do
     threadDelay runGameTime
-    if wallSize > roundsToEndGame then 
-        showWinnerWindow >>
-        runMenu end_game_statement
-    else if isThatPlayerAlive player then do
-        let newBotsState = getNewTmpBots time lastBotsUpdate wallSize bots 
-        let newWallSize = getNewWallSize time lastBoardUpdate wallSize
+    if isThatPlayerAlive player then do
+        if wallSize > roundsToEndGame then return $ "Winner"
+        else do
+            let newBotsState = getNewTmpBots time lastBotsUpdate wallSize bots 
+            let newWallSize = getNewWallSize time lastBoardUpdate wallSize
 
-        userAction <- readIORef sharedChar
-        checkUserAction userAction
+            userAction <- readIORef sharedChar
+            checkUserAction userAction
 
-        when ((time - lastBotsUpdate) >= updateBotsInterval 
-            || (time - lastBoardUpdate) >= increaseWallSizeInterval 
-            || userAction /= 'n') $ drawGameBoard board_height board_width wallSize (player:bots) 
-        
-        let newPlayerState = getNewPlayerState (player:newBotsState) (getNewPlayerPosition player userAction) newWallSize
-        
-        runGame sharedChar
-                (time + runGameTime)
-                (getNewBotsUpdate time lastBotsUpdate) 
-                (getNewWallSizeUpdate time lastBoardUpdate) 
-                (newPlayerState:newBotsState) 
-                newWallSize
-    else 
-        showLoserWindow >>
-        runMenu end_game_statement
+            when ((time - lastBotsUpdate) >= updateBotsInterval 
+                || (time - lastBoardUpdate) >= increaseWallSizeInterval 
+                || userAction /= 'n') $ drawGameBoard board_height board_width wallSize (player:bots) 
+            
+            let newPlayerState = getNewPlayerState (player:newBotsState) (getNewPlayerPosition player userAction) newWallSize
+            
+            runGame sharedChar
+                    (time + runGameTime)
+                    (getNewBotsUpdate time lastBotsUpdate) 
+                    (getNewWallSizeUpdate time lastBoardUpdate) 
+                    (newPlayerState:newBotsState) 
+                    newWallSize
+    else return $ "Loser"
                 
 showScreen :: Int -> Char -> IO()
 showScreen state char | state == menu_state_up && char == 's' = showGameIntroductionStaticInstructions
@@ -134,11 +131,17 @@ runMenu state = do
     if newState < game_state_easy then runMenu newState
     else do 
         sharedChar <- newIORef 'n' -- do nothing
-        forkIO $ forever (do 
+        threadId <- forkIO $ forever (do 
                             atomicWriteIORef sharedChar 'n' -- nothing
                             getUserAction sharedChar
                             threadDelay 10000) -- unlock MVar changes in getUserAction
-        runGame sharedChar 0 0 0 (createPlayers newState) wallSize
+        gameResult <- runGame sharedChar 0 0 0 (createPlayers newState) wallSize
+        killThread threadId 
+        if (gameResult == "Winner")
+        then showWinnerWindow >>
+            runMenu end_game_statement
+        else showLoserWindow >>
+            runMenu end_game_statement
 
 getUserAction :: IORef Char -> IO()
 getUserAction sharedChar = do 
