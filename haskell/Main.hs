@@ -26,7 +26,7 @@ game_state_medium = 50
 game_state_hard = 100
 
 roundsToEndGame = 12
-runGameTime = 10000
+runGameTime = 500
 updateBotsInterval = 200000
 increaseWallSizeInterval = 1500000
 
@@ -69,7 +69,8 @@ runGame sharedChar time lastBotsUpdate lastBoardUpdate (player:bots) wallSize = 
 
             when ((time - lastBotsUpdate) >= updateBotsInterval 
                 || (time - lastBoardUpdate) >= increaseWallSizeInterval 
-                || userAction /= 'n') $ drawGameBoard board_height board_width wallSize (player:bots) 
+                || userAction /= 'n') $ (do drawGameBoard board_height board_width wallSize (player:bots) 
+                                            atomicWriteIORef sharedChar 'n')
             
             let newPlayerState = getNewPlayerState (player:newBotsState) (getNewPlayerPosition player userAction) newWallSize
             
@@ -132,9 +133,8 @@ runMenu state = do
     else do 
         sharedChar <- newIORef 'n' -- do nothing
         threadId <- forkIO $ forever (do 
-                            atomicWriteIORef sharedChar 'n' -- nothing
-                            getUserAction sharedChar
-                            threadDelay 10000) -- unlock MVar changes in getUserAction
+                            userAction <- readIORef sharedChar
+                            if(userAction == 'n') then getUserAction sharedChar else return ()) -- unlock MVar changes in getUserAction
         gameResult <- runGame sharedChar 0 0 0 (createPlayers newState) wallSize
         killThread threadId 
         if (gameResult == "Winner")
