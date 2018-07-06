@@ -17,9 +17,9 @@ instruction_state = 6
 
 end_game_statement = 10
 
-game_state_easy = 25
+game_state_easy = 30
 game_state_medium = 50
-game_state_hard = 75
+game_state_hard = 90
 
 board_width = 70
 board_height = 30
