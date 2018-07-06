@@ -2,6 +2,7 @@ import Display
 import Players
 import Board
 
+import Data.IORef
 import Control.Concurrent
 import Control.Monad
 import Data.Maybe
@@ -15,51 +16,72 @@ difficulty_state_medium = 4
 difficulty_state_hard = 5
 instruction_state = 6
 
-winner_statement = 12
-loser_statement = 10
+end_game_statement = 10
+
+board_width = 70
+board_height = 30
 
 game_state_easy = 30
 game_state_medium = 50
 game_state_hard = 100
 
-board_width = 20
-board_height = 20
-board_wall_size = 1
+roundsToEndGame = 12
+runGameTime = 500
+updateBotsInterval = 200000
+increaseWallSizeInterval = 1500000
 
-interval_to_update_bots = 500000
-getBots :: Int -> [Player] -> [Player]
-getBots time bots = if (time `mod` interval_to_update_bots) == 0 then getNewBotsState bots board_wall_size else bots
+getNewTmpBots :: Int -> Int -> Int -> [Player] -> [Player]
+getNewTmpBots time lastBotUpdate wallSize bots = if ((time - lastBotUpdate) >= updateBotsInterval) 
+    then getNewBotsState bots wallSize 
+    else bots 
+
+getNewWallSize :: Int -> Int -> Int -> Int
+getNewWallSize time lastWallSizeUpdate wallSize = if ((time - lastWallSizeUpdate) >= increaseWallSizeInterval) 
+    then wallSize + 1 
+    else wallSize 
+
+getNewBotsUpdate :: Int -> Int -> Int 
+getNewBotsUpdate time lastBotsUpdate = if ((time - lastBotsUpdate) >= updateBotsInterval)
+    then time + updateBotsInterval 
+    else lastBotsUpdate
+
+getNewWallSizeUpdate :: Int -> Int -> Int
+getNewWallSizeUpdate time lastWallSizeUpdate = if ((time - lastWallSizeUpdate) >= increaseWallSizeInterval) 
+    then time + increaseWallSizeInterval 
+    else lastWallSizeUpdate
 
 checkUserAction :: Char -> IO()
 checkUserAction userAction = do
     if userAction == '\ESC' then exitSuccess
     else return ()
 
-runGame :: [Player] -> IO()
-runGame (player:bots) = do
-        charGame <- newEmptyMVar
-        forkIO $ do
-            aux <- getChar
-            putMVar charGame aux 
-    
-        wait charGame bots 0
-        where wait charGame bots time = do
-              --showPlayers (player:bots) -- should update screen here.
-              drawGameBoard board_height board_width board_wall_size (player:bots)
-              aux <- tryTakeMVar charGame
-              if isJust aux then do
-                  let newBotsState = getBots time bots
-                  let userAction = fromJust aux
-                  checkUserAction userAction
-                  let newPlayerState = getNewPlayerState (player:bots) (getNewPlayerPosition player userAction) board_wall_size
-                  if isThatPlayerAlive newPlayerState then runGame (newPlayerState:newBotsState) 
-                  else 
-                      putStrLn "YOU LOSE!" >>  
-                      runMenu loser_statement
-              else           
-                  -- Non player depending logic should be implemented here.
-                  threadDelay 5000 >> wait charGame (getBots time bots) (time + 5000)
+runGame :: IORef Char -> Int -> Int -> Int -> [Player] -> Int -> IO [Char]
+runGame sharedChar time lastBotsUpdate lastBoardUpdate (player:bots) wallSize = do
+    threadDelay runGameTime
+    if isThatPlayerAlive player then do
+        if wallSize > roundsToEndGame then return $ "Winner"
+        else do
+            let newBotsState = getNewTmpBots time lastBotsUpdate wallSize bots 
+            let newWallSize = getNewWallSize time lastBoardUpdate wallSize
 
+            userAction <- readIORef sharedChar
+            checkUserAction userAction
+
+            when ((time - lastBotsUpdate) >= updateBotsInterval 
+                || (time - lastBoardUpdate) >= increaseWallSizeInterval 
+                || userAction /= 'n') $ (do drawGameBoard board_height board_width wallSize (player:bots) 
+                                            atomicWriteIORef sharedChar 'n')
+            
+            let newPlayerState = getNewPlayerState (player:newBotsState) (getNewPlayerPosition player userAction) newWallSize
+            
+            runGame sharedChar
+                    (time + runGameTime)
+                    (getNewBotsUpdate time lastBotsUpdate) 
+                    (getNewWallSizeUpdate time lastBoardUpdate) 
+                    (newPlayerState:newBotsState) 
+                    newWallSize
+    else return $ "Loser"
+                
 showScreen :: Int -> Char -> IO()
 showScreen state char | state == menu_state_up && char == 's' = showGameIntroductionStaticInstructions
                       | state == menu_state_down && char == 'w' = showMainGameStaticStart
@@ -72,8 +94,7 @@ showScreen state char | state == menu_state_up && char == 's' = showGameIntroduc
                       | state == difficulty_state_medium && char == 's' = showGameDifficultyOptionsHard
                       | state == difficulty_state_hard && char == 'w' = showGameDifficultyOptionsMedium
 
-                      | state == winner_statement && (char == 'q' || char == 'e') = showMainGameStaticStart
-                      | state == loser_statement && (char == 'q' || char == 'e') = showMainGameStaticStart
+                      | state == end_game_statement && (char == 'q' || char == 'e') = showMainGameStaticStart
                       | state == instruction_state && (char == 'q' || char == 'e') = showMainGameStaticStart
                       | (state == difficulty_state_easy || state == difficulty_state_medium || state == difficulty_state_hard)  && char == 'q' = showMainGameStaticStart
                       
@@ -95,8 +116,7 @@ nextState oldState char | oldState == menu_state_up && char == 's' = menu_state_
                         | oldState == difficulty_state_medium && char == 'e' = game_state_medium
                         | oldState == difficulty_state_hard && char == 'e' = game_state_hard 
                         
-                        | oldState == winner_statement && (char == 'q' || char == 'e') = menu_state_up
-                        | oldState == loser_statement && (char == 'q' || char == 'e') = menu_state_up                           
+                        | oldState == end_game_statement && (char == 'q' || char == 'e') = menu_state_up                           
                         | oldState == instruction_state && (char == 'q' || char == 'e') = menu_state_up
                         | (oldState == difficulty_state_easy || oldState == difficulty_state_medium || oldState == difficulty_state_hard)  && char == 'q' = menu_state_up
                          
@@ -104,12 +124,30 @@ nextState oldState char | oldState == menu_state_up && char == 's' = menu_state_
 
 runMenu :: Int -> IO()
 runMenu state = do
+    let wallSize = 1
     userAction <- getChar
     checkUserAction userAction
     showScreen state userAction
     let newState = nextState state userAction
     if newState < game_state_easy then runMenu newState
-    else runGame (createPlayers newState)
+    else do 
+        sharedChar <- newIORef 'n' -- do nothing
+        threadId <- forkIO $ forever (do 
+                            userAction <- readIORef sharedChar
+                            if(userAction == 'n') then getUserAction sharedChar else return ()) -- unlock MVar changes in getUserAction
+        gameResult <- runGame sharedChar 0 0 0 (createPlayers newState) wallSize
+        killThread threadId 
+        if (gameResult == "Winner")
+        then showWinnerWindow >>
+            runMenu end_game_statement
+        else showLoserWindow >>
+            runMenu end_game_statement
+
+getUserAction :: IORef Char -> IO()
+getUserAction sharedChar = do 
+    userAction <- getChar
+    atomicWriteIORef sharedChar userAction
+    return ()
 
 main :: IO()
 main = do

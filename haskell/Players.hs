@@ -30,9 +30,9 @@ data Player = Player {
 
 -- It returns a player.
 xMin = 0
-xMax = 20
+xMax = 30
 yMin = 0
-yMax = 20
+yMax = 70
 buildPlayer :: Int -> Player
 buildPlayer id = newPlayer
                 where 
