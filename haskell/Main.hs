@@ -2,6 +2,7 @@ import Display
 import Players
 import Board
 
+import Data.IORef
 import Control.Concurrent
 import Control.Monad
 import Data.Maybe
@@ -25,64 +26,64 @@ game_state_medium = 50
 game_state_hard = 100
 
 roundsToEndGame = 12
-waitingTime = 100000
-updateBotsInterval = 300000
-increaseWallSizeInterval = 3000000
+runGameTime = 1000
+updateBotsInterval = 200000
+increaseWallSizeInterval = 2000000
 
-getNewTmpBots :: Int -> [Player] -> Int -> [Player]
-getNewTmpBots time bots wallSize = if (time >= updateBotsInterval) then getNewBotsState bots wallSize else bots
+getNewTmpBots :: Int -> Int -> Int -> [Player] -> [Player]
+getNewTmpBots time lastBotUpdate wallSize bots = if ((time - lastBotUpdate) >= updateBotsInterval) 
+    then getNewBotsState bots wallSize 
+    else bots 
 
-getNewWallSize :: Int -> Int -> Int
-getNewWallSize time wallSize = if (time >= increaseWallSizeInterval) then wallSize + 1 else wallSize
+getNewWallSize :: Int -> Int -> Int -> Int
+getNewWallSize time lastWallSizeUpdate wallSize = if ((time - lastWallSizeUpdate) >= increaseWallSizeInterval) 
+    then wallSize + 1 
+    else wallSize 
 
-getNewTimeToUpdateBots :: Int -> Int -> Int 
-getNewTimeToUpdateBots timeToUpdateBots waitingTime = if timeToUpdateBots <= updateBotsInterval 
-    then timeToUpdateBots + waitingTime 
-    else waitingTime
+getNewBotsUpdate :: Int -> Int -> Int 
+getNewBotsUpdate time lastBotsUpdate = if ((time - lastBotsUpdate) >= updateBotsInterval)
+    then time + updateBotsInterval 
+    else lastBotsUpdate
 
-getNewTimeToUpdateBoard :: Int -> Int -> Int
-getNewTimeToUpdateBoard timeToUpdateBoard waitingTime = if timeToUpdateBoard <= increaseWallSizeInterval 
-    then timeToUpdateBoard + waitingTime 
-    else waitingTime
+getNewWallSizeUpdate :: Int -> Int -> Int
+getNewWallSizeUpdate time lastWallSizeUpdate = if ((time - lastWallSizeUpdate) >= increaseWallSizeInterval) 
+    then time + increaseWallSizeInterval 
+    else lastWallSizeUpdate
 
 checkUserAction :: Char -> IO()
 checkUserAction userAction = do
     if userAction == '\ESC' then exitSuccess
     else return ()
 
-runGame :: Int -> Int -> [Player] -> Int -> IO()
-runGame botsTime boardTime (player:bots) gameBoard_wall_size = do
-        charGame <- newEmptyMVar
-        forkIO $ do
-            aux <- getChar
-            putMVar charGame aux 
+runGame :: IORef Char -> Int -> Int -> Int -> [Player] -> Int -> IO()
+runGame sharedChar time lastBotsUpdate lastBoardUpdate (player:bots) wallSize = do
+    threadDelay runGameTime
+    if wallSize > roundsToEndGame then 
+        showWinnerWindow >>
+        runMenu end_game_statement
+    else if isThatPlayerAlive player then do
+        let newBotsState = getNewTmpBots time lastBotsUpdate wallSize bots 
+        let newWallSize = getNewWallSize time lastBoardUpdate wallSize
 
-        wait charGame (player:bots) botsTime boardTime gameBoard_wall_size
-        where wait charGame (tmpPlayer:tmpBots) timeToUpdateBots timeToUpdateBoard currentWallSize = do
-                if isThatPlayerAlive tmpPlayer then do
-                    drawGameBoard board_height board_width currentWallSize (player:tmpBots) 
-                    let newBotsState = getNewTmpBots timeToUpdateBots tmpBots currentWallSize
-                    let newBoard_wall_size = getNewWallSize (timeToUpdateBoard + waitingTime) currentWallSize
-                    threadDelay waitingTime
-                    aux <- tryTakeMVar charGame
-                    if currentWallSize > roundsToEndGame then 
-                        showWinnerWindow >>
-                        runMenu end_game_statement
+        userAction <- readIORef sharedChar
+        checkUserAction userAction
 
-                    else if isJust aux then do
-                        let userAction = fromJust aux
-                        checkUserAction userAction
-                        let newPlayerState = getNewPlayerState (player:newBotsState) (getNewPlayerPosition player userAction) newBoard_wall_size
-                        runGame (getNewTimeToUpdateBots timeToUpdateBots waitingTime) (getNewTimeToUpdateBoard timeToUpdateBoard waitingTime) (newPlayerState:newBotsState) newBoard_wall_size
-
-                    else                                                       
-                        threadDelay waitingTime >>
-                        wait charGame (updateDead (tmpPlayer:newBotsState) (tmpPlayer:newBotsState) currentWallSize) (getNewTimeToUpdateBots timeToUpdateBots waitingTime) (getNewTimeToUpdateBoard timeToUpdateBoard waitingTime) newBoard_wall_size
+        when ((time - lastBotsUpdate) >= updateBotsInterval 
+            || (time - lastBoardUpdate) >= increaseWallSizeInterval 
+            || userAction /= 'n') $ drawGameBoard board_height board_width wallSize (player:bots) 
         
-                else 
-                    showLoserWindow >>
-                    runMenu end_game_statement
-
+        let newPlayerState = getNewPlayerState (player:newBotsState) (getNewPlayerPosition player userAction) newWallSize
+        
+        runGame sharedChar
+                (time + runGameTime)
+                (getNewBotsUpdate time lastBotsUpdate) 
+                (getNewWallSizeUpdate time lastBoardUpdate) 
+                (newPlayerState:newBotsState) 
+                newWallSize
+    else 
+        showLoserWindow >>
+        runMenu end_game_statement
+                
 showScreen :: Int -> Char -> IO()
 showScreen state char | state == menu_state_up && char == 's' = showGameIntroductionStaticInstructions
                       | state == menu_state_down && char == 'w' = showMainGameStaticStart
@@ -131,7 +132,19 @@ runMenu state = do
     showScreen state userAction
     let newState = nextState state userAction
     if newState < game_state_easy then runMenu newState
-    else runGame 0 0 (createPlayers newState) wallSize
+    else do 
+        sharedChar <- newIORef 'n' -- do nothing
+        forkIO $ forever (do 
+                            atomicWriteIORef sharedChar 'n' -- nothing
+                            getUserAction sharedChar
+                            threadDelay 10000) -- unlock MVar changes in getUserAction
+        runGame sharedChar 0 0 0 (createPlayers newState) wallSize
+
+getUserAction :: IORef Char -> IO()
+getUserAction sharedChar = do 
+    userAction <- getChar
+    atomicWriteIORef sharedChar userAction
+    return ()
 
 main :: IO()
 main = do
