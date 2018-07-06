@@ -1,6 +1,8 @@
 module Util ( 
     getRandomInteger,
     clearScreen,
+    getMaxXCoord,
+    getMaxYCoord,
     putAsShell
 ) where  
 
@@ -21,3 +23,9 @@ putAsShell :: String -> IO()
 putAsShell str = do
   SP.system ("echo '" ++ str ++ "'")
   return ()
+
+getMaxXCoord :: Int
+getMaxXCoord = 40
+
+getMaxYCoord :: Int
+getMaxYCoord = 20

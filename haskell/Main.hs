@@ -1,6 +1,7 @@
 import Display
 import Players
 import Board
+import Util
 
 import Control.Concurrent
 import Control.Monad
@@ -15,20 +16,20 @@ difficulty_state_medium = 4
 difficulty_state_hard = 5
 instruction_state = 6
 
-end_game_statement = 10
+end_game_statement = 7
 
-game_state_easy = 30
-game_state_medium = 50
-game_state_hard = 90
+game_state_easy = 10
+game_state_medium = 20
+game_state_hard = 40
 
-board_width = 70
-board_height = 30
+board_width = getMaxXCoord
+board_height = getMaxYCoord
 board_wall_size = 1
 
-roundsToEndGame = 12
-waitingTime = 40000
-interval_to_update_bots = (2 * waitingTime)
-interval_to_increase_board_wall_size = (5 * waitingTime)
+roundsToEndGame = (getMaxYCoord `div` 2) - 2
+waitingTime = 20000
+interval_to_update_bots = (3 * waitingTime)
+interval_to_increase_board_wall_size = (10 * waitingTime)
 
 getNewTmpBots :: Int -> [Player] -> [Player]
 getNewTmpBots time bots = if (time >= interval_to_update_bots) then getNewBotsState bots board_wall_size else bots
@@ -128,7 +129,7 @@ runMenu state = do
     checkUserAction userAction
     showScreen state userAction
     let newState = nextState state userAction
-    if newState < game_state_easy then runMenu newState
+    if newState /= game_state_easy && newState /= game_state_medium && newState /= game_state_hard then runMenu newState
     else runGame 0 0 (createPlayers newState) board_wall_size
 
 main :: IO()

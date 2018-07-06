@@ -19,7 +19,7 @@ module Players (
     getBotInBoardCell
 ) where 
 
-import Util (getRandomInteger)
+import Util
 
 data Player = Player {
     xPosition :: Int, 
@@ -30,9 +30,9 @@ data Player = Player {
 
 -- It returns a player.
 xMin = 0
-xMax = 30
+xMax = getMaxYCoord
 yMin = 0
-yMax = 70
+yMax = getMaxXCoord
 buildPlayer :: Int -> Player
 buildPlayer id = newPlayer
                 where 
@@ -80,7 +80,7 @@ newBotPosition (xPos, yPos) = (xPos + getRandomInteger botMovementRange, yPos + 
 updateBotsPosition :: [Player] -> [Player]
 updateBotsPosition [] = []
 updateBotsPosition (headBot:bots) =  if isAlive headBot then 
-                                        if checkSafeByViewPosition bots newPos then -- TODO(Paulo): Inserts here a call to check if the bot collides with the boards.
+                                        if checkSafeByViewPosition bots newPos then
                                             Player (fst newPos) (snd newPos) (identifier headBot) True : updateBotsPosition bots
                                         else
                                             updateBotsPosition (headBot:bots) -- try again with a newPos.
