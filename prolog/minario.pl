@@ -16,6 +16,13 @@ getIntroText(1,
 \n\n\t\t\tPressione [Esc] a qualquer momento para fechar o jogo
 \n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////').
 
+getTutorialText('\n\t/////////////////////////////////\t Instruções \t/////////////////////////////////
+\n\n\t\t\t\t\t\tObjetivo:
+\n\n\t\tSobreviva o máximo de tempo sem bater nos limites do tabuleiro ou em outros jogadores.
+\n\n\t\t\t\t\t\tComandos:
+\n\n\t\t\t\tUtilize [W, A, S, D] para se movimentar
+\n\n\n\t\t\t\t> Voltar').
+
 /*	W 		A 		S 		D 	 ENTER		ESC 	*/
 /* 119 		97 	   115	   100 	  13 	 	 27		*/
 
@@ -23,15 +30,26 @@ getInputIntro(119,0).
 getInputIntro(115,1).
 getInputIntro(13,2).
 
+tutorial() :- 
+	getTutorialText(TutorialText),
+	write(TutorialText),nl,
+	get_single_char(Input),
+	introduction(0).
+
+
 introduction(SelectedText) :-
-	(SelectedText = 0 ; SelectedText = 1) ->	
-		getIntroText(SelectedText,IntroductionText),
-		write(IntroductionText),nl,
-		get_single_char(Input),
-		getInputIntro(Input,InputIntro),
+	getIntroText(SelectedText,IntroductionText),
+	write(IntroductionText),nl,
+	get_single_char(Input),
+	getInputIntro(Input,InputIntro),
+	(( not(InputIntro = 2) ) ->
 		introduction(InputIntro)
-	; true.
- 
+	;
+		(SelectedText = 0 ->
+			true
+		; SelectedText = 1 ->
+			tutorial())).
+	
 
 gameLoop(State) :-
 	get_single_char(Input),
