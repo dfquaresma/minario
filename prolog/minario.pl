@@ -1,18 +1,18 @@
-introText(0,
+getIntroText(0,
 '\n\t/////////////////////////////////\t Minário \t/////////////////////////////////
 \n\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henriques, Thomaz Diniz
 \t\t\t\t\t> Começar o jogo
-\n\n\t\t\t\t\t  Instruções
-\n\n\t\t\tPressione [E] para selecionar a opção
+\n\n\t\t\t\t\t Instruções
+\n\n\t\t\tPressione [ENTER] para selecionar a opção
 \n\n\t\t\tPressione [Esc] a qualquer momento para fechar o jogo
 \n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////').
 
-introText(1,
+getIntroText(1,
 '\n\t/////////////////////////////////\t Minário \t/////////////////////////////////
 \n\t\tAmanda Luna, David Ferreira, Paulo Feitosa, Renato Henriques, Thomaz Diniz
-\t\t\t\t\t 		Começar o jogo
+\t\t\t\t\t Começar o jogo
 \n\n\t\t\t\t\t >Instruções
-\n\n\t\t\tPressione [E] para selecionar a opção
+\n\n\t\t\tPressione [ENTER] para selecionar a opção
 \n\n\t\t\tPressione [Esc] a qualquer momento para fechar o jogo
 \n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////').
 
@@ -25,11 +25,11 @@ getInputIntro(13,2).
 
 introduction(SelectedText) :-
 	(SelectedText = 0 ; SelectedText = 1) ->	
-		textoIntro(SelectedText,IntroductionText),
+		getIntroText(SelectedText,IntroductionText),
 		write(IntroductionText),nl,
 		get_single_char(Input),
 		getInputIntro(Input,InputIntro),
-		introducao(InputIntro)
+		introduction(InputIntro)
 	; true.
  
 
