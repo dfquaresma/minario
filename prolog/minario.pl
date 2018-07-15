@@ -45,7 +45,6 @@ introduction(SelectedText) :-
 		getIntroText(SelectedText,IntroductionText),
 		write(IntroductionText),nl,
 		get_single_char(Input),
-		write(Input),nl,
 		getInputIntro(Input,InputIntro),
 		(( not(InputIntro = 2)  ) ->
 			introduction(InputIntro)
