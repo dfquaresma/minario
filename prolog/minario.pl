@@ -29,6 +29,7 @@ getTutorialText('\n\t/////////////////////////////////\t Instruções \t////////
 getInputIntro(119,0).
 getInputIntro(115,1).
 getInputIntro(13,2).
+getInputIntro(27,3).
 
 tutorial() :- 
 	getTutorialText(TutorialText),
@@ -38,17 +39,21 @@ tutorial() :-
 
 
 introduction(SelectedText) :-
-	getIntroText(SelectedText,IntroductionText),
-	write(IntroductionText),nl,
-	get_single_char(Input),
-	getInputIntro(Input,InputIntro),
-	(( not(InputIntro = 2) ) ->
-		introduction(InputIntro)
+	(SelectedText = 3 -> 
+		halt(0)
 	;
-		(SelectedText = 0 ->
-			true
-		; SelectedText = 1 ->
-			tutorial())).
+		getIntroText(SelectedText,IntroductionText),
+		write(IntroductionText),nl,
+		get_single_char(Input),
+		write(Input),nl,
+		getInputIntro(Input,InputIntro),
+		(( not(InputIntro = 2)  ) ->
+			introduction(InputIntro)
+		;
+			(SelectedText = 0 ->
+				true
+			; SelectedText = 1 ->
+				tutorial()))).
 	
 
 gameLoop(State) :-
