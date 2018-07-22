@@ -106,4 +106,4 @@ main :-
 	introduction(0),
 	gameSetup(),
 	halt(0).
-	
+
