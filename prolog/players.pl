@@ -68,13 +68,3 @@ updateBotsPosition(N) :-
     assertz(player(N, NewX, NewY)),
     NewN is N - 1,
     updateBotsPosition(NewN).
-    
-
-
-
-
-
-
-
-
-
