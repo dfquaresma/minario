@@ -13,6 +13,7 @@ getInputIntro(27,3).
 
 tutorial() :- 
 	getTutorialText(TutorialText),
+	shell("clear"),
 	writeln(TutorialText),
 	get_single_char(_),
 	introduction(0).
@@ -22,6 +23,7 @@ introduction(SelectedText) :-
 		halt(0)
 	;
 		getIntroText(SelectedText,IntroductionText),
+		shell("clear"),
 		writeln(IntroductionText),
 		get_single_char(Input),
 		getInputIntro(Input,InputIntro),
@@ -48,6 +50,7 @@ getUserAction() :-
 	applyUserAction(UserAction).
 
 updateGameScreen() :-
+	shell("clear"),
 	drawGameBoard(), 
 	getNumberOfPlayers(PlayersAlive),  
 	write("Players alive: "), writeln(PlayersAlive),
@@ -60,11 +63,12 @@ updateGameScreen() :-
 applyUserAction(27) :- 
 	retract(quitGame(0)), 
 	asserta(quitGame(1)),
+	shell("clear"),
 	writeln("Leaving Game...").
 applyUserAction(UserAction) :-
 	isPlayerAlive() -> (movement(UserAction, XVar, YVar),
 		updatePlayerPosition(XVar, YVar),
-		updateGameScreen(), 
+		updateGameScreen(),
 		getUserAction();
 		getUserAction()
 	);
