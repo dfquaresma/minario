@@ -6,9 +6,7 @@
 	isCollidingWithBoard/2
 	]
 ).
-:- use_module(players).
-
-wallSize(1).
+/*:- use_module(players, [isPlayerPosition/2, isBotPosition/2]).*/
 
 deleteWallSize(W) :- 
 	retract(wallSize(W)).
@@ -18,15 +16,15 @@ setWallSize(W) :-
 
 isCollidingWithBoard(X, Y) :- 
 	wallSize(W) -> (
-		X =< W; 
-		X >= (70 - W);
-		Y =< W; 
-		Y >= (30 - W)
+		X =< (W); 
+		X >= (40 - W);
+		Y =< (W); 
+		Y >= (20 - W)
 	).
 
 drawGameBoard() :-
 	wallSize(W),
-	drawBoard(70, 30, 0, W).
+	drawBoard(40, 20, 0, W).
 
 drawBoard(Width,Height,Row,WallSize) :-
 	Row < Height,
