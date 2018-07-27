@@ -20,9 +20,9 @@
 
 
 /* XMin, XMax */
-xLimits(2, 23). 
+xLimits(2, 18). 
 /* YMin, YMax */
-yLimits(2, 48). 
+yLimits(2, 38). 
 
 buildPlayer() :- 
     xLimits(XMin, XMax), random_between(XMin, XMax, XCoord),

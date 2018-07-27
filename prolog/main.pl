@@ -121,7 +121,7 @@ gameSetup() :-
 	buildPlayer(),
 	buildBots(29), 
 	thread_create(getUserAction(), UserThreadId),
-	thread_create(boardReduction(10, 0), BoardThreadId),
+	thread_create(boardReduction(8, 0), BoardThreadId),
 	gameLoop(),
 	thread_join(UserThreadId),
 	thread_join(BoardThreadId),

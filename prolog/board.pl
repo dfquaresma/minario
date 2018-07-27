@@ -21,14 +21,14 @@ getWallSize(W) :-
 isCollidingWithBoard(X, Y) :- 
 	wallSize(W) -> (
 		X =< (W); 
-		X >= (25 - W);
+		X >= (20 - W);
 		Y =< (W); 
-		Y >= (50 - W)
+		Y >= (40 - W)
 	).
 
 drawGameBoard() :-
 	wallSize(W),
-	drawBoard(50, 25, 0, W).
+	drawBoard(40, 20, 0, W).
 
 drawBoard(Width,Height,Row,WallSize) :-
 	Row =< Height,
