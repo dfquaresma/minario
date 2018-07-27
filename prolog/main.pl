@@ -51,9 +51,9 @@ updateGameScreen() :-
 	isPlayerAlive(), 
 	getPlayerPosition(X, Y), 
 	write("Player X:"), 
-	write(X), 
+	write(Y), 
 	write(" Y:"), 
-	writeln(Y); 
+	writeln(X); 
 	writeln("PLAYER DEAD!")
 	),
 	write("REDUCTION ROUND:"), getWallSize(W), writeln(W).
