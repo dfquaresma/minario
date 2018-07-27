@@ -18,10 +18,11 @@
 
 :- dynamic player/3.
 
+
 /* XMin, XMax */
-xLimits(5, 40). 
+xLimits(2, 23). 
 /* YMin, YMax */
-yLimits(5, 20). 
+yLimits(2, 48). 
 
 buildPlayer() :- 
     xLimits(XMin, XMax), random_between(XMin, XMax, XCoord),

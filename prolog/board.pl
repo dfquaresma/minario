@@ -3,6 +3,7 @@
     [drawGameBoard/0,
 	deleteWallSize/1,
 	setWallSize/1,
+	getWallSize/1,
 	isCollidingWithBoard/2
 	]
 ).
@@ -14,12 +15,15 @@ deleteWallSize(W) :-
 setWallSize(W) :- 
 	assertz(wallSize(W)).
 
+getWallSize(W) :- 
+	wallSize(W).
+
 isCollidingWithBoard(X, Y) :- 
 	wallSize(W) -> (
 		X =< (W); 
-		X >= (50 - W);
+		X >= (25 - W);
 		Y =< (W); 
-		Y >= (25 - W)
+		Y >= (50 - W)
 	).
 
 drawGameBoard() :-
@@ -42,7 +46,7 @@ drawRow(Width,Height,Row,Col,WallSize) :-
 		true.
 
 drawPosition(Width,Height,Row,Col,WallSize) :-
-	isPlayerPosition(Row,Col),
+	isPlayerPosition(Row,Col), 
 		write('O')
 	; isBotPosition(Row,Col),
 		write('X')

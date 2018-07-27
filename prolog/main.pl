@@ -46,7 +46,17 @@ updateGameScreen() :-
 	clearScreen(),
 	drawGameBoard(), 
 	getNumberOfPlayers(PlayersAlive),  
-	write("Players alive: "), writeln(PlayersAlive).
+	write("Players alive: "), writeln(PlayersAlive),
+	(
+	isPlayerAlive(), 
+	getPlayerPosition(X, Y), 
+	write("Player X:"), 
+	write(X), 
+	write(" Y:"), 
+	writeln(Y); 
+	writeln("PLAYER DEAD!")
+	),
+	write("REDUCTION ROUND:"), getWallSize(W), writeln(W).
 
 getUserAction() :- 
 	endGame(1).
@@ -61,6 +71,7 @@ applyUserAction(UserAction) :-
 	isPlayerAlive(),	
 	updatePlayerPosition(XVar, YVar),
 	updateGameScreen();
+	endGame(0),
 	retract(endGame(0)), 
 	asserta(endGame(1))
 	),
@@ -89,17 +100,20 @@ boardReduction(N, W) :-
 	boardReduction(NewN, NewW).
 
 gameLoop() :- 
-	endGame(1),
-	(
-	isPlayerAlive(), 
-	writeln("YOU SURVIVE!"); 
-	writeln("YOU LOSE!")
-	);
-	endGame(0),
+	endGame(1);
+	endGame(0),	
+	killPlayersColliding(0, 0),
 	updateGameScreen(),
-	sleep(0.5),
-	updateBotsPosition(30), 
-	gameLoop().
+	sleep(0.5), 
+	(
+	isPlayerAlive(),
+	updateBotsPosition(30),
+	gameLoop();	
+	endGame(0),
+	retract(endGame(0)), 
+	asserta(endGame(1));
+	gameLoop()
+	).
 
 gameSetup() :-
 	asserta(endGame(0)),
@@ -110,7 +124,12 @@ gameSetup() :-
 	thread_create(boardReduction(10, 0), BoardThreadId),
 	gameLoop(),
 	thread_join(UserThreadId),
-	thread_join(BoardThreadId).
+	thread_join(BoardThreadId),
+	(
+	isPlayerAlive(), 
+	writeln("YOU SURVIVE!"); 
+	writeln("YOU LOSE!")
+	).
 
 clearScreen() :-
 	shell("clear"),
