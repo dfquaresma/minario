@@ -35,7 +35,6 @@ introduction(SelectedText) :-
 			; SelectedText = 1 ->
 				tutorial()))).
 
-:- dynamic quitGame/2.
 :- dynamic endGame/2.
 
 movement(119, -1, 0).
@@ -43,65 +42,72 @@ movement(115, 1, 0).
 movement(100, 0, 1).
 movement(97, 0, -1).
 
-getUserAction() :- 
-	endGame(1);
-	endGame(0),
-	get_single_char(UserAction),
-	applyUserAction(UserAction).
-
 updateGameScreen() :-
 	clearScreen(),
 	drawGameBoard(), 
 	getNumberOfPlayers(PlayersAlive),  
-	write("Players alive: "), writeln(PlayersAlive),
-	write("Player lives? "),
-	isPlayerAlive() -> (
-		writeln("YES!")
-	);
-	writeln("YES!").
+	write("Players alive: "), writeln(PlayersAlive).
+
+getUserAction() :- 
+	endGame(1).
+getUserAction() :-
+	endGame(0),
+	get_single_char(UserAction),
+	applyUserAction(UserAction).
+
+applyUserAction(UserAction) :-
+	movement(UserAction, XVar, YVar),
+	(
+	isPlayerAlive(),	
+	updatePlayerPosition(XVar, YVar),
+	updateGameScreen();
+	retract(endGame(0)), 
+	asserta(endGame(1))
+	),
+	getUserAction().
 
 applyUserAction(27) :- 
-	retract(quitGame(0)), 
-	asserta(quitGame(1)),
-	clearScreen(),
+	retract(endGame(0)), 
+	asserta(endGame(1)),
 	writeln("Leaving Game...").
-applyUserAction(UserAction) :-
-	isPlayerAlive() -> (movement(UserAction, XVar, YVar),
-		updatePlayerPosition(XVar, YVar),
-		updateGameScreen(),
-		getUserAction();
-		getUserAction()
-	);
-	retract(quitGame(0)), 
-	asserta(quitGame(1)).
 
-boardReduction(0, _) :- 
+applyUserAction(_) :- getUserAction().
+
+boardReduction(0, _) :-
+	endGame(1); 
+	endGame(0),
 	retract(endGame(0)), 
 	asserta(endGame(1)).
 boardReduction(N, W) :-
-	sleep(1.4),
+	endGame(1);
+	endGame(0),
+	sleep(1),
 	deleteWallSize(W), 
 	NewW is W + 1,
-	setWallSize(NewW), 
-	updateGameScreen(),
+	setWallSize(NewW),
 	NewN is N - 1,
 	boardReduction(NewN, NewW).
 
 gameLoop() :- 
-	endGame(1);
+	endGame(1),
+	(
+	isPlayerAlive(), 
+	writeln("YOU SURVIVE!"); 
+	writeln("YOU LOSE!")
+	);
 	endGame(0),
-	updateGameScreen(), 
-	sleep(0.2),
+	updateGameScreen(),
+	sleep(0.5),
 	updateBotsPosition(30), 
 	gameLoop().
 
 gameSetup() :-
 	asserta(endGame(0)),
 	setWallSize(0), 
-	thread_create(getUserAction(), UserThreadId),
-	thread_create(boardReduction(5, 0), BoardThreadId),
 	buildPlayer(),
 	buildBots(29), 
+	thread_create(getUserAction(), UserThreadId),
+	thread_create(boardReduction(10, 0), BoardThreadId),
 	gameLoop(),
 	thread_join(UserThreadId),
 	thread_join(BoardThreadId).

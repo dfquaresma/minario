@@ -2,7 +2,7 @@
     'players', 
     [buildPlayer/0,
      buildBots/1,
-     killPlayersColliding/3,
+     killPlayersColliding/2,
      updateBotsPosition/1,
      updatePlayerPosition/2,
      isPlayerPosition/2,
@@ -14,25 +14,28 @@
     ]
 ). 
 :- use_module(board).
+:- use_module(library(random)).
+
+:- dynamic player/3.
 
 /* XMin, XMax */
-xLimits(0, 40). 
+xLimits(5, 40). 
 /* YMin, YMax */
-yLimits(0, 20). 
+yLimits(5, 20). 
 
 buildPlayer() :- 
     xLimits(XMin, XMax), random_between(XMin, XMax, XCoord),
     yLimits(YMin, YMax), random_between(YMin, YMax, YCoord),
-    assertz(player(1, XCoord, YCoord)).
+    asserta(player(1, XCoord, YCoord)).
 
 buildBots(1).
 buildBots(Size) :-
     (Size > 0) -> (
         xLimits(XMin, XMax), random_between(XMin, XMax, XCoord),
         yLimits(YMin, YMax), random_between(YMin, YMax, YCoord),
-        assertz(player(Size, XCoord, YCoord)),
-        aggregate_all(count, player(_, XCoord, YCoord), CountBotsHere), 
-        (CountBotsHere >= 2) -> (
+        asserta(player(Size, XCoord, YCoord)),
+        aggregate_all(count, player(_, XCoord, YCoord), BotsHere), 
+        (BotsHere >= 2) -> (
             retract(player(Size, _, _)),
             buildBots(Size)    
         ); 
@@ -44,37 +47,33 @@ getNumberOfPlayers(Count) :-
     aggregate_all(count, player(_, _, _), Count).
 
 /* X start, Y start, number of facts killed.*/
-killPlayersColliding(80, 41, 0). 
-killPlayersColliding(X, 41, Kills) :- 
+killPlayersColliding(100, 50). 
+killPlayersColliding(X, 50) :- 
     XAux is X + 1, 
-    killPlayersColliding(XAux, 0, Kills).
-killPlayersColliding(X, Y, Kills) :- 
-    isCollidingWithBoard(X, Y) -> (
-        aggregate_all(count, player(_, X, Y), CountBoardCollision), 
+    killPlayersColliding(XAux, 0).
+killPlayersColliding(X, Y) :- 
+    isCollidingWithBoard(X, Y),
+    retractall(player(_, X, Y)), 
+    YNew is Y + 1,
+    killPlayersColliding(X, YNew);
+
+    aggregate_all(count, player(_, X, Y), PlayersAtSamePosition), 
+    (PlayersAtSamePosition > 1) -> (
         retractall(player(_, X, Y)), 
         YNew is Y + 1,
-        killPlayersColliding(X, YNew, KillsAux),
-        Kills is KillsAux + CountBoardCollision
-    );
-    aggregate_all(count, player(_, X, Y), CountPlayerAtSamePosition), 
-    /* TODO(). Adding isCollidingWithBoard(X, Y) below, kill also players colliding with board.(Still with bugs)*/
-    (CountPlayerAtSamePosition > 1) -> (
-        retractall(player(_, X, Y)), 
-        YNew is Y + 1,
-        killPlayersColliding(X, YNew, KillsAux),
-        Kills is KillsAux + CountPlayerAtSamePosition
+        killPlayersColliding(X, YNew)
     ); 
     YNew is Y + 1,
-    killPlayersColliding(X, YNew, Kills).
+    killPlayersColliding(X, YNew).
 
 updateBotsPosition(1) :- 
-    killPlayersColliding(0, 0, _).
+    killPlayersColliding(0, 0).
 updateBotsPosition(N) :- 
     player(N, X, Y) -> (
         random_between(-1, 1, XVar), random_between(-1, 1, YVar), 
         NewX is X + XVar, NewY is Y + YVar,
-        retract(player(N, _, _)),
-        assertz(player(N, NewX, NewY)),
+        retract(player(N, X, Y)),
+        asserta(player(N, NewX, NewY)),
         NewNBotExist is N - 1,
         updateBotsPosition(NewNBotExist)
     );
@@ -85,9 +84,9 @@ updatePlayerPosition(XVar, YVar) :-
     player(1, X, Y) -> (
 	    NewX is (X + XVar),
 	    NewY is (Y + YVar),
-	    retract(player(1, _, _)),
-	    assertz(player(1, NewX, NewY)),
-        killPlayersColliding(0, 0, _)
+	    retract(player(1, X, Y)),
+	    asserta(player(1, NewX, NewY)),
+        killPlayersColliding(0, 0)
     ).
 
 isBotPosition(Row, Col) :-

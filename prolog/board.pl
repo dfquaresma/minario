@@ -17,24 +17,24 @@ setWallSize(W) :-
 isCollidingWithBoard(X, Y) :- 
 	wallSize(W) -> (
 		X =< (W); 
-		X >= (40 - W);
+		X >= (50 - W);
 		Y =< (W); 
-		Y >= (20 - W)
+		Y >= (25 - W)
 	).
 
 drawGameBoard() :-
 	wallSize(W),
-	drawBoard(40, 20, 0, W).
+	drawBoard(50, 25, 0, W).
 
 drawBoard(Width,Height,Row,WallSize) :-
-	Row < Height,
+	Row =< Height,
 		drawRow(Width,Height,Row,0,WallSize),nl,
 		NewRow is (Row + 1),
 		drawBoard(Width,Height,NewRow,WallSize)
 	;	true.
 
 drawRow(Width,Height,Row,Col,WallSize) :-
-	Col < Width,
+	Col =< Width,
 		drawPosition(Width,Height,Row,Col,WallSize),
 		NewCol is (Col + 1),
 		drawRow(Width,Height,Row,NewCol,WallSize)
@@ -53,11 +53,11 @@ drawPosition(Width,Height,Row,Col,WallSize) :-
 isWallPosition(Width,Height,Row,Col,WallSize) :-
 	Row =< WallSize,
 		true
-	; Row >= (Height - (WallSize + 1) ),
+	; Row >= (Height - (WallSize) ),
 		true
 	; Col =< WallSize,
 		true
-	; Col >= (Width - (WallSize + 1) ),
+	; Col >= (Width - (WallSize) ),
 		true
 	;
 		false.
