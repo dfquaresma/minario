@@ -1,5 +1,6 @@
 :- use_module(display).
 :- use_module(players).
+:- use_module(board).
 :- initialization (main).
 
 /*	W 		A 		S 		D 	 ENTER		ESC 	*/
@@ -12,6 +13,7 @@ getInputIntro(27,3).
 
 tutorial() :- 
 	getTutorialText(TutorialText),
+	clearScreen(),
 	writeln(TutorialText),
 	get_single_char(_),
 	introduction(0).
@@ -21,6 +23,7 @@ introduction(SelectedText) :-
 		halt(0)
 	;
 		getIntroText(SelectedText,IntroductionText),
+		clearScreen(),
 		writeln(IntroductionText),
 		get_single_char(Input),
 		getInputIntro(Input,InputIntro),
@@ -32,8 +35,6 @@ introduction(SelectedText) :-
 			; SelectedText = 1 ->
 				tutorial()))).
 
-:- dynamic playerPosition/2.
-:- dynamic quitGame/2.
 :- dynamic endGame/2.
 
 movement(119, -1, 0).
@@ -41,46 +42,100 @@ movement(115, 1, 0).
 movement(100, 0, 1).
 movement(97, 0, -1).
 
-getUserAction() :- endGame(1).
+updateGameScreen() :-
+	clearScreen(),
+	drawGameBoard(), 
+	getNumberOfPlayers(PlayersAlive),  
+	write("Players alive: "), writeln(PlayersAlive),
+	(
+	isPlayerAlive(), 
+	getPlayerPosition(X, Y), 
+	write("Player X:"), 
+	write(Y), 
+	write(" Y:"), 
+	writeln(X); 
+	writeln("PLAYER DEAD!")
+	),
+	write("REDUCTION ROUND:"), getWallSize(W), writeln(W).
+
+getUserAction() :- 
+	endGame(1).
 getUserAction() :-
 	endGame(0),
 	get_single_char(UserAction),
 	applyUserAction(UserAction).
 
 applyUserAction(UserAction) :-
-	playerPosition(X, Y),
-	movement(UserAction, MovX, MovY),
-	NewX is (X + MovX),
-	NewY is (Y + MovY),
-	retract(playerPosition(X, Y)),
-	asserta(playerPosition(NewX, NewY)),
+	movement(UserAction, XVar, YVar),
+	(
+	isPlayerAlive(),	
+	updatePlayerPosition(XVar, YVar),
+	updateGameScreen();
+	endGame(0),
+	retract(endGame(0)), 
+	asserta(endGame(1))
+	),
 	getUserAction().
 
 applyUserAction(27) :- 
-	retract(quitGame(0)), 
-	asserta(quitGame(1)),
+	retract(endGame(0)), 
+	asserta(endGame(1)),
 	writeln("Leaving Game...").
 
 applyUserAction(_) :- getUserAction().
 
+boardReduction(0, _) :-
+	endGame(1); 
+	endGame(0),
+	retract(endGame(0)), 
+	asserta(endGame(1)).
+boardReduction(N, W) :-
+	endGame(1);
+	endGame(0),
+	sleep(1),
+	deleteWallSize(W), 
+	NewW is W + 1,
+	setWallSize(NewW),
+	NewN is N - 1,
+	boardReduction(NewN, NewW).
+
+gameLoop() :- 
+	endGame(1);
+	endGame(0),	
+	killPlayersColliding(0, 0),
+	updateGameScreen(),
+	sleep(0.5), 
+	(
+	isPlayerAlive(),
+	updateBotsPosition(30),
+	gameLoop();	
+	endGame(0),
+	retract(endGame(0)), 
+	asserta(endGame(1));
+	gameLoop()
+	).
+
 gameSetup() :-
 	asserta(endGame(0)),
-	asserta(playerPosition(0, 0)),
+	setWallSize(0), 
+	buildPlayer(),
+	buildBots(29), 
 	thread_create(getUserAction(), UserThreadId),
-	gameLoop("Any"),
-	thread_join(UserThreadId).
+	thread_create(boardReduction(8, 0), BoardThreadId),
+	gameLoop(),
+	thread_join(UserThreadId),
+	thread_join(BoardThreadId),
+	(
+	isPlayerAlive(), 
+	writeln("YOU SURVIVE!"); 
+	writeln("YOU LOSE!")
+	).
 
-gameLoop(State) :- quitGame(1).
-gameLoop(State) :-
-	quitGame(0),
-	sleep(1),
-	playerPosition(X, Y),
-	write(X), write(" "), writeln(Y),
-	gameLoop(State).
+clearScreen() :-
+	shell("clear"),
+	true.
 
 main :-
-	asserta(quitGame(0)),
 	introduction(0),
 	gameSetup(),
 	halt(0).
-

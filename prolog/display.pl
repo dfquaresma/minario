@@ -1,6 +1,7 @@
 :- module(
     'display', 
-    [getIntroText/2]
+    [getIntroText/2,
+    getTutorialText/1]
 ).
 
 
@@ -22,7 +23,6 @@ getIntroText(1,
 \n\n\t\t\tPressione [ENTER] para selecionar a opção
 \n\n\t\t\tPressione [Esc] a qualquer momento para fechar o jogo
 \n\n\n\t///////////////////////////////////////////////////////////////////////////////////////////').
-
 
 getTutorialText('\n\t/////////////////////////////////\t Instruções \t/////////////////////////////////
 \n\n\t\t\t\t\t\tObjetivo:
