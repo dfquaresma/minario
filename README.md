@@ -12,6 +12,7 @@ The main objective is survive till the game board reduce twelve times.
 ## Technologies
 * C
 * Haskell
+* Prolog
 
 ## Developed by:
 * [Amanda Luna](https://github.com/avdLuna)
