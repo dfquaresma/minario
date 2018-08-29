@@ -10,7 +10,8 @@
      getBotPosition/3,
      getPlayerPosition/2,
      getNumberOfPlayers/1,
-     isPlayerAlive/0
+     isPlayerAlive/0,
+     isADeadBody/2
     ]
 ). 
 :- use_module(board).
@@ -54,13 +55,15 @@ killPlayersColliding(X, 50) :-
     killPlayersColliding(XAux, 0).
 killPlayersColliding(X, Y) :- 
     isCollidingWithBoard(X, Y),
-    retractall(player(_, X, Y)), 
+    retractall(player(_, X, Y)),
+    asserta(deadBody(X, Y)),
     YNew is Y + 1,
     killPlayersColliding(X, YNew);
 
     aggregate_all(count, player(_, X, Y), PlayersAtSamePosition), 
     (PlayersAtSamePosition > 1) -> (
         retractall(player(_, X, Y)), 
+        asserta(deadBody(X, Y)),
         YNew is Y + 1,
         killPlayersColliding(X, YNew)
     ); 
@@ -97,6 +100,9 @@ isBotPosition(Row, Col) :-
 isPlayerPosition(Row, Col) :-
     player(Id, Row, Col),
     Id =:= 1.
+
+isADeadBody(Row, Col) :-
+    deadBody(Row, Col).
 
 getBotPosition(Id, XPos, YPos) :-
     player(Id, XPos, YPos).

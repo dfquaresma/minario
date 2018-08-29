@@ -7,7 +7,7 @@
 	isCollidingWithBoard/2
 	]
 ).
-/*:- use_module(players, [isPlayerPosition/2, isBotPosition/2]).*/
+:- use_module(players, [isPlayerPosition/2, isBotPosition/2, isADeadBody/2]).
 
 deleteWallSize(W) :- 
 	retract(wallSize(W)).
@@ -46,13 +46,15 @@ drawRow(Width,Height,Row,Col,WallSize) :-
 		true.
 
 drawPosition(Width,Height,Row,Col,WallSize) :-
-	isPlayerPosition(Row,Col), 
+	isADeadBody(Row,Col),
+		write('=')
+	; isWallPosition(Width,Height,Row,Col,WallSize),
+		write('#')
+	; isPlayerPosition(Row,Col),
 		write('O')
 	; isBotPosition(Row,Col),
 		write('X')
-	; isWallPosition(Width,Height,Row,Col,WallSize),
-		write('#')
-	;	write(' ').
+	; 	write(' ').
 
 isWallPosition(Width,Height,Row,Col,WallSize) :-
 	Row =< WallSize,
